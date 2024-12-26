@@ -45,7 +45,15 @@ def parse_opt():
 
 
 args = parse_opt()
-device = torch.device('cuda')
+
+device = torch.device('cpu')
+
+if torch.cuda.is_available():
+    device = torch.device('cuda')
+elif torch.backends.mps.is_available():
+    device = torch.device('mps')
+
+
 
 if not os.path.exists(args.output_dir):
     os.mkdir(args.output_dir)
@@ -147,10 +155,10 @@ def evaluate(val_dataloader, encoder_stat, encoder_prog):
                     inp = None
                     r = None
                 if i not in mapping:
-                    mapping[i] = [s, numpy.asscalar(p), numpy.asscalar(t), inp, r]
+                    mapping[i] = [s, p.item(), t.item(), inp, r]
                 else:
                     if s > mapping[i][0]:
-                        mapping[i] = [s, numpy.asscalar(p), numpy.asscalar(t), inp, r]
+                        mapping[i] = [s, p.item(), t.item(), inp, r]
         else:
             factor = 2
             for i, s, p, t in zip(index, similarity, pred_lab, true_lab):
@@ -201,8 +209,8 @@ def evaluate(val_dataloader, encoder_stat, encoder_prog):
 
 
 if args.resume:
-    encoder_stat.load_state_dict(torch.load(args.output_dir + "encoder_stat_{}.pt".format(args.id)))
-    encoder_prog.load_state_dict(torch.load(args.output_dir + "encoder_prog_{}.pt".format(args.id)))
+    encoder_stat.load_state_dict(torch.load(args.output_dir + "encoder_stat_{}.pt".format(args.id), map_location=device))
+    encoder_prog.load_state_dict(torch.load(args.output_dir + "encoder_prog_{}.pt".format(args.id), map_location=device))
     #classifier.load_state_dict(torch.load(args.output_dir + "classifier.pt"))
     print("Reloading saved model {}".format(args.output_dir))
 
