@@ -5,6 +5,7 @@ import numpy as np
 import random
 from packaging import version
 import torch
+import math
 
 def linear_act(x):
     return x
@@ -176,7 +177,9 @@ class ContextPooler(nn.Module):
 class ModelDefine(nn.Module):
     def __init__(self, model_args):
         super(ModelDefine, self).__init__()
-        self.deberta = DebertaV2Model.from_pretrained(model_args.model_path)
+        # self.deberta = DebertaV2Model.from_pretrained(model_args.model_path)
+        state_dict = torch.load(model_args.model_path, map_location="cuda", weigthts_only=True)
+        self.deberta = DebertaV2Model.from_pretrained(pretrained_model_name_or_path=None, state_dict=state_dict)
         self.config = self.deberta.config
         num_labels = getattr(self.config, "num_labels", 2)
         self.num_labels = num_labels
