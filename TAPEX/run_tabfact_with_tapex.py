@@ -203,13 +203,13 @@ def main():
     )
 
     log_level = training_args.get_process_log_level()
-    logger.setLevel(log_level)
+    logger.setLevel(logging.DEBUG)
     datasets.utils.logging.set_verbosity(log_level)
     transformers.utils.logging.set_verbosity(log_level)
     transformers.utils.logging.enable_default_handler()
     transformers.utils.logging.enable_explicit_format()
 
-
+    training_args.local_rank = -1
     # Log on each process the small summary:
     logger.warning(
         f"Process rank: {training_args.local_rank}, device: {training_args.device}, n_gpu: {training_args.n_gpu}"
@@ -397,6 +397,7 @@ def main():
         data_collator = None
 
     # Initialize our Trainer
+    print("Final local_rank:", training_args.local_rank)
     trainer = Trainer(
         model=model,
         args=training_args,
