@@ -6,6 +6,7 @@ import logging
 from typing import List, Dict, Any, Optional
 from functools import lru_cache
 import argparse
+import numpy as np
 
 import pandas as pd
 from tqdm import tqdm
@@ -393,26 +394,29 @@ def test_model_on_claims(
     all_csv_folder: str = "data/all_csv/",
     learning_type: str = "zero_shot",
     format_type: str = "naturalized",
+    checkpoint_file: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     """
     Test the model on the first N claims or all claims from full_cleaned.json.
-
-    Args:
-        model (OllamaLLM): LLM model instance.
-        full_cleaned_data (Dict[str, Any]): Data from full_cleaned.json.
-        test_all (bool, optional): Whether to test all claims. Defaults to False.
-        N (int, optional): Number of claims to test if test_all is False. Defaults to 10.
-        all_csv_folder (str, optional): Path to the folder containing CSV tables. Defaults to "data/all_csv/".
-        learning_type (str, optional): Type of prompt engineering. Defaults to "zero_shot".
-        format_type (str, optional): "markdown" or "naturalized". Defaults to "naturalized".
-
-    Returns:
-        List[Dict[str, Any]]: List of result dictionaries containing predictions and true labels.
+    With checkpoint logic to resume partial progress.
     """
+    # ---------------------
+    # 1) Load existing checkpoint data if any
+    # ---------------------
+    completed_keys = set()
+    checkpoint_results = []
+    if checkpoint_file and os.path.exists(checkpoint_file):
+        logging.info(f"Loading existing checkpoint from {checkpoint_file}")
+        with open(checkpoint_file, "r") as f:
+            checkpoint_results = json.load(f)
+        # Build a set of (table_id, claim) that are done
+        for row in checkpoint_results:
+            completed_keys.add((row["table_id"], row["claim"]))
+
     results = []
     keys = list(full_cleaned_data.keys())
     limit = len(keys) if test_all else min(N, len(keys))
-    logging.info(f"Testing {limit} tables out of {len(keys)}.")
+    logging.info(f"Testing {limit} tables out of {len(keys)} with checkpoint logic. Learning type: {learning_type}")
 
     for i in tqdm(range(limit), desc="Processing tables"):
         table_id = keys[i]
@@ -420,26 +424,52 @@ def test_model_on_claims(
         labels = full_cleaned_data[table_id][1]
 
         for idx, claim in enumerate(claims):
-            prompt = generate_prompt(table_id, claim, all_csv_folder, learning_type, format_type)
-            if prompt is None:
-                logging.warning(f"Prompt generation failed for table {table_id}, claim '{claim}'. Skipping.")
+            # ---------------------
+            # 2) Skip if already in checkpoint
+            # ---------------------
+            if (table_id, claim) in completed_keys:
+                # Already done, retrieve existing row
                 continue
 
+            # Generate prompt (note we pass model_name now to handle token limit check)
+            prompt = generate_prompt(
+                table_id,
+                claim,
+                all_csv_folder,
+                learning_type,
+                format_type
+            )
+            if prompt is None:
+                logging.warning(f"Prompt generation failed (or skipped) for table {table_id}, claim '{claim}'.")
+                continue
+
+            # ---------------------
+            # 3) Actually run inference
+            # ---------------------
             try:
                 response = model.invoke(prompt).strip()
-                # Convert model response to a binary label
                 predicted_label = 1 if "TRUE" in response.upper() else 0
                 true_label = labels[idx]
 
-                results.append(
-                    {
-                        "table_id": table_id,
-                        "claim": claim,
-                        "predicted_response": predicted_label,
-                        "resp": response,
-                        "true_response": true_label,
-                    }
-                )
+                row_result = {
+                    "table_id": table_id,
+                    "claim": claim,
+                    "predicted_response": predicted_label,
+                    "resp": response,
+                    "true_response": true_label,
+                }
+
+                results.append(row_result)
+                checkpoint_results.append(row_result)
+                completed_keys.add((table_id, claim))
+
+                # ---------------------
+                # 4) Append to checkpoint file after each claim (or do it in batches)
+                # ---------------------
+                if checkpoint_file:
+                    with open(checkpoint_file, "w") as f:
+                        json.dump(checkpoint_results, f, indent=2)
+
             except Exception as e:
                 logging.error(f"Error invoking model for table {table_id}, claim '{claim}': {e}")
                 continue
@@ -542,7 +572,10 @@ def process_model(
     all_csv_folder: str,
     test_all: bool,
     N: int,
-    batch_prompts: bool = False
+    batch_prompts: bool = False,
+    max_workers: int = 4,
+    checkpoint_folder: str = "checkpoints",
+    format_type: str = "naturalized"
 ):
     """
     Runs the entire pipeline (datasets, claims) for a single model.
@@ -576,8 +609,8 @@ def process_model(
                         N=N,
                         all_csv_folder=os.path.join(repo_folder, all_csv_folder),
                         learning_type=learning_type,
-                        format_type="naturalized",
-                        max_workers=4  # or whatever you want
+                        format_type=format_type,
+                        max_workers=max_workers  # or whatever you want
                     )
                 else:
                     try:
@@ -585,6 +618,8 @@ def process_model(
                     except Exception as e:
                         logging.error(f"Failed to initialize model {model_name}: {e}")
                         continue
+
+                    checkpoint_file = f"{checkpoint_folder}/checkpoint_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}.json"
                     results = test_model_on_claims(
                         model=llm,
                         full_cleaned_data=dataset_data,
@@ -592,19 +627,22 @@ def process_model(
                         N=N,
                         all_csv_folder=os.path.join(repo_folder, all_csv_folder),
                         learning_type=learning_type,
-                        format_type="naturalized",  # or "markdown"
+                        format_type=format_type,  # or "markdown"
+                        checkpoint_file=checkpoint_file
                     )
 
                 # Save & plot
-                saving_directory = f"results_plots_{model_name}_{dataset_type}_{'all' if test_all else N}"
+                saving_directory = f"results_plots_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}"
                 os.makedirs(saving_directory, exist_ok=True)
 
                 calculate_and_plot_metrics(
                     results=results,
                     save_dir=saving_directory,
-                    save_stats_file="summary_stats.pkl",
+                    save_stats_file="summary_stats.json",
                     learning_type=learning_type,
                     dataset_type=dataset_type,
+                    model_name=model_name,
+                    format_type=format_type
                 )
             except Exception as e:
                 logging.error(f"Error in process_model for {model_name}: {e}")
@@ -699,6 +737,8 @@ def calculate_and_plot_metrics(
     save_stats_file: str = "summary_stats.pkl",
     learning_type: str = "",
     dataset_type: str = "",
+    model_name: str = "",
+    format_type: str = "naturalized",
 ) -> None:
     """
     Calculate precision, recall, F1-score, accuracy, TP, FP, TN, FN.
@@ -748,8 +788,10 @@ def calculate_and_plot_metrics(
 
     # Compile statistics
     stats = {
+        "model_name": model_name,
         "learning_type": learning_type,
         "dataset_type": dataset_type,
+        "format_type": format_type,
         "precision": precision,
         "recall": recall,
         "f1_score": f1,
@@ -761,11 +803,31 @@ def calculate_and_plot_metrics(
         "false_negatives": fn,
     }
 
-    # Save statistics to pickle file
+    def convert_to_serializable(obj):
+        """
+        Recursively convert non-JSON-serializable objects like numpy types to native Python types.
+        """
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()  # Convert arrays to lists
+        elif isinstance(obj, dict):
+            return {k: convert_to_serializable(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [convert_to_serializable(item) for item in obj]
+        elif isinstance(obj, tuple):
+            return tuple(convert_to_serializable(item) for item in obj)
+        else:
+            return obj  # Return as-is for already serializable objects
+
+    # Save statistics to JSON file
     stats_save_path = os.path.join(save_dir, save_stats_file)
     try:
-        with open(stats_save_path, "wb") as f:
-            pickle.dump(stats, f)
+        serializable_stats = convert_to_serializable(stats)
+        with open(stats_save_path, "w") as f:
+            json.dump(serializable_stats, f, indent=2)
         logging.info(f"Saved summary statistics to {stats_save_path}.")
     except Exception as e:
         logging.error(f"Failed to save summary statistics to {stats_save_path}: {e}")
@@ -810,7 +872,7 @@ def load_json_file(file_path: str) -> Dict[str, Any]:
 #                                MAIN FUNCTION
 ################################################################################
 
-def main(batch_prompts=False, parallel_models=False) -> None:
+def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
     """
     Main execution function.
     """
@@ -822,6 +884,8 @@ def main(batch_prompts=False, parallel_models=False) -> None:
     all_csv_folder = "data/all_csv/"  # Folder with the tables themselves
     test_set = "tokenized_data/test_examples.json"
     val_set = "tokenized_data/val_examples.json"
+
+    checkpoint_folder = "checkpoints"
 
     # Merge example (commented out if not needed)
     # output_file = "full_claim_file.json"
@@ -842,11 +906,12 @@ def main(batch_prompts=False, parallel_models=False) -> None:
     N = 3  # Number of claims to test (if test_all is False)
 
     summary_metrics = {}
-    models = ["mistral", "llama3"]  # Example model names
+    models = ["mistral", "llama3.2", "phi4"]  # https://ollama.com/library
     learning_types = ["zero_shot", "one_shot", "few_shot"]  # Example learning types
 
     # Define datasets (test_set, val_set) – or you could also do r1_simple/r2_complex
     datasets = [{"test_set": test_json}, {"val_set": val_json}]
+    format_type = "naturalized"  # or "markdown"
 
     # For example, if you want to try simple or complex sets, you could do:
     # datasets = [{"simple_set": r1_simple}, {"complex_set": r2_complex}]
@@ -865,6 +930,8 @@ def main(batch_prompts=False, parallel_models=False) -> None:
                     dataset_type, dataset_data = next(iter(dataset.items()))
                     logging.info(f"Processing dataset: {dataset_type} with learning type: {learning_type}")
 
+                    checkpoint_file = f"{checkpoint_folder}/checkpoint_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}.json"
+
                     if not batch_prompts:
                         results = test_model_on_claims(
                             model=llm,
@@ -873,7 +940,8 @@ def main(batch_prompts=False, parallel_models=False) -> None:
                             N=N,
                             all_csv_folder=os.path.join(repo_folder, all_csv_folder),
                             learning_type=learning_type,
-                            format_type="naturalized",  # or "markdown"
+                            format_type=format_type,  # or "markdown"
+                            checkpoint_file=checkpoint_file
                         )
                     else: 
                         results = test_model_on_claims_parallel(
@@ -883,20 +951,22 @@ def main(batch_prompts=False, parallel_models=False) -> None:
                             N=N,
                             all_csv_folder=os.path.join(repo_folder, all_csv_folder),
                             learning_type=learning_type,
-                            format_type="naturalized",
-                            max_workers=4  # or whatever you want
+                            format_type=format_type,
+                            max_workers=max_workers  # or whatever you want
                         )
 
-                    saving_directory = f"results_plots_{model_name}_{dataset_type}_{'all' if test_all else N}"
+                    saving_directory = f"results_plots_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}"
                     os.makedirs(saving_directory, exist_ok=True)
 
                     # Save accuracies, plots in appropriate folder
                     calculate_and_plot_metrics(
                         results=results,
                         save_dir=saving_directory,
-                        save_stats_file="summary_stats.pkl",
+                        save_stats_file="summary_stats.json",
                         learning_type=learning_type,
                         dataset_type=dataset_type,
+                        model_name=model_name,
+                        format_type=format_type
                     )
     else:
         tasks = []
@@ -911,7 +981,10 @@ def main(batch_prompts=False, parallel_models=False) -> None:
                     all_csv_folder,
                     test_all,
                     N,
-                    batch_prompts
+                    batch_prompts,
+                    max_workers,
+                    checkpoint_folder,
+                    format_type
                 ))
 
             for future in as_completed(tasks):
@@ -925,25 +998,25 @@ def main(batch_prompts=False, parallel_models=False) -> None:
 #                         LOAD AND PRINT STATS
 ################################################################################
 
-def load_and_print_stats(pickle_file_path: str) -> None:
+def load_and_print_stats(json_file_path: str) -> None:
     """
     Load the summary statistics from a pickle file and print them.
 
     Args:
         pickle_file_path (str): Path to the pickle file containing summary statistics.
     """
-    if not os.path.exists(pickle_file_path):
-        print(f"Error: The file {pickle_file_path} does not exist.")
+    if not os.path.exists(json_file_path):
+        print(f"Error: The file {json_file_path} does not exist.")
         return
 
     try:
-        with open(pickle_file_path, "rb") as f:
-            stats = pickle.load(f)
+        with open(json_file_path, "r") as f:
+            stats = json.load(f)
         print("Summary Statistics:")
         for key, value in stats.items():
             print(f"{key}: {value}")
     except Exception as e:
-        print(f"Error loading or reading the pickle file: {e}")
+        print(f"Error loading or reading the JSON file: {e}")
 
 
 ################################################################################
@@ -961,7 +1034,7 @@ if __name__ == "__main__":
         "-s", 
         "--stats_file",
         type=str,
-        help="Path to the pickle file containing summary statistics."
+        help="Path to the json file containing summary statistics."
     )
     parser.add_argument(
         "-p",
@@ -975,10 +1048,17 @@ if __name__ == "__main__":
         action="store_true",
         help="Run the script in batch mode for multiple prompts."
     )
+    parser.add_argument("--max_workers", type=int, default=4,
+        help="Number of worker processes to use for parallel/batch runs."
+    )
 
     args = parser.parse_args()
 
     if args.stats_file:
         load_and_print_stats(args.stats_file)
     else:
-        main(batch_prompts=args.batch_prompts, parallel_models=args.parallel_models)
+        main(
+            batch_prompts=args.batch_prompts
+            , parallel_models=args.parallel_models
+            , max_workers=args.max_workers
+        )
