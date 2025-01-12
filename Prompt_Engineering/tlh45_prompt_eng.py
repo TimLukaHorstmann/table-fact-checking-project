@@ -403,35 +403,41 @@ def test_model_on_claims(
     # ---------------------
     # 1) Load existing checkpoint data if any
     # ---------------------
+    results = []        # We'll store old + new results here
     completed_keys = set()
-    checkpoint_results = []
+
     if checkpoint_file and os.path.exists(checkpoint_file):
         logging.info(f"Loading existing checkpoint from {checkpoint_file}")
         with open(checkpoint_file, "r") as f:
-            checkpoint_results = json.load(f)
-        # Build a set of (table_id, claim) that are done
-        for row in checkpoint_results:
+            # Existing results are loaded directly into 'results'
+            results = json.load(f)
+
+        # Build a set of (table_id, claim) that are already done
+        for row in results:
             completed_keys.add((row["table_id"], row["claim"]))
 
-    results = []
+    # Prepare the list of keys/tables
     keys = list(full_cleaned_data.keys())
     limit = len(keys) if test_all else min(N, len(keys))
-    logging.info(f"Testing {limit} tables out of {len(keys)} with checkpoint logic. Learning type: {learning_type}")
+    logging.info(
+        f"Testing {limit} tables out of {len(keys)} with checkpoint logic. "
+        f"Learning type: {learning_type}, format type: {format_type}"
+    )
 
+    # ---------------------
+    # 2) Main inference loop
+    # ---------------------
     for i in tqdm(range(limit), desc="Processing tables"):
         table_id = keys[i]
         claims = full_cleaned_data[table_id][0]
         labels = full_cleaned_data[table_id][1]
 
         for idx, claim in enumerate(claims):
-            # ---------------------
-            # 2) Skip if already in checkpoint
-            # ---------------------
+            # Skip if already in checkpoint
             if (table_id, claim) in completed_keys:
-                # Already done, retrieve existing row
                 continue
 
-            # Generate prompt (note we pass model_name now to handle token limit check)
+            # Generate the prompt
             prompt = generate_prompt(
                 table_id,
                 claim,
@@ -440,7 +446,9 @@ def test_model_on_claims(
                 format_type
             )
             if prompt is None:
-                logging.warning(f"Prompt generation failed (or skipped) for table {table_id}, claim '{claim}'.")
+                logging.warning(
+                    f"Prompt generation failed (or skipped) for table {table_id}, claim='{claim}'."
+                )
                 continue
 
             # ---------------------
@@ -459,21 +467,22 @@ def test_model_on_claims(
                     "true_response": true_label,
                 }
 
+                # Add new result to 'results' and mark completed
                 results.append(row_result)
-                checkpoint_results.append(row_result)
                 completed_keys.add((table_id, claim))
 
                 # ---------------------
-                # 4) Append to checkpoint file after each claim (or do it in batches)
+                # 4) Save checkpoint after each new claim (or batch it up)
                 # ---------------------
                 if checkpoint_file:
                     with open(checkpoint_file, "w") as f:
-                        json.dump(checkpoint_results, f, indent=2)
+                        json.dump(results, f, indent=2)
 
             except Exception as e:
-                logging.error(f"Error invoking model for table {table_id}, claim '{claim}': {e}")
+                logging.error(f"Error invoking model for table {table_id}, claim='{claim}': {e}")
                 continue
 
+    # Return the full list of results (old + new)
     return results
 
 
