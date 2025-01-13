@@ -1055,11 +1055,11 @@ if __name__ == "__main__":
         action="store_true",
         help="Run the script in parallel mode for multiple models."
     )
-    parser.add_argument(
+    parser.add_argument( # Note: in batch mode, checkpointing is disabled.
         "-b",
         "--batch_prompts",
         action="store_true",
-        help="Run the script in batch mode for multiple prompts."
+        help="Run the script in batch mode for multiple prompts. NOTE: In this mode, checkpointing is disabled."
     )
     parser.add_argument("--max_workers", type=int, default=4,
         help="Number of worker processes to use for parallel/batch runs."
