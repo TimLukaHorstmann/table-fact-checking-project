@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import sys
 import json
@@ -584,7 +585,8 @@ def process_model(
     batch_prompts: bool = False,
     max_workers: int = 4,
     checkpoint_folder: str = "checkpoints",
-    format_type: str = "naturalized"
+    format_type: str = "naturalized",
+    results_folder: str = "results",
 ):
     """
     Runs the entire pipeline (datasets, claims) for a single model.
@@ -641,7 +643,7 @@ def process_model(
                     )
 
                 # Save & plot
-                saving_directory = f"results_plots_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}"
+                saving_directory = f"{results_folder}/results_plots_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}"
                 os.makedirs(saving_directory, exist_ok=True)
 
                 calculate_and_plot_metrics(
@@ -895,6 +897,7 @@ def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
     val_set = "tokenized_data/val_examples.json"
 
     checkpoint_folder = "checkpoints"
+    results_folder = f"results_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
     # Merge example (commented out if not needed)
     # output_file = "full_claim_file.json"
@@ -964,7 +967,7 @@ def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
                             max_workers=max_workers  # or whatever you want
                         )
 
-                    saving_directory = f"results_plots_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}"
+                    saving_directory = f"{results_folder}/results_plots_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}"
                     os.makedirs(saving_directory, exist_ok=True)
 
                     # Save accuracies, plots in appropriate folder
@@ -993,7 +996,8 @@ def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
                     batch_prompts,
                     max_workers,
                     checkpoint_folder,
-                    format_type
+                    format_type,
+                    results_folder
                 ))
 
             for future in as_completed(tasks):
