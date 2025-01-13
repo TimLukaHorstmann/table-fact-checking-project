@@ -897,7 +897,7 @@ def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
     val_set = "tokenized_data/val_examples.json"
 
     checkpoint_folder = "checkpoints"
-    results_folder = f"results_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+    results_folder = f"results_{datetime.now().strftime('%Y%m%d')}"
 
     # Merge example (commented out if not needed)
     # output_file = "full_claim_file.json"
