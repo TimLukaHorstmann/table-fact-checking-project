@@ -8,6 +8,7 @@ from typing import List, Dict, Any, Optional
 from functools import lru_cache
 import argparse
 import numpy as np
+import re
 
 import pandas as pd
 from tqdm import tqdm
@@ -28,18 +29,43 @@ import gc
 import torch
 
 # Configure logging
+log_filename = f"logs_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler()],
+    handlers=[
+        logging.StreamHandler(),  
+        logging.FileHandler(log_filename, mode="w")  # Creates a new log file
+    ],
 )
 
 ################################################################################
 #                           PROMPT TEMPLATES
 ################################################################################
 
+# ------------------------------------------------------------------------------
+# UPDATED END_OF_PROMPT_INSTRUCTIONS: 
+# We instruct the model to produce a single JSON with two fields:
+#   "answer" : "TRUE" or "FALSE"
+#   "highlighted_cells": a list of row/col references
+# ------------------------------------------------------------------------------
 END_OF_PROMPT_INSTRUCTIONS = """
-Your answer should be ONLY "TRUE" or "FALSE" (all caps), with no additional explanation.
+Return a valid JSON object with two keys:
+"answer": must be "TRUE" or "FALSE" (all caps)
+"highlighted_cells": a list of objects, each with "row_index" (int) and "column_name" (string)
+
+For example:
+
+{{
+  "answer": "TRUE",
+  "highlighted_cells": [
+    {{"row_index": 0, "column_name": "Revenue"}},
+    {{"row_index": 1, "column_name": "Employees"}}
+  ]
+}}
+
+No extra keys, no extra text. Just that JSON.
 """
 
 # -------------------------- ZERO-SHOT PROMPTS --------------------------
@@ -53,9 +79,7 @@ Claim: "{claim}"
 
 Instructions:
 - Carefully check each condition in the claim against the table.
-- Respond with "TRUE" if the claim is fully supported by the table data.
-- Respond with "FALSE" if it is not supported.
-
+- If fully supported, the 'answer' should be "TRUE". Otherwise "FALSE".
 """ + END_OF_PROMPT_INSTRUCTIONS
 
 ZERO_SHOT_PROMPT_NATURALIZED = """
@@ -67,10 +91,8 @@ Table (Naturalized):
 Claim: "{claim}"
 
 Instructions:
-- Verify if the claim is supported by the data described in each row.
-- If yes, respond "TRUE".
-- Otherwise, respond "FALSE".
-
+- If the claim is supported by the data, 'answer' should be "TRUE".
+- Otherwise, 'answer' is "FALSE".
 """ + END_OF_PROMPT_INSTRUCTIONS
 
 
@@ -87,7 +109,7 @@ Claim: "Product B is cheaper than Product A."
 
 Analysis and Answer:
 - Product A's price is 10, Product B's price is 15.
-- The claim says B is cheaper, but B is actually more expensive.
+- The claim says B is cheaper, but that's incorrect, B is more expensive.
 - So the correct answer is FALSE.
 """
 
@@ -104,8 +126,7 @@ Table (Markdown):
 Claim: "{claim}"
 
 Instructions:
-- Compare the claim to the table data.
-- Respond "TRUE" if the claim is fully supported, else "FALSE".
+- Compare the claim to the table data. If fully supported, 'answer' is "TRUE", else "FALSE".
 
 """ + END_OF_PROMPT_INSTRUCTIONS
 
@@ -119,8 +140,7 @@ Claim: "Product A is the most expensive item."
 
 Analysis and Answer:
 - A costs 10, B costs 15.
-- B is more expensive than A.
-- Therefore, the claim is FALSE.
+- B is more expensive, so the claim is FALSE.
 """
 
 ONE_SHOT_PROMPT_NATURALIZED = """
@@ -136,8 +156,7 @@ Table (Naturalized):
 Claim: "{claim}"
 
 Instructions:
-- Check if the claim is fully supported by the data or not.
-- Answer "TRUE" or "FALSE" accordingly.
+- If the claim is fully supported by the data, answer "TRUE"; otherwise "FALSE".
 
 """ + END_OF_PROMPT_INSTRUCTIONS
 
@@ -211,7 +230,7 @@ Table (Naturalized):
 Claim: "{claim}"
 
 Instructions:
-- Check if the data supports the claim. If yes, respond "TRUE"; otherwise "FALSE".
+- Check if the data supports the claim. If yes, 'answer' is "TRUE"; otherwise "FALSE".
 
 """ + END_OF_PROMPT_INSTRUCTIONS
 
@@ -274,24 +293,12 @@ def load_table(all_csv_folder: str, table_id: str) -> Optional[pd.DataFrame]:
 def format_table_to_markdown(table: pd.DataFrame) -> str:
     """
     Convert a pandas DataFrame to a Markdown-formatted string.
-
-    Args:
-        table (pd.DataFrame): The DataFrame to convert.
-
-    Returns:
-        str: Markdown-formatted table.
     """
     return table.to_markdown(index=False)
 
 def naturalize_table(df: pd.DataFrame) -> str:
     """
     Convert a pandas DataFrame to a naturalized text format that follows the style in TabFact.
-
-    Args:
-        df (pd.DataFrame): The DataFrame to convert.
-
-    Returns:
-        str: Naturalized text description of the table.
     """
     rows = []
     for row_idx, row in df.iterrows():
@@ -314,38 +321,31 @@ def generate_prompt(
     format_type: str = "naturalized",  # "markdown" or "naturalized"
 ) -> Optional[str]:
     """
-    Generate a prompt for a specific table and claim.
-
-    Args:
-        table_id (str): The table filename from full_cleaned.json.
-        claim (str): The statement (claim) to be validated.
-        all_csv_folder (str): Path to the folder containing CSV tables.
-        learning_type (str, optional): Type of prompt engineering ("zero_shot", "one_shot", "few_shot").
-        format_type (str, optional): "markdown" or "naturalized". Defaults to "naturalized".
-
-    Returns:
-        Optional[str]: A formatted prompt string or None if table loading fails.
+    Generate a single prompt for a specific table and claim, 
+    instructing the model to produce a JSON with "answer" and "highlighted_cells".
     """
     table = load_table(all_csv_folder, table_id)
     if table is None:
         logging.warning(f"Skipping prompt generation for table {table_id} due to load failure.")
         return None
 
-    # Convert table
     if format_type == "markdown":
         table_formatted = format_table_to_markdown(table)
-    elif format_type == "naturalized":
-        table_formatted = naturalize_table(table)
     else:
-        logging.error(f"Unsupported format type: {format_type}")
-        return None
+        table_formatted = naturalize_table(table)
 
-    # Pick the correct prompt template based on learning_type + format_type
+    # Choose the base prompt depending on learning_type & format_type
     if learning_type == "zero_shot":
         if format_type == "markdown":
-            prompt = ZERO_SHOT_PROMPT_MARKDOWN.format(table_formatted=table_formatted, claim=claim)
+            prompt = ZERO_SHOT_PROMPT_MARKDOWN.format(
+                table_formatted=table_formatted, 
+                claim=claim
+            )
         else:
-            prompt = ZERO_SHOT_PROMPT_NATURALIZED.format(table_formatted=table_formatted, claim=claim)
+            prompt = ZERO_SHOT_PROMPT_NATURALIZED.format(
+                table_formatted=table_formatted, 
+                claim=claim
+            )
 
     elif learning_type == "one_shot":
         if format_type == "markdown":
@@ -374,14 +374,38 @@ def generate_prompt(
                 table_formatted=table_formatted,
                 claim=claim
             )
-
     else:
         logging.error(f"Unsupported learning type: {learning_type}")
         return None
 
-    logging.debug(f"Generated prompt for table {table_id} and claim '{claim}'.")
     return prompt.strip()
 
+def extract_json_from_response(raw_response: str) -> dict:
+    """
+    Attempt to parse JSON from the model response in two ways:
+      1. Look for a code fence with ```json ... ```
+      2. If none found, try to parse the entire response as JSON.
+    Return a dictionary. If nothing works, return {}.
+    """
+    pattern = r"```json\s*(.*?)\s*```"
+    match = re.search(pattern, raw_response, re.DOTALL | re.IGNORECASE)
+    if match:
+        # Found a code fence. Parse that snippet
+        json_str = match.group(1).strip()
+        try:
+            return json.loads(json_str)
+        except json.JSONDecodeError as e:
+            print(f"[WARN] JSON decode error (inside code fence): {e}")
+            # fallback to entire raw_response parse
+            pass
+
+    # If we get here, either no code fence or fence parse failed
+    try:
+        return json.loads(raw_response)
+    except json.JSONDecodeError:
+        print("[WARN] Could not parse raw_response as JSON either.")
+        # final fallback
+        return {}
 
 ################################################################################
 #                          TEST MODEL FUNCTION
@@ -398,26 +422,29 @@ def test_model_on_claims(
     checkpoint_file: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     """
-    Test the model on the first N claims or all claims from full_cleaned.json.
-    With checkpoint logic to resume partial progress.
+    Test the model on the first N claims or all claims, using a SINGLE prompt
+    that returns JSON of the form:
+      {
+        "answer": "TRUE" or "FALSE",
+        "highlighted_cells": [
+          {"row_index": 0, "column_name": "Revenue"},
+          ...
+        ]
+      }
+
+    We'll parse that JSON, store it in the final results, 
+    and measure performance as before.
     """
-    # ---------------------
-    # 1) Load existing checkpoint data if any
-    # ---------------------
-    results = []        # We'll store old + new results here
+    results = []
     completed_keys = set()
 
     if checkpoint_file and os.path.exists(checkpoint_file):
         logging.info(f"Loading existing checkpoint from {checkpoint_file}")
         with open(checkpoint_file, "r") as f:
-            # Existing results are loaded directly into 'results'
             results = json.load(f)
-
-        # Build a set of (table_id, claim) that are already done
         for row in results:
             completed_keys.add((row["table_id"], row["claim"]))
 
-    # Prepare the list of keys/tables
     keys = list(full_cleaned_data.keys())
     limit = len(keys) if test_all else min(N, len(keys))
     logging.info(
@@ -425,20 +452,15 @@ def test_model_on_claims(
         f"Learning type: {learning_type}, format type: {format_type}"
     )
 
-    # ---------------------
-    # 2) Main inference loop
-    # ---------------------
     for i in tqdm(range(limit), desc="Processing tables"):
         table_id = keys[i]
         claims = full_cleaned_data[table_id][0]
         labels = full_cleaned_data[table_id][1]
 
         for idx, claim in enumerate(claims):
-            # Skip if already in checkpoint
             if (table_id, claim) in completed_keys:
                 continue
 
-            # Generate the prompt
             prompt = generate_prompt(
                 table_id,
                 claim,
@@ -452,42 +474,54 @@ def test_model_on_claims(
                 )
                 continue
 
-            # ---------------------
-            # 3) Actually run inference
-            # ---------------------
+            # -----------------------------
+            # Single call to the model
+            # -----------------------------
             try:
-                response = model.invoke(prompt).strip()
-                predicted_label = 1 if "TRUE" in response.upper() else 0
-                true_label = labels[idx]
-
-                row_result = {
-                    "table_id": table_id,
-                    "claim": claim,
-                    "predicted_response": predicted_label,
-                    "resp": response,
-                    "true_response": true_label,
-                }
-
-                # Add new result to 'results' and mark completed
-                results.append(row_result)
-                completed_keys.add((table_id, claim))
-
-                # ---------------------
-                # 4) Save checkpoint after each new claim (or batch it up)
-                # ---------------------
-                if checkpoint_file:
-                    with open(checkpoint_file, "w") as f:
-                        json.dump(results, f, indent=2)
-
+                raw_response = model.invoke(prompt).strip()
             except Exception as e:
                 logging.error(f"Error invoking model for table {table_id}, claim='{claim}': {e}")
                 continue
 
-    # Return the full list of results (old + new)
+            # -----------------------------
+            # Parse the JSON to extract "answer" and "highlighted_cells"
+            # If parsing fails, we default to "FALSE" and empty cells
+            # -----------------------------
+            parsed_answer = "FALSE"
+            highlighted_cells = []
+            try:
+                parsed_dict = extract_json_from_response(raw_response)
+                parsed_answer = parsed_dict.get("answer", "FALSE").upper()
+                highlighted_cells = parsed_dict.get("highlighted_cells", [])
+            except Exception as e:
+                logging.warning(f"Failed to parse JSON from model output for table {table_id}, claim='{claim}'. "
+                                f"Raw response was:\n{raw_response}")
+
+            predicted_label = 1 if parsed_answer == "TRUE" else 0
+            true_label = labels[idx]
+
+            row_result = {
+                "table_id": table_id,
+                "claim": claim,
+                "predicted_response": predicted_label,
+                "resp": raw_response,    # store the raw model response for debugging
+                "true_response": true_label,
+                "highlighted_cells": highlighted_cells  # store the parsed cells
+            }
+
+            results.append(row_result)
+            completed_keys.add((table_id, claim))
+
+            # Save checkpoint after each claim
+            if checkpoint_file:
+                with open(checkpoint_file, "w") as f:
+                    json.dump(results, f, indent=2)
+
     return results
 
 
-# multiproeccesing OPTIONS
+# -------------------- PARALLEL CODE (unchanged except if you want to parse JSON) --------------------
+
 def process_claim(model_name: str,
                   table_id: str,
                   claim: str,
@@ -497,31 +531,42 @@ def process_claim(model_name: str,
                   format_type: str) -> Dict[str, Any]:
     """
     Helper function for parallel processing of a single claim.
+    (If you want to also parse JSON here, you can replicate the same logic as above.)
     """
-    # We need a local instance of OllamaLLM if the model is not picklable across processes
-    # or if Ollama can handle parallel calls from one global instance. 
-    # Typically, you'd re-initialize the model in each worker if needed.
     llm = OllamaLLM(model=model_name)
 
     prompt = generate_prompt(table_id, claim, all_csv_folder, learning_type, format_type)
     if prompt is None:
-        # Return something that indicates we skipped
         return {
             "table_id": table_id,
             "claim": claim,
             "predicted_response": None,
             "resp": "PROMPT_ERROR",
-            "true_response": true_label
+            "true_response": true_label,
+            "highlighted_cells": []
         }
     
-    response = llm.invoke(prompt).strip()
-    predicted_label = 1 if "TRUE" in response.upper() else 0
+    raw_response = llm.invoke(prompt).strip()
+
+    # Attempt JSON parse:
+    parsed_answer = "FALSE"
+    highlighted_cells = []
+    try:
+        parsed_dict = extract_json_from_response(raw_response)
+        parsed_answer = parsed_dict.get("answer", "FALSE").upper()
+        highlighted_cells = parsed_dict.get("highlighted_cells", [])
+    except:
+        pass
+
+    predicted_label = 1 if parsed_answer == "TRUE" else 0
+
     return {
         "table_id": table_id,
         "claim": claim,
         "predicted_response": predicted_label,
-        "resp": response,
+        "resp": raw_response,
         "true_response": true_label,
+        "highlighted_cells": highlighted_cells
     }
 
 
@@ -535,9 +580,6 @@ def test_model_on_claims_parallel(
     format_type: str = "naturalized",
     max_workers: int = 4,
 ) -> List[Dict[str, Any]]:
-    """
-    Test the model on the first N claims (or all) from full_cleaned.json in parallel using ProcessPoolExecutor.
-    """
     results = []
     keys = list(full_cleaned_data.keys())
     limit = len(keys) if test_all else min(N, len(keys))
@@ -573,7 +615,6 @@ def test_model_on_claims_parallel(
     return results
 
 
-
 def process_model(
     model_name: str,
     learning_types: List[str],
@@ -588,20 +629,7 @@ def process_model(
     format_type: str = "naturalized",
     results_folder: str = "results",
 ):
-    """
-    Runs the entire pipeline (datasets, claims) for a single model.
-    """
     logging.info(f"[process_model] Initializing model: {model_name}")
-
-    # We might STILL do a local instantiation here, if you want to do test_model_on_claims( ) single-thread, 
-    # but you can skip if you are only doing parallel claims and re-initialize in each claim.
-    #
-    # If you prefer a single-thread approach for claims, you might keep a single instance of the model:
-    # try:
-    #     llm = OllamaLLM(model=model_name)
-    # except Exception as e:
-    #     logging.error(f"Failed to initialize model {model_name} at process_model level: {e}")
-    #     return
 
     for learning_type in learning_types:
         for dataset in datasets:
@@ -611,7 +639,6 @@ def process_model(
                 f"Dataset={dataset_type}, LearningType={learning_type}"
             )
             try:
-                # Call your concurrency-based approach for claims:
                 if batch_prompts:
                     results = test_model_on_claims_parallel(
                         model_name=model_name,
@@ -621,7 +648,7 @@ def process_model(
                         all_csv_folder=os.path.join(repo_folder, all_csv_folder),
                         learning_type=learning_type,
                         format_type=format_type,
-                        max_workers=max_workers  # or whatever you want
+                        max_workers=max_workers
                     )
                 else:
                     try:
@@ -631,6 +658,8 @@ def process_model(
                         continue
 
                     checkpoint_file = f"{checkpoint_folder}/checkpoint_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}.json"
+                    os.makedirs(checkpoint_folder, exist_ok=True)
+                    
                     results = test_model_on_claims(
                         model=llm,
                         full_cleaned_data=dataset_data,
@@ -638,11 +667,10 @@ def process_model(
                         N=N,
                         all_csv_folder=os.path.join(repo_folder, all_csv_folder),
                         learning_type=learning_type,
-                        format_type=format_type,  # or "markdown"
+                        format_type=format_type,
                         checkpoint_file=checkpoint_file
                     )
 
-                # Save & plot
                 saving_directory = f"{results_folder}/results_plots_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}"
                 os.makedirs(saving_directory, exist_ok=True)
 
@@ -655,6 +683,12 @@ def process_model(
                     model_name=model_name,
                     format_type=format_type
                 )
+
+                with open(f"{results_folder}/results_with_cells_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}.json", "w") as f:
+                    json.dump(results, f, indent=2)
+
+                logging.info(f"Wrote results to {results_folder}/results_with_cells_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}.json")
+                
             except Exception as e:
                 logging.error(f"Error in process_model for {model_name}: {e}")
                 continue
@@ -670,16 +704,6 @@ def plot_confusion_matrix_plot(
     title: str,
     save_path: str,
 ) -> None:
-    """
-    Plot and save the confusion matrix.
-
-    Args:
-        y_true (List[int]): True labels.
-        y_pred (List[int]): Predicted labels.
-        classes (List[int]): List of class labels.
-        title (str): Title of the plot.
-        save_path (str): File path to save the plot.
-    """
     cm = confusion_matrix(y_true, y_pred, labels=classes)
     plt.figure(figsize=(8, 6))
     sns.heatmap(
@@ -705,15 +729,6 @@ def plot_roc_curve_plot(
     title: str,
     save_path: str,
 ) -> None:
-    """
-    Plot and save the ROC curve.
-
-    Args:
-        y_true (List[int]): True labels.
-        y_pred (List[int]): Predicted labels.
-        title (str): Title of the plot.
-        save_path (str): File path to save the plot.
-    """
     fpr, tpr, _ = roc_curve(y_true, y_pred)
     roc_auc = auc(fpr, tpr)
 
@@ -751,18 +766,6 @@ def calculate_and_plot_metrics(
     model_name: str = "",
     format_type: str = "naturalized",
 ) -> None:
-    """
-    Calculate precision, recall, F1-score, accuracy, TP, FP, TN, FN.
-    Plot confusion matrix and ROC curve,
-    Save all to files.
-
-    Args:
-        results (List[Dict[str, Any]]): List of dictionaries containing "true_response" and "predicted_response".
-        save_dir (str, optional): Directory to save plots and stats. Defaults to "results_plots".
-        save_stats_file (str, optional): Filename to save stats in pickle format. Defaults to "summary_stats.pkl".
-        learning_type (str, optional): Type of learning method ("zero_shot", "one_shot", "few_shot"). Defaults to "".
-        dataset_type (str, optional): Type of dataset ("test_set", "val_set"). Defaults to "".
-    """
     y_true = [result["true_response"] for result in results]
     y_pred = [result["predicted_response"] for result in results]
     classes = [0, 1]
@@ -770,7 +773,6 @@ def calculate_and_plot_metrics(
     os.makedirs(save_dir, exist_ok=True)
     logging.info(f"Saving results to directory: {save_dir}")
 
-    # Calculate confusion matrix
     cm = confusion_matrix(y_true, y_pred, labels=classes)
 
     if cm.shape == (2, 2):
@@ -781,23 +783,19 @@ def calculate_and_plot_metrics(
         fn = cm[1, 0] if cm.shape[0] > 1 else 0
         tp = cm[1, 1] if cm.shape[1] > 1 and cm.shape[0] > 1 else 0
 
-    # Plot and save confusion matrix
     cm_title = f"Confusion Matrix - {learning_type.capitalize()} Learning - {dataset_type.replace('_', ' ').capitalize()} Dataset"
     cm_save_path = os.path.join(save_dir, f"confusion_matrix_{learning_type}_{dataset_type}.png")
     plot_confusion_matrix_plot(y_true, y_pred, classes, cm_title, cm_save_path)
 
-    # Plot and save ROC curve
     roc_title = f"ROC Curve - {learning_type.capitalize()} Learning - {dataset_type.replace('_', ' ').capitalize()} Dataset"
     roc_save_path = os.path.join(save_dir, f"roc_curve_{learning_type}_{dataset_type}.png")
     plot_roc_curve_plot(y_true, y_pred, roc_title, roc_save_path)
 
-    # Calculate evaluation metrics
     precision = precision_score(y_true, y_pred, zero_division=0)
     recall = recall_score(y_true, y_pred, zero_division=0)
     f1 = f1_score(y_true, y_pred, zero_division=0)
     accuracy = accuracy_score(y_true, y_pred)
 
-    # Compile statistics
     stats = {
         "model_name": model_name,
         "learning_type": learning_type,
@@ -815,15 +813,12 @@ def calculate_and_plot_metrics(
     }
 
     def convert_to_serializable(obj):
-        """
-        Recursively convert non-JSON-serializable objects like numpy types to native Python types.
-        """
         if isinstance(obj, np.integer):
             return int(obj)
         elif isinstance(obj, np.floating):
             return float(obj)
         elif isinstance(obj, np.ndarray):
-            return obj.tolist()  # Convert arrays to lists
+            return obj.tolist()
         elif isinstance(obj, dict):
             return {k: convert_to_serializable(v) for k, v in obj.items()}
         elif isinstance(obj, list):
@@ -831,9 +826,8 @@ def calculate_and_plot_metrics(
         elif isinstance(obj, tuple):
             return tuple(convert_to_serializable(item) for item in obj)
         else:
-            return obj  # Return as-is for already serializable objects
+            return obj
 
-    # Save statistics to JSON file
     stats_save_path = os.path.join(save_dir, save_stats_file)
     try:
         serializable_stats = convert_to_serializable(stats)
@@ -843,7 +837,6 @@ def calculate_and_plot_metrics(
     except Exception as e:
         logging.error(f"Failed to save summary statistics to {stats_save_path}: {e}")
 
-    # Log metrics
     logging.info(f"{learning_type.capitalize()} Learning - {dataset_type.replace('_', ' ').capitalize()} Dataset:")
     logging.info(f"Precision: {precision:.2f}")
     logging.info(f"Recall: {recall:.2f}")
@@ -860,15 +853,6 @@ def calculate_and_plot_metrics(
 ################################################################################
 
 def load_json_file(file_path: str) -> Dict[str, Any]:
-    """
-    Load a JSON file and return its content.
-
-    Args:
-        file_path (str): Path to the JSON file.
-
-    Returns:
-        Dict[str, Any]: Parsed JSON data.
-    """
     try:
         with open(file_path, "r") as f:
             data = json.load(f)
@@ -884,26 +868,20 @@ def load_json_file(file_path: str) -> Dict[str, Any]:
 ################################################################################
 
 def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
-    """
-    Main execution function.
-    """
-    # Initial data paths
     repo_folder = "../original_repo"
 
-    file_simple_r1 = "collected_data/r1_training_all.json"  # File with simple claims
-    file_complex_r2 = "collected_data/r2_training_all.json"  # File with complex claims
-    all_csv_folder = "data/all_csv/"  # Folder with the tables themselves
+    file_simple_r1 = "collected_data/r1_training_all.json" 
+    file_complex_r2 = "collected_data/r2_training_all.json" 
+    all_csv_folder = "data/all_csv/"  
     test_set = "tokenized_data/test_examples.json"
     val_set = "tokenized_data/val_examples.json"
 
     checkpoint_folder = "checkpoints"
     results_folder = f"results_{datetime.now().strftime('%Y%m%d')}"
 
-    # Merge example (commented out if not needed)
+    # Merge example if needed
     # output_file = "full_claim_file.json"
     # merge_training_data(file_simple_r1, file_complex_r2, output_file)
-    # with open(output_file, "r") as f:
-    #     claim_file = json.load(f) # file containing the claims for each table
 
     # Load data
     r1_simple = load_json_file(os.path.join(repo_folder, file_simple_r1))
@@ -913,20 +891,13 @@ def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
 
     logging.info(f"Current directory: {os.getcwd()}")
 
-    # Parameters
-    test_all = True
-    N = 3  # Number of claims to test (if test_all is False)
+    test_all = False
+    N = 2
 
-    summary_metrics = {}
-    models = ["mistral", "llama3.2", "phi4"]  # https://ollama.com/library
-    learning_types = ["zero_shot", "one_shot", "few_shot"]  # Example learning types
-
-    # Define datasets (test_set, val_set) – or you could also do r1_simple/r2_complex
+    models = ["mistral"] #, "llama3.2"] #, "phi4"]
+    learning_types = ["zero_shot"] #, "one_shot", "few_shot"] 
     datasets = [{"test_set": test_json}, {"val_set": val_json}]
-    format_type = "naturalized"  # or "markdown"
-
-    # For example, if you want to try simple or complex sets, you could do:
-    # datasets = [{"simple_set": r1_simple}, {"complex_set": r2_complex}]
+    format_type = "naturalized" 
 
     if not parallel_models:
         for model_name in models:
@@ -943,8 +914,10 @@ def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
                     logging.info(f"Processing dataset: {dataset_type} with learning type: {learning_type}")
 
                     checkpoint_file = f"{checkpoint_folder}/checkpoint_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}.json"
+                    os.makedirs(checkpoint_folder, exist_ok=True)
 
                     if not batch_prompts:
+                        # SINGLE-PROMPT approach with JSON parse
                         results = test_model_on_claims(
                             model=llm,
                             full_cleaned_data=dataset_data,
@@ -952,10 +925,10 @@ def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
                             N=N,
                             all_csv_folder=os.path.join(repo_folder, all_csv_folder),
                             learning_type=learning_type,
-                            format_type=format_type,  # or "markdown"
+                            format_type=format_type,
                             checkpoint_file=checkpoint_file
                         )
-                    else: 
+                    else:
                         results = test_model_on_claims_parallel(
                             model_name=model_name,
                             full_cleaned_data=dataset_data,
@@ -964,13 +937,12 @@ def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
                             all_csv_folder=os.path.join(repo_folder, all_csv_folder),
                             learning_type=learning_type,
                             format_type=format_type,
-                            max_workers=max_workers  # or whatever you want
+                            max_workers=max_workers
                         )
 
                     saving_directory = f"{results_folder}/results_plots_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}"
                     os.makedirs(saving_directory, exist_ok=True)
 
-                    # Save accuracies, plots in appropriate folder
                     calculate_and_plot_metrics(
                         results=results,
                         save_dir=saving_directory,
@@ -980,6 +952,11 @@ def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
                         model_name=model_name,
                         format_type=format_type
                     )
+
+                    with open(f"{results_folder}/results_with_cells_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}.json", "w") as f:
+                        json.dump(results, f, indent=2)
+
+                    logging.info(f"Wrote results to {results_folder}/results_with_cells_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}.json")
     else:
         tasks = []
         with ProcessPoolExecutor(max_workers=len(models)) as executor:
@@ -1002,7 +979,7 @@ def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
 
             for future in as_completed(tasks):
                 try:
-                    future.result()  # we don't return anything, just gather
+                    future.result()
                 except Exception as e:
                     logging.error(f"Error while processing model in parallel: {e}")
 
@@ -1012,12 +989,6 @@ def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
 ################################################################################
 
 def load_and_print_stats(json_file_path: str) -> None:
-    """
-    Load the summary statistics from a pickle file and print them.
-
-    Args:
-        pickle_file_path (str): Path to the pickle file containing summary statistics.
-    """
     if not os.path.exists(json_file_path):
         print(f"Error: The file {json_file_path} does not exist.")
         return
@@ -1037,12 +1008,10 @@ def load_and_print_stats(json_file_path: str) -> None:
 ################################################################################
 
 if __name__ == "__main__":
-
-    # run garbage collection & clean cuda cache
     # gc.collect()
     # torch.cuda.empty_cache()
 
-    parser = argparse.ArgumentParser(description="Load and print stats from a pickle file or run the script as normal.")
+    parser = argparse.ArgumentParser(description="Load and print stats from a json file or run the script as normal.")
     parser.add_argument(
         "-s", 
         "--stats_file",
@@ -1055,7 +1024,7 @@ if __name__ == "__main__":
         action="store_true",
         help="Run the script in parallel mode for multiple models."
     )
-    parser.add_argument( # Note: in batch mode, checkpointing is disabled.
+    parser.add_argument(
         "-b",
         "--batch_prompts",
         action="store_true",
@@ -1071,7 +1040,7 @@ if __name__ == "__main__":
         load_and_print_stats(args.stats_file)
     else:
         main(
-            batch_prompts=args.batch_prompts
-            , parallel_models=args.parallel_models
-            , max_workers=args.max_workers
+            batch_prompts=args.batch_prompts,
+            parallel_models=args.parallel_models,
+            max_workers=args.max_workers
         )
