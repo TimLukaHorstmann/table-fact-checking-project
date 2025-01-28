@@ -686,8 +686,13 @@ def process_model(
 
                 with open(f"{results_folder}/results_with_cells_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}.json", "w") as f:
                     json.dump(results, f, indent=2)
-
                 logging.info(f"Wrote results to {results_folder}/results_with_cells_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}.json")
+                
+                # also save final results to docs/
+                with open(f"../docs/results_with_cells_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}.json", "w") as f:
+                    json.dump(results, f, indent=2)
+                logging.info(f"Wrote results to ../docs/results_with_cells_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}.json")
+
                 
             except Exception as e:
                 logging.error(f"Error in process_model for {model_name}: {e}")
@@ -953,10 +958,17 @@ def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
                         format_type=format_type
                     )
 
+                    # save results to JSON
                     with open(f"{results_folder}/results_with_cells_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}.json", "w") as f:
                         json.dump(results, f, indent=2)
-
                     logging.info(f"Wrote results to {results_folder}/results_with_cells_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}.json")
+
+                    # also save final results to docs/
+                    with open(f"../docs/results_with_cells_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}.json", "w") as f:
+                        json.dump(results, f, indent=2)
+                    logging.info(f"Wrote results to ../docs/results_with_cells_{model_name}_{dataset_type}_{'all' if test_all else N}_{learning_type}_{format_type}.json")
+
+
     else:
         tasks = []
         with ProcessPoolExecutor(max_workers=len(models)) as executor:
@@ -982,6 +994,21 @@ def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
                     future.result()
                 except Exception as e:
                     logging.error(f"Error while processing model in parallel: {e}")
+
+    logging.info("All models and datasets processed.")
+
+    # write manifest file to docs/
+    manifest_file = "../docs/manifest.json"
+    result_files = [
+        f for f in os.listdir(results_folder)
+        if f.startswith("results_with_cells_") and f.endswith(".json")
+    ]
+    manifest = {
+        "results_files": result_files
+    }
+    with open(manifest_file, "w") as f:
+        json.dump(manifest, f, indent=2)
+    print(f"Manifest generated with {len(result_files)} files.")
 
 
 ################################################################################
