@@ -298,7 +298,9 @@ async function renderClaimAndTable(resultObj) {
       // Highlight if in resultObj.highlighted_cells
       const columnName = columns[colIndex];
       const highlight = resultObj.highlighted_cells.some(
-        hc => hc.row_index === rowIndex && hc.column_name === columnName
+        hc =>
+          hc.row_index === rowIndex &&
+          hc.column_name.toLowerCase() === columnName.toLowerCase()
       );
       if (highlight) {
         td.classList.add("highlight");
