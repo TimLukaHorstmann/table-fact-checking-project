@@ -186,30 +186,43 @@ function onTableSelectChange() {
 
 // Display claims for the selected table
 function showClaimsForTable(tableId) {
-  const claimListDiv = document.getElementById("claimList");
-  claimListDiv.innerHTML = "";
-
-  const container = document.getElementById("table-container");
-  container.innerHTML = "";
-
-  if (!tableIdToResultsMap[tableId]) return;
-
-  const itemsForTable = tableIdToResultsMap[tableId];
-  itemsForTable.forEach((res, idx) => {
-    const div = document.createElement("div");
-    div.className = "claim-item";
-    div.textContent = `Claim #${idx + 1}: ${res.claim}`;
-    div.addEventListener("click", () => {
-      renderClaimAndTable(res);
+    const claimListDiv = document.getElementById("claimList");
+    claimListDiv.innerHTML = "";
+  
+    const container = document.getElementById("table-container");
+    container.innerHTML = "";
+  
+    if (!tableIdToResultsMap[tableId]) return;
+  
+    const itemsForTable = tableIdToResultsMap[tableId];
+    itemsForTable.forEach((res, idx) => {
+      const div = document.createElement("div");
+      div.className = "claim-item";
+      div.textContent = `Claim #${idx + 1}: ${res.claim}`;
+  
+      // On click, select this claim and render the table
+      div.addEventListener("click", () => {
+        // Remove 'selected' from all .claim-item elements
+        document.querySelectorAll(".claim-item").forEach(item => {
+          item.classList.remove("selected");
+        });
+  
+        // Add 'selected' to the one that was clicked
+        div.classList.add("selected");
+  
+        // Render claim & table
+        renderClaimAndTable(res);
+      });
+  
+      claimListDiv.appendChild(div);
     });
-    claimListDiv.appendChild(div);
-  });
-
-  // Optionally auto-show first claim
-  if (itemsForTable.length > 0) {
-    renderClaimAndTable(itemsForTable[0]);
+  
+    // Optionally auto-show first claim
+    if (itemsForTable.length > 0) {
+      // Simulate a click on the first claim
+      claimListDiv.firstChild.click();
+    }
   }
-}
 
 // Render the claim and the corresponding table with highlights
 async function renderClaimAndTable(resultObj) {

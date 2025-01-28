@@ -536,7 +536,7 @@ def process_claim(model_name: str,
     if "deepseek" in model_name:
         llm = OllamaLLM(model=model_name, params={"n_ctx": 4096, "n_batch": 256})
     else:
-        lm = OllamaLLM(model=model_name)
+        llm = OllamaLLM(model=model_name)
 
     prompt = generate_prompt(table_id, claim, all_csv_folder, learning_type, format_type)
     if prompt is None:
@@ -658,7 +658,7 @@ def process_model(
                         if "deepseek" in model_name:
                             llm = OllamaLLM(model=model_name, params={"n_ctx": 4096, "n_batch": 256})
                         else:
-                            lm = OllamaLLM(model=model_name)
+                            llm = OllamaLLM(model=model_name)
                     except Exception as e:
                         logging.error(f"Failed to initialize model {model_name}: {e}")
                         continue
@@ -903,9 +903,9 @@ def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
     logging.info(f"Current directory: {os.getcwd()}")
 
     test_all = False
-    N = 2
+    N = 5
 
-    models = ["deepseek-r1:14b"] # "mistral", "llama3.2"] #, "phi4"]
+    models = ["mistral", "llama3.2"] #, "phi4"] "deepseek-r1:14b"] # deepseek-r1:1.5b
     learning_types = ["zero_shot"] #, "one_shot", "few_shot"] 
     datasets = [{"test_set": test_json}, {"val_set": val_json}]
     format_type = "naturalized" 
@@ -917,7 +917,7 @@ def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
                 if "deepseek" in model_name:
                     llm = OllamaLLM(model=model_name, params={"n_ctx": 4096, "n_batch": 256})
                 else:
-                    lm = OllamaLLM(model=model_name)
+                    llm = OllamaLLM(model=model_name)
             except Exception as e:
                 logging.error(f"Failed to initialize model {model_name}: {e}")
                 continue
