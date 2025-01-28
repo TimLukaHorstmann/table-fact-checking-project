@@ -1,82 +1,84 @@
-
-Copy
 // app.js
 
-// Remove hard-coded arrays
+// Base URL or relative path to your CSV folder
 const CSV_BASE_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/data/all_csv/";
-let allResults = [];
+
+// Path to your manifest.json
+const MANIFEST_JSON_PATH = "manifest.json"; // Adjust if it's in a different location
+
+let allResults = []; // Array of results objects
 let tableIdToResultsMap = {};
+let availableOptions = {
+  models: new Set(),
+  datasets: new Set(),
+  learningTypes: new Set(),
+  nValues: new Set(),
+  formatTypes: new Set()
+};
 
-document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    // 1. Fetch manifest with available JSON files
-    const manifestResponse = await fetch('manifest.json');
-    if (!manifestResponse.ok) throw new Error("Manifest load failed");
-    const filenames = await manifestResponse.json();
-    
-    // 2. Extract parameters from filenames
-    const { models, datasets, nValues, learningTypes, formatTypes } = parseManifest(filenames);
-
-    // 3. Populate dropdowns dynamically
-    populateSelect("modelSelect", models);
-    populateSelect("datasetSelect", datasets);
-    populateSelect("nValueSelect", nValues);
-    populateSelect("learningTypeSelect", learningTypes);
-    populateSelect("formatTypeSelect", formatTypes);
-
-    document.getElementById("loadBtn").addEventListener("click", loadResults);
-  } catch (error) {
-    console.error("Initialization error:", error);
-    document.getElementById("infoPanel").innerHTML = 
-      `<p style="color:red;">Error initializing: ${error.message}</p>`;
-  }
+// 1) On page load, fetch manifest.json and populate dropdowns
+document.addEventListener("DOMContentLoaded", () => {
+  initializeApp();
 });
 
-// Helper to parse filenames and extract parameters
-function parseManifest(filenames) {
-  const params = {
-    models: new Set(),
-    datasets: new Set(),
-    nValues: new Set(),
-    learningTypes: new Set(),
-    formatTypes: new Set()
-  };
-
-  filenames.forEach(filename => {
-    const parsed = parseFilename(filename);
-    if (parsed) {
-      params.models.add(parsed.model);
-      params.datasets.add(parsed.dataset);
-      params.nValues.add(parsed.n);
-      params.learningTypes.add(parsed.learningType);
-      params.formatTypes.add(parsed.formatType);
-    }
-  });
-
-  // Convert sets to sorted arrays
-  return {
-    models: [...params.models].sort(),
-    datasets: [...params.datasets].sort(),
-    nValues: [...params.nValues].sort(),
-    learningTypes: [...params.learningTypes].sort(),
-    formatTypes: [...params.formatTypes].sort()
-  };
+// Initialize the application
+async function initializeApp() {
+  try {
+    const manifest = await fetchManifest();
+    parseManifest(manifest);
+    populateDropdowns();
+    addLoadButtonListener();
+  } catch (error) {
+    console.error("Initialization failed:", error);
+    const infoPanel = document.getElementById("infoPanel");
+    infoPanel.innerHTML = `<p style="color:red;">Failed to initialize the app: ${error}</p>`;
+  }
 }
 
-// Filename parser (assumes specific structure)
-function parseFilename(filename) {
-  const pattern = /^results_with_cells_([^_]+)_(.+?)_([^_]+)_(.+?)_(.+?)\.json$/;
-  const match = filename.match(pattern);
-  
-  if (!match) return null;
+// Fetch manifest.json
+async function fetchManifest() {
+  const response = await fetch(MANIFEST_JSON_PATH);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch manifest.json: ${response.status} ${response.statusText}`);
+  }
+  const manifest = await response.json();
+  if (!manifest.results_files || !Array.isArray(manifest.results_files)) {
+    throw new Error("Invalid manifest.json format.");
+  }
+  return manifest;
+}
 
-  return {
-    model: match[1],
-    dataset: match[2], // Allows underscores in dataset name
-    n: match[3],
-    learningType: match[4], // Allows underscores in learning type
-    formatType: match[5]
-  };
+// Parse manifest.json and extract options
+function parseManifest(manifest) {
+  manifest.results_files.forEach(filename => {
+    // Expected filename format:
+    // results_with_cells_{MODEL}_{DATASET}_{N}_{LEARNING_TYPE}_{FORMAT_TYPE}.json
+    const regex = /^results_with_cells_(.+?)_(test_set|val_set)_(\d+|all)_(zero_shot|one_shot|few_shot)_(naturalized|markdown)\.json$/;
+    const match = filename.match(regex);
+    if (match) {
+      const [_, model, dataset, nValue, learningType, formatType] = match;
+      availableOptions.models.add(model);
+      availableOptions.datasets.add(dataset);
+      availableOptions.learningTypes.add(learningType);
+      availableOptions.nValues.add(nValue);
+      availableOptions.formatTypes.add(formatType);
+    } else {
+      console.warn(`Filename "${filename}" does not match the expected pattern and will be ignored.`);
+    }
+  });
+}
+
+// Populate dropdowns based on available options
+function populateDropdowns() {
+  populateSelect("modelSelect", Array.from(availableOptions.models).sort());
+  populateSelect("datasetSelect", Array.from(availableOptions.datasets).sort());
+  populateSelect("learningTypeSelect", Array.from(availableOptions.learningTypes).sort());
+  populateSelect("nValueSelect", Array.from(availableOptions.nValues).sort((a, b) => {
+    if (a === "all") return 1;
+    if (b === "all") return -1;
+    return parseInt(a) - parseInt(b);
+  }));
+  populateSelect("formatTypeSelect", Array.from(availableOptions.formatTypes).sort());
 }
 
 // A helper to populate a <select> with an array of strings
@@ -91,6 +93,13 @@ function populateSelect(selectId, values) {
   });
 }
 
+// Add event listener to "Load Results" button
+function addLoadButtonListener() {
+  const loadBtn = document.getElementById("loadBtn");
+  loadBtn.addEventListener("click", loadResults);
+}
+
+// Load the selected results JSON file
 async function loadResults() {
   // Grab user selections
   const modelName = document.getElementById("modelSelect").value;
@@ -113,19 +122,22 @@ async function loadResults() {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     allResults = await response.json();
-    infoPanel.innerHTML = `<p>Loaded <strong>${allResults.length}</strong> results from ${resultsFileName}</p>`;
+    infoPanel.innerHTML = `<p>Loaded <strong>${allResults.length}</strong> results from <strong>${resultsFileName}</strong>.</p>`;
     buildTableMap();
+    populateTableSelect();
   } catch (err) {
     console.error(`Failed to load or parse ${resultsFileName}:`, err);
-    infoPanel.innerHTML = `<p style="color:red;">Failed to load ${resultsFileName}: ${err}</p>`;
+    infoPanel.innerHTML = `<p style="color:red;">Failed to load <strong>${resultsFileName}</strong>: ${err}</p>`;
     allResults = [];
     tableIdToResultsMap = {};
+    document.getElementById("tableSelect").innerHTML = "";
+    document.getElementById("tableSelect").disabled = true;
+    document.getElementById("claimList").innerHTML = "";
+    document.getElementById("table-container").innerHTML = "";
   }
-
-  // Now that we have loaded results, populate tableSelect
-  populateTableSelect();
 }
 
+// Build a map: table_id -> array of results
 function buildTableMap() {
   tableIdToResultsMap = {};
   allResults.forEach(item => {
@@ -137,6 +149,7 @@ function buildTableMap() {
   });
 }
 
+// Populate the tableSelect dropdown
 function populateTableSelect() {
   const tableSelect = document.getElementById("tableSelect");
   tableSelect.innerHTML = ""; // clear
@@ -144,6 +157,7 @@ function populateTableSelect() {
 
   if (tableIds.length === 0) {
     tableSelect.disabled = true;
+    tableSelect.innerHTML = `<option value="">No tables available</option>`;
     return;
   }
 
@@ -155,6 +169,7 @@ function populateTableSelect() {
     tableSelect.appendChild(option);
   });
 
+  tableSelect.removeEventListener("change", onTableSelectChange); // Prevent multiple bindings
   tableSelect.addEventListener("change", onTableSelectChange);
 
   // By default, pick the first
@@ -162,12 +177,14 @@ function populateTableSelect() {
   onTableSelectChange();
 }
 
+// Handle table selection change
 function onTableSelectChange() {
   const tableSelect = document.getElementById("tableSelect");
   const selectedTid = tableSelect.value;
   showClaimsForTable(selectedTid);
 }
 
+// Display claims for the selected table
 function showClaimsForTable(tableId) {
   const claimListDiv = document.getElementById("claimList");
   claimListDiv.innerHTML = "";
@@ -181,7 +198,7 @@ function showClaimsForTable(tableId) {
   itemsForTable.forEach((res, idx) => {
     const div = document.createElement("div");
     div.className = "claim-item";
-    div.textContent = `Claim #${idx+1}: ${res.claim}`;
+    div.textContent = `Claim #${idx + 1}: ${res.claim}`;
     div.addEventListener("click", () => {
       renderClaimAndTable(res);
     });
@@ -194,6 +211,7 @@ function showClaimsForTable(tableId) {
   }
 }
 
+// Render the claim and the corresponding table with highlights
 async function renderClaimAndTable(resultObj) {
   const container = document.getElementById("table-container");
   container.innerHTML = "";
@@ -202,10 +220,10 @@ async function renderClaimAndTable(resultObj) {
   const infoDiv = document.createElement("div");
   infoDiv.className = "info-panel";
   infoDiv.innerHTML = `
-    <p><b>Claim:</b> ${resultObj.claim}</p>
-    <p><b>Predicted Label:</b> ${resultObj.predicted_response ? "TRUE" : "FALSE"}</p>
-    <p><b>Model Raw Output:</b> ${resultObj.resp}</p>
-    <p><b>Ground Truth:</b> ${resultObj.true_response ? "TRUE" : "FALSE"}</p>
+    <p><strong>Claim:</strong> ${resultObj.claim}</p>
+    <p><strong>Predicted Label:</strong> ${resultObj.predicted_response ? "TRUE" : "FALSE"}</p>
+    <p><strong>Model Raw Output:</strong> ${resultObj.resp}</p>
+    <p><strong>Ground Truth:</strong> ${resultObj.true_response ? "TRUE" : "FALSE"}</p>
   `;
   container.appendChild(infoDiv);
 
@@ -213,7 +231,7 @@ async function renderClaimAndTable(resultObj) {
   const csvFileName = resultObj.table_id;
   const csvUrl = CSV_BASE_PATH + csvFileName;
 
-  // fetch CSV
+  // Fetch CSV
   let csvText = "";
   try {
     const resp = await fetch(csvUrl);
@@ -264,7 +282,7 @@ async function renderClaimAndTable(resultObj) {
       const td = document.createElement("td");
       td.textContent = cellVal;
 
-      // highlight if in resultObj.highlighted_cells
+      // Highlight if in resultObj.highlighted_cells
       const columnName = columns[colIndex];
       const highlight = resultObj.highlighted_cells.some(
         hc => hc.row_index === rowIndex && hc.column_name === columnName

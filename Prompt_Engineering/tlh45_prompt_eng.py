@@ -51,7 +51,7 @@ logging.basicConfig(
 #   "highlighted_cells": a list of row/col references
 # ------------------------------------------------------------------------------
 END_OF_PROMPT_INSTRUCTIONS = """
-Return a valid JSON object with two keys:
+Return only a valid JSON object with two keys:
 "answer": must be "TRUE" or "FALSE" (all caps)
 "highlighted_cells": a list of objects, each with "row_index" (int) and "column_name" (string)
 
@@ -533,7 +533,10 @@ def process_claim(model_name: str,
     Helper function for parallel processing of a single claim.
     (If you want to also parse JSON here, you can replicate the same logic as above.)
     """
-    llm = OllamaLLM(model=model_name)
+    if "deepseek" in model_name:
+        llm = OllamaLLM(model=model_name, params={"n_ctx": 4096, "n_batch": 256})
+    else:
+        lm = OllamaLLM(model=model_name)
 
     prompt = generate_prompt(table_id, claim, all_csv_folder, learning_type, format_type)
     if prompt is None:
@@ -652,7 +655,10 @@ def process_model(
                     )
                 else:
                     try:
-                        llm = OllamaLLM(model=model_name)
+                        if "deepseek" in model_name:
+                            llm = OllamaLLM(model=model_name, params={"n_ctx": 4096, "n_batch": 256})
+                        else:
+                            lm = OllamaLLM(model=model_name)
                     except Exception as e:
                         logging.error(f"Failed to initialize model {model_name}: {e}")
                         continue
@@ -899,7 +905,7 @@ def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
     test_all = False
     N = 2
 
-    models = ["mistral"] #, "llama3.2"] #, "phi4"]
+    models = ["deepseek-r1:14b"] # "mistral", "llama3.2"] #, "phi4"]
     learning_types = ["zero_shot"] #, "one_shot", "few_shot"] 
     datasets = [{"test_set": test_json}, {"val_set": val_json}]
     format_type = "naturalized" 
@@ -908,7 +914,10 @@ def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
         for model_name in models:
             logging.info(f"Initializing model: {model_name}")
             try:
-                llm = OllamaLLM(model=model_name)
+                if "deepseek" in model_name:
+                    llm = OllamaLLM(model=model_name, params={"n_ctx": 4096, "n_batch": 256})
+                else:
+                    lm = OllamaLLM(model=model_name)
             except Exception as e:
                 logging.error(f"Failed to initialize model {model_name}: {e}")
                 continue
