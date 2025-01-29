@@ -491,6 +491,13 @@ function setupLiveCheckEvents() {
     validateLiveCheckInputs();
   });
 
+  inputClaimEl.addEventListener("keypress", (event) => {
+      if (event.key === "Enter") {
+          event.preventDefault(); // Prevent new line
+          runLiveCheckBtn.click(); // Trigger execution
+      }
+  });
+
   // 4) "Run Live Check" button
   runLiveCheckBtn.addEventListener("click", async () => {
     if (!deepSeekPipeline) {
@@ -499,8 +506,13 @@ function setupLiveCheckEvents() {
       return;
     }
   
-    // Show the Stop icon
-    document.getElementById("stopLiveCheck").style.display = "inline-flex";
+    // Shrink "Run" button and show "Stop" icon, shrink to 100% minus 30px for icon
+    runLiveCheckBtn.style.width = "calc(100% - 30px)";
+    stopLiveCheckBtn.style.display = "flex";  // Show stop button as flex
+
+    runLiveCheckBtn.disabled = true;
+    runLiveCheckBtn.style.opacity = "0.6";
+    runLiveCheckBtn.style.cursor = "not-allowed";
   
     // Build userPrompt, etc. (same as before) ...
     const tableInput = inputTableEl.value.trim();
@@ -607,6 +619,7 @@ function setupLiveCheckEvents() {
         // Update main output (outside <think>)
         const answerContentMarkdown = marked.parse(finalText);
         const safeAnswerContent = DOMPurify.sanitize(answerContentMarkdown);
+        liveStreamOutputEl.style.display = "block";
         liveStreamOutputEl.innerHTML = `
           <div class="answer-overlay">Answer</div>
           <div id="answerContent">${safeAnswerContent}</div>
@@ -616,6 +629,7 @@ function setupLiveCheckEvents() {
         finalText += token;
         const answerContentMarkdown = marked.parse(finalText);
         const safeAnswerContent = DOMPurify.sanitize(answerContentMarkdown);
+        liveStreamOutputEl.style.display = "block";
         liveStreamOutputEl.innerHTML = `
           <div class="answer-overlay">Answer</div>
           <div id="answerContent">${safeAnswerContent}</div>
@@ -646,7 +660,12 @@ function setupLiveCheckEvents() {
       });
     } catch (err) {
       // Hide stop icon
-      document.getElementById("stopLiveCheck").style.display = "none";
+      runLiveCheckBtn.style.width = "";
+      runLiveCheckBtn.disabled = false;
+      runLiveCheckBtn.style.opacity = "1";
+      runLiveCheckBtn.style.cursor = "pointer";
+
+      stopLiveCheckBtn.style.display = "none"; 
   
       if (err.name === "AbortError" || err.message.includes("aborted")) {
         console.warn("Generation was aborted.");
@@ -659,7 +678,12 @@ function setupLiveCheckEvents() {
     }
   
     // 5) Done generating => hide stop icon
-    document.getElementById("stopLiveCheck").style.display = "none";
+    runLiveCheckBtn.style.width = "";
+    runLiveCheckBtn.disabled = false;
+    runLiveCheckBtn.style.opacity = "1";
+    runLiveCheckBtn.style.cursor = "pointer";
+
+    stopLiveCheckBtn.style.display = "none";
   
     // Because the model might have final leftover text in 'buffer'
     // that we haven't assigned yet, handle that:
@@ -692,15 +716,19 @@ function setupLiveCheckEvents() {
 
   const stopLiveCheckBtn = document.getElementById("stopLiveCheck");
   stopLiveCheckBtn.addEventListener("click", () => {
-    if (globalAbortController) {
-      globalAbortController.abort();
-      console.log("Generation aborted by user.");
-      modelLoadingStatusEl.textContent = "Generation manually stopped.";
-    }
+      if (globalAbortController) {
+          globalAbortController.abort();
+          console.log("Generation aborted by user.");
+      }
+
+      // Restore "Run" button and hide "Stop"
+      runLiveCheckBtn.style.width = "";
+      runLiveCheckBtn.disabled = false;
+      runLiveCheckBtn.style.opacity = "1";
+      runLiveCheckBtn.style.cursor = "pointer";
+
+      stopLiveCheckBtn.style.display = "none"; 
   });
-  stopLiveCheckBtn.disabled = true;
-  stopLiveCheckBtn.style.opacity = "0.6";
-  stopLiveCheckBtn.style.cursor = "not-allowed";
 
 }
 
