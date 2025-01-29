@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const manifest = await fetchManifest();
     parseManifest(manifest);
     populateDropdowns();
+    populateExistingTableDropdown();
     addLoadButtonListener();
 
     // 2) Setup tab switching
@@ -366,9 +367,79 @@ async function renderClaimAndTable(resultObj) {
   container.appendChild(tableEl);
 }
 
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
 // ---------------------
 // LIVE CHECK LOGIC
 // ---------------------
+
+
+async function populateExistingTableDropdown() {
+  const existingTableSelect = document.getElementById("existingTableSelect");
+  existingTableSelect.innerHTML = `<option value="">-- Select a Table --</option>`;
+
+  try {
+    // Fetch all CSV IDs from docs/all_csv_ids.json
+    const response = await fetch("https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/data/all_csv_ids.json");
+    if (!response.ok) throw new Error(`Failed to fetch all_csv_ids.json: ${response.statusText}`);
+
+    const csvIds = await response.json();
+    if (!csvIds || !Array.isArray(csvIds)) throw new Error("Invalid format for all_csv_ids.json.");
+
+    // Populate dropdown with CSVs
+    csvIds.sort().forEach(csvFile => {
+      const option = document.createElement("option");
+      option.value = csvFile;
+      option.textContent = csvFile;
+      existingTableSelect.appendChild(option);
+    });
+
+    // Add event listener to fetch table when selected
+    existingTableSelect.addEventListener("change", async () => {
+      const selectedFile = existingTableSelect.value;
+      if (!selectedFile) return;
+      await fetchAndFillTable(selectedFile);
+    });
+
+  } catch (error) {
+    console.error("Error loading CSV list:", error);
+    alert("Failed to fetch available tables. Please try again later.");
+  }
+}
+
+
+async function fetchAndFillTable(tableId) {
+  const inputTableEl = document.getElementById("inputTable");
+  const previewContainer = document.getElementById("livePreviewTable");
+
+  inputTableEl.value = "";  // Clear previous input
+  previewContainer.innerHTML = "";  // Clear previous preview
+
+  const csvUrl = CSV_BASE_PATH + tableId;
+
+  try {
+    const response = await fetch(csvUrl);
+    if (!response.ok) throw new Error(`Failed to fetch CSV: ${response.statusText}`);
+
+    const csvText = await response.text();
+    inputTableEl.value = csvText;  // Fill the textarea
+    renderLivePreviewTable(csvText, []);  // Update live preview
+    validateLiveCheckInputs(); // Ensure "Run Check" button is enabled
+  } catch (error) {
+    console.error("Error loading table CSV:", error);
+    alert("Failed to load table from dataset.");
+  }
+}
+
+
 
 /**
  * Validate if both Table and Claim inputs are non-empty.
@@ -523,27 +594,37 @@ function setupLiveCheckEvents() {
         // Show thinking area if there's any text
         if (thinkText.trim().length > 0) {
           liveThinkOutputEl.style.display = "block";
+          const thinkContentMarkdown = marked.parse(thinkText.trim());
+          const safeThinkContent = DOMPurify.sanitize(thinkContentMarkdown);
           liveThinkOutputEl.innerHTML = `
             <div class="thinking-overlay">
               <span id="thinkingLabel" class="thinking-label">Thinking...</span>
             </div>
-            <div id="thinkContent">${thinkText.trim()}</div>
+            <div id="thinkContent">${safeThinkContent}</div>
           `;
         }
 
         // Update main output (outside <think>)
+        const answerContentMarkdown = marked.parse(finalText);
+        const safeAnswerContent = DOMPurify.sanitize(answerContentMarkdown);
         liveStreamOutputEl.innerHTML = `
           <div class="answer-overlay">Answer</div>
-          <div id="answerContent">${finalText}</div>
+          <div id="answerContent">${safeAnswerContent}</div>
         `;
       } else {
         // For non-deepseek models, treat all output as final
         finalText += token;
+        const answerContentMarkdown = marked.parse(finalText);
+        const safeAnswerContent = DOMPurify.sanitize(answerContentMarkdown);
         liveStreamOutputEl.innerHTML = `
           <div class="answer-overlay">Answer</div>
-          <div id="answerContent">${finalText}</div>
+          <div id="answerContent">${safeAnswerContent}</div>
         `;
       }
+      // After updating innerHTML
+      document.querySelectorAll('#thinkContent pre code, #answerContent pre code').forEach((block) => {
+        hljs.highlightElement(block);
+      });
     };
   
     // 3) Construct the streamer using our custom callback
@@ -765,12 +846,6 @@ function csvToMarkdown(csvStr) {
   return md;
 }
 
-/**
- * Attempt to parse JSON from the model's raw output.
- * 1) Extract JSON inside ```json ... ``` fences if present.
- * 2) Clean and attempt to fix common JSON issues.
- * 3) Parse and return valid JSON.
- */
 function extractJsonFromResponse(rawResponse) {
   let jsonText = rawResponse.trim();
 
@@ -781,21 +856,42 @@ function extractJsonFromResponse(rawResponse) {
     jsonText = fenceMatch[1].trim();
   }
 
-  // 2) Clean known issues:
-  // - Replace `{N, "value"}` with `{"row_index": N, "column_name": "value"}`
+  // 2) Fix common formatting errors
+
+  // - Replace {row_index, "column_name"} with {"row_index": row_index, "column_name": "column_name"}
+  // Updated Regex to allow numeric row_index
   jsonText = jsonText.replace(
-    /\{(\d+),\s*"([^"]+)"\}/g, 
-    '{"row_index": $1, "column_name": "$2"}'
+    /\{(\d+|[^"\s]+),\s*"([^"]+)"\}/g,
+    '{"row_index": "$1", "column_name": "$2"}'
   );
+
+  // - Ensure all keys are properly quoted
+  jsonText = jsonText.replace(
+    /(\{|,)\s*([\w\d_]+)\s*:/g,
+    '$1 "$2":'
+  );
+
+  // - Fix unquoted values like TRUE/FALSE → "TRUE"/"FALSE"
+  jsonText = jsonText.replace(
+    /:\s*(TRUE|FALSE)([\s,\}])/gi,
+    ': "$1"$2'
+  );
+
+  // - Handle single quotes (change to double quotes)
+  jsonText = jsonText.replace(/'/g, '"');
 
   // 3) Attempt to parse JSON
   try {
     return JSON.parse(jsonText);
   } catch (err) {
     console.warn("[extractJsonFromResponse] Could not parse JSON:", err);
+    // Print raw for debugging
+    console.log("Attempted JSON Text:", jsonText);
     return {}; // Return empty object as a fallback
   }
 }
+
+
 
 
 function separateThinkFromResponse(rawText) {
