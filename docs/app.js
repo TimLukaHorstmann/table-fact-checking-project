@@ -72,11 +72,9 @@ async function initDeepSeekPipeline() {
     try {
       generator = await pipeline("text-generation",
         "onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX",
+        //"onnx-community/Qwen2.5-0.5B-Instruct",
         {
-          // Attempt half precision
-          dtype: "q4f16",
-          // or if you want to be explicit:
-          // backend: "webgpu"
+          dtype: "q4f16", device: "webgpu"
         }
       );
     } catch (gpuErr) {
