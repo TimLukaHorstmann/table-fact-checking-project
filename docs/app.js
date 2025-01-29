@@ -20,12 +20,14 @@ let availableOptions = {
   nValues: new Set(),
   formatTypes: new Set()
 };
+let globalAbortController = null;
 
 // We'll store the pipeline object here for the live check
 let deepSeekPipeline = null;
 
 // Some quick references
 const modelLoadingStatusEl = document.getElementById("modelLoadingStatus");
+const liveThinkOutputEl = document.getElementById("liveThinkOutput"); 
 const liveStreamOutputEl = document.getElementById("liveStreamOutput");
 
 // ---------------------
@@ -376,11 +378,16 @@ function validateLiveCheckInputs() {
   const tableInput = document.getElementById("inputTable").value.trim();
   const claimInput = document.getElementById("inputClaim").value.trim();
   const runLiveCheckBtn = document.getElementById("runLiveCheck");
+  const stopLiveCheckBtn = document.getElementById("stopLiveCheck");
 
   if (tableInput && claimInput) {
     runLiveCheckBtn.disabled = false;
     runLiveCheckBtn.style.opacity = "1";
     runLiveCheckBtn.style.cursor = "pointer";
+
+    stopLiveCheckBtn.disabled = false;
+    stopLiveCheckBtn.style.opacity = "1";
+    stopLiveCheckBtn.style.cursor = "pointer";
   } else {
     runLiveCheckBtn.disabled = true;
     runLiveCheckBtn.style.opacity = "0.6";
@@ -420,94 +427,187 @@ function setupLiveCheckEvents() {
       modelLoadingStatusEl.textContent = "Model not ready. Please load a model first.";
       return;
     }
-
-    // Read user inputs
+  
+    // Show the Stop icon
+    document.getElementById("stopLiveCheck").style.display = "inline-flex";
+  
+    // Build userPrompt, etc. (same as before) ...
     const tableInput = inputTableEl.value.trim();
     const claimInput = inputClaimEl.value.trim();
-
-    // Additional validation to ensure inputs are not empty
     if (!tableInput || !claimInput) {
       alert("Please provide both a table and a claim before running the live check.");
       return;
     }
-
-    // Convert CSV to Markdown table for prompt
     const tablePrompt = csvToMarkdown(tableInput);
-
-    // Construct user prompt
     const userPrompt = `
-You are tasked with determining whether a claim about the following table (in Markdown) is TRUE or FALSE.
-
-Table (Markdown):
-${tablePrompt}
-
-Claim: "${claimInput}"
-
-Instructions:
-- Carefully check each condition in the claim against the table and determine which cells are relevant to the claim. These are the "highlighted_cells".
-- If fully supported, the 'answer' should be "TRUE". Otherwise "FALSE".
-- Return only a valid JSON object with two keys:
-"answer": must be "TRUE" or "FALSE" (all caps)
-"highlighted_cells": a list of objects, each with "row_index" (int) and "column_name" (string)
-
-For example:
-
-{{
-  "answer": "TRUE",
-  "highlighted_cells": [
-    {{"row_index": 0, "column_name": "Revenue"}},
-    {{"row_index": 1, "column_name": "Employees"}}
-  ]
-}}
-
-No extra keys, no extra text. Just that JSON.
-`.trim();
-
-    // Clear any old streaming text
+  You are checking if a claim about the following table is TRUE or FALSE ("answer") and which cells support it ("highlighted_cells").
+  Output ONLY valid JSON with keys "answer" ("TRUE" or "FALSE") and "highlighted_cells" (list of {row_index, column_name}).
+  
+  Markdown table:
+  ${tablePrompt}
+  
+  Claim: "${claimInput}"
+  `.trim();
+    
+  // Clear old output
+    liveThinkOutputEl.textContent = "";
+    liveThinkOutputEl.style.display = "none";
     liveStreamOutputEl.textContent = "";
-
-    // Prepare a TextStreamer for partial tokens
+  
+    // Setup AbortController
+    globalAbortController = new AbortController();
+    const signal = globalAbortController.signal;
+  
+    // Check if we are using DeepSeek:
+    const selectedModelId = document.getElementById("liveModelSelect").value;
+    const isDeepSeek = selectedModelId.includes("DeepSeek");
+  
+    // We'll keep a buffer for partial tokens, so we can handle <think> or </think> crossing chunk boundaries
+    let buffer = "";           
+    let inThinkBlock = false;  
+    let finalText = "";        // everything outside <think>...</think>
+    let thinkText = "";        // everything inside <think>...</think>
+  
+    // 2) Create a custom callback
+    const customCallback = (token) => {
+      // If user clicked "STOP"
+      if (signal.aborted) {
+        throw new Error("User aborted generation.");
+      }
+      // Accumulate new chunk
+      buffer += token;
+  
+      // We'll look for <think> or </think> in 'buffer'
+      // and move text to the correct place.
+      while (true) {
+        // If we are NOT currently in the <think> block, check if <think> is found
+        if (!inThinkBlock) {
+          const startIdx = buffer.indexOf("<think>");
+          if (startIdx === -1) {
+            // No <think>, so all text belongs to final
+            finalText += buffer;
+            buffer = "";
+            break;
+          } else {
+            // Everything before <think> belongs to final
+            finalText += buffer.slice(0, startIdx);
+            // Now we enter the think block
+            inThinkBlock = true;
+            // Remove that portion + <think> from the buffer
+            buffer = buffer.slice(startIdx + "<think>".length);
+          }
+        } 
+        // If we ARE in the <think> block, look for </think>
+        else {
+          const endIdx = buffer.indexOf("</think>");
+          if (endIdx === -1) {
+            // All text is inside the think block for now
+            thinkText += buffer;
+            buffer = "";
+            break;
+          } else {
+            // Everything up to </think> is in the think block
+            thinkText += buffer.slice(0, endIdx);
+            // We exit the think block
+            inThinkBlock = false;
+            // Remove that portion + </think> from buffer
+            buffer = buffer.slice(endIdx + "</think>".length);
+            // And continue the while loop to see if there's more <think> in buffer
+          }
+        }
+      }
+  
+      // Update the UI (in real-time)
+      if (isDeepSeek) {
+        // Show the thinking portion (if we have any) in the #liveThinkOutput
+        if (thinkText.trim().length > 0) {
+          liveThinkOutputEl.style.display = "block";
+          liveThinkOutputEl.textContent = thinkText.trim();
+        }
+        // Show the outside portion in #liveStreamOutput
+        liveStreamOutputEl.textContent = finalText;
+      } else {
+        // For non-deepseek models, just dump everything to final
+        finalText += token;
+        liveStreamOutputEl.textContent = finalText;
+      }
+    };
+  
+    // 3) Construct the streamer using our custom callback
     const { TextStreamer } = window._transformers;
     const streamer = new TextStreamer(deepSeekPipeline.tokenizer, {
       skip_prompt: true,
-      callback_function: (token) => {
-        liveStreamOutputEl.textContent += token;
-      }
+      callback_function: customCallback
     });
-
+  
+    // 4) Invoke the pipeline
     let result;
     try {
-      // Chat format
       const messages = [{ role: "user", content: userPrompt }];
       result = await deepSeekPipeline(messages, {
-        max_new_tokens: 2048,
+        max_new_tokens: 1024,
         do_sample: false,
-        streamer
+        streamer,
+        signal
       });
     } catch (err) {
+      // Hide stop icon
+      document.getElementById("stopLiveCheck").style.display = "none";
+  
+      if (err.name === "AbortError" || err.message.includes("aborted")) {
+        console.warn("Generation was aborted.");
+        liveStreamOutputEl.textContent += "\n\n[Generation Aborted]";
+        return;
+      }
       console.error("Error running pipeline:", err);
       liveStreamOutputEl.textContent += `\n\n[Error: ${err}]`;
       return;
     }
-
-    // Extract final text
-    const rawResponse = (Array.isArray(result) && result.length > 0)
-      ? result[0].generated_text?.at(-1)?.content || ""
-      : "";
-
-    // Attempt to parse the JSON robustly
+  
+    // 5) Done generating => hide stop icon
+    document.getElementById("stopLiveCheck").style.display = "none";
+  
+    // Because the model might have final leftover text in 'buffer'
+    // that we haven't assigned yet, handle that:
+    if (buffer.length > 0) {
+      // If we were inThinkBlock, add it to thinkText
+      if (inThinkBlock) {
+        thinkText += buffer;
+      } else {
+        finalText += buffer;
+      }
+    }
+  
+    // Finally, the text outside <think> is in finalText
+    // We'll treat that as the "rawResponse" to parse for JSON
+    // (The user specifically wants the JSON part AFTER the think block)
+    const rawResponse = finalText.trim();
+  
+    // Attempt to parse JSON
     const parsed = extractJsonFromResponse(rawResponse);
-
     const finalAnswer = parsed.answer || "UNKNOWN";
     const highlightedCells = parsed.highlighted_cells || [];
-
-    // Update UI
+  
+    // Show final answer & highlight table
     displayLiveResults(tableInput, claimInput, finalAnswer, highlightedCells);
   });
    // Initially disable the "Run Live Check" button
   runLiveCheckBtn.disabled = true;
   runLiveCheckBtn.style.opacity = "0.6";
   runLiveCheckBtn.style.cursor = "not-allowed";
+
+  const stopLiveCheckBtn = document.getElementById("stopLiveCheck");
+  stopLiveCheckBtn.addEventListener("click", () => {
+    if (globalAbortController) {
+      globalAbortController.abort();
+      console.log("Generation aborted by user.");
+      modelLoadingStatusEl.textContent = "Generation manually stopped.";
+    }
+  });
+  stopLiveCheckBtn.disabled = true;
+  stopLiveCheckBtn.style.opacity = "0.6";
+  stopLiveCheckBtn.style.cursor = "not-allowed";
+
 }
 
 
@@ -680,4 +780,17 @@ function extractJsonFromResponse(rawResponse) {
 
   // 3) Fallback
   return {};
+}
+
+function separateThinkFromResponse(rawText) {
+  // Regex: capture everything between <think> and </think>
+  const thinkRegex = /<think>([\s\S]*?)<\/think>/i;
+  const match = rawText.match(thinkRegex);
+  let thinkContent = "";
+  let remainder = rawText;
+  if (match) {
+    thinkContent = match[1].trim();
+    remainder = rawText.replace(thinkRegex, "").trim();
+  }
+  return { think: thinkContent, noThink: remainder };
 }
