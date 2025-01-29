@@ -350,7 +350,7 @@ async function renderClaimAndTable(resultObj) {
 
       // Highlight if listed
       const columnName = columns[colIndex];
-      const shouldHighlight = resultObj.highlighted_cells.some(
+      const shouldHighlight = resultObj.relevant_cells.some(
         hc => hc.row_index === rowIndex &&
               hc.column_name.toLowerCase() === columnName.toLowerCase()
       );
@@ -440,9 +440,9 @@ function setupLiveCheckEvents() {
     }
     const tablePrompt = csvToMarkdown(tableInput);
     const userPrompt = `
-  You are checking if a claim about the following table is TRUE or FALSE ("answer") and which cells support it ("highlighted_cells").
-  Output ONLY valid JSON with keys "answer" ("TRUE" or "FALSE") and "highlighted_cells" (list of {row_index, column_name}).
-  
+  You are checking if a claim about the following table is TRUE or FALSE ("answer") and which cells support it ("relevant_cells").
+  Output ONLY valid JSON with keys "answer" ("TRUE" or "FALSE") and "relevant_cells" (list of {row_index, column_name} pairs, where the column_name must match EXACTLY one of the coumn names in the table).
+
   Markdown table:
   ${tablePrompt}
   
@@ -518,18 +518,31 @@ function setupLiveCheckEvents() {
       }
   
       // Update the UI (in real-time)
+      // Update UI elements
       if (isDeepSeek) {
-        // Show the thinking portion (if we have any) in the #liveThinkOutput
+        // Show thinking area if there's any text
         if (thinkText.trim().length > 0) {
           liveThinkOutputEl.style.display = "block";
-          liveThinkOutputEl.textContent = thinkText.trim();
+          liveThinkOutputEl.innerHTML = `
+            <div class="thinking-overlay">
+              <span id="thinkingLabel" class="thinking-label">Thinking...</span>
+            </div>
+            <div id="thinkContent">${thinkText.trim()}</div>
+          `;
         }
-        // Show the outside portion in #liveStreamOutput
-        liveStreamOutputEl.textContent = finalText;
+
+        // Update main output (outside <think>)
+        liveStreamOutputEl.innerHTML = `
+          <div class="answer-overlay">Answer</div>
+          <div id="answerContent">${finalText}</div>
+        `;
       } else {
-        // For non-deepseek models, just dump everything to final
+        // For non-deepseek models, treat all output as final
         finalText += token;
-        liveStreamOutputEl.textContent = finalText;
+        liveStreamOutputEl.innerHTML = `
+          <div class="answer-overlay">Answer</div>
+          <div id="answerContent">${finalText}</div>
+        `;
       }
     };
   
@@ -586,10 +599,10 @@ function setupLiveCheckEvents() {
     // Attempt to parse JSON
     const parsed = extractJsonFromResponse(rawResponse);
     const finalAnswer = parsed.answer || "UNKNOWN";
-    const highlightedCells = parsed.highlighted_cells || [];
+    const relevantCells = parsed.relevant_cells || [];
   
     // Show final answer & highlight table
-    displayLiveResults(tableInput, claimInput, finalAnswer, highlightedCells);
+    displayLiveResults(tableInput, claimInput, finalAnswer, relevantCells);
   });
    // Initially disable the "Run Live Check" button
   runLiveCheckBtn.disabled = true;
@@ -654,9 +667,9 @@ async function initLivePipeline(modelId) {
 
 /**
  * Render the CSV as an HTML table (live preview).
- * `highlightedCells` is an array of {row_index, column_name} if we want to highlight cells.
+ * `relevantCells` is an array of {row_index, column_name} if we want to highlight cells.
  */
-function renderLivePreviewTable(csvText, highlightedCells) {
+function renderLivePreviewTable(csvText, relevantCells) {
   const previewContainer = document.getElementById("livePreviewTable");
   previewContainer.innerHTML = ""; // Clear old table
 
@@ -696,7 +709,7 @@ function renderLivePreviewTable(csvText, highlightedCells) {
 
       // Check highlight
       const colName = columns[colIndex];
-      const shouldHighlight = highlightedCells.some(
+      const shouldHighlight = relevantCells.some(
         hc => hc.row_index === rowIndex &&
               hc.column_name?.toLowerCase() === colName.toLowerCase()
       );
@@ -716,7 +729,7 @@ function renderLivePreviewTable(csvText, highlightedCells) {
 /**
  * Display final claim + result + highlight cells in the existing live preview table
  */
-function displayLiveResults(csvText, claim, answer, highlightedCells) {
+function displayLiveResults(csvText, claim, answer, relevantCells) {
   // 1) Show the claim + model's final answer
   const liveClaimList = document.getElementById("liveClaimList");
   liveClaimList.innerHTML = ""; // Clear old
@@ -726,7 +739,7 @@ function displayLiveResults(csvText, claim, answer, highlightedCells) {
   liveClaimList.appendChild(claimDiv);
 
   // 2) Re-render the same table with highlights
-  renderLivePreviewTable(csvText, highlightedCells);
+  renderLivePreviewTable(csvText, relevantCells);
 }
 
 /**
@@ -754,33 +767,36 @@ function csvToMarkdown(csvStr) {
 
 /**
  * Attempt to parse JSON from the model's raw output.
- * 1) Look for ```json code fence
- * 2) If that fails, try to parse entire rawResponse
- * 3) Otherwise return {}
+ * 1) Extract JSON inside ```json ... ``` fences if present.
+ * 2) Clean and attempt to fix common JSON issues.
+ * 3) Parse and return valid JSON.
  */
 function extractJsonFromResponse(rawResponse) {
-  // 1) Regex for code fence: ```json ... ```
+  let jsonText = rawResponse.trim();
+
+  // 1) Extract JSON inside ```json ... ```
   const fencePattern = /```json\s*([\s\S]*?)\s*```/i;
-  const fenceMatch = rawResponse.match(fencePattern);
+  const fenceMatch = jsonText.match(fencePattern);
   if (fenceMatch) {
-    const jsonText = fenceMatch[1].trim();
-    try {
-      return JSON.parse(jsonText);
-    } catch (jsonErr) {
-      console.warn("[extractJsonFromResponse] Could not parse code-fenced JSON:", jsonErr);
-    }
+    jsonText = fenceMatch[1].trim();
   }
 
-  // 2) Try parsing entire response
+  // 2) Clean known issues:
+  // - Replace `{N, "value"}` with `{"row_index": N, "column_name": "value"}`
+  jsonText = jsonText.replace(
+    /\{(\d+),\s*"([^"]+)"\}/g, 
+    '{"row_index": $1, "column_name": "$2"}'
+  );
+
+  // 3) Attempt to parse JSON
   try {
-    return JSON.parse(rawResponse);
+    return JSON.parse(jsonText);
   } catch (err) {
-    console.warn("[extractJsonFromResponse] Could not parse entire response as JSON:", err);
+    console.warn("[extractJsonFromResponse] Could not parse JSON:", err);
+    return {}; // Return empty object as a fallback
   }
-
-  // 3) Fallback
-  return {};
 }
+
 
 function separateThinkFromResponse(rawText) {
   // Regex: capture everything between <think> and </think>

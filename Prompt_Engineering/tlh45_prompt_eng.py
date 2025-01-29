@@ -48,18 +48,18 @@ logging.basicConfig(
 # UPDATED END_OF_PROMPT_INSTRUCTIONS: 
 # We instruct the model to produce a single JSON with two fields:
 #   "answer" : "TRUE" or "FALSE"
-#   "highlighted_cells": a list of row/col references
+#   "relevant_cells": a list of row/col references
 # ------------------------------------------------------------------------------
 END_OF_PROMPT_INSTRUCTIONS = """
 Return only a valid JSON object with two keys:
 "answer": must be "TRUE" or "FALSE" (all caps)
-"highlighted_cells": a list of objects, each with "row_index" (int) and "column_name" (string)
+"relevant_cells": a list of objects, each with "row_index" (int) and "column_name" (string)
 
 For example:
 
 {{
   "answer": "TRUE",
-  "highlighted_cells": [
+  "relevant_cells": [
     {{"row_index": 0, "column_name": "Revenue"}},
     {{"row_index": 1, "column_name": "Employees"}}
   ]
@@ -78,7 +78,7 @@ Table (Markdown):
 Claim: "{claim}"
 
 Instructions:
-- Carefully check each condition in the claim against the table and determine which cells are relevant to the claim. These are the "highlighted_cells".
+- Carefully check each condition in the claim against the table and determine which cells are relevant to the claim. These are the "relevant_cells".
 - If fully supported, the 'answer' should be "TRUE". Otherwise "FALSE".
 """ + END_OF_PROMPT_INSTRUCTIONS
 
@@ -322,7 +322,7 @@ def generate_prompt(
 ) -> Optional[str]:
     """
     Generate a single prompt for a specific table and claim, 
-    instructing the model to produce a JSON with "answer" and "highlighted_cells".
+    instructing the model to produce a JSON with "answer" and "relevant_cells".
     """
     table = load_table(all_csv_folder, table_id)
     if table is None:
@@ -426,7 +426,7 @@ def test_model_on_claims(
     that returns JSON of the form:
       {
         "answer": "TRUE" or "FALSE",
-        "highlighted_cells": [
+        "relevant_cells": [
           {"row_index": 0, "column_name": "Revenue"},
           ...
         ]
@@ -484,15 +484,15 @@ def test_model_on_claims(
                 continue
 
             # -----------------------------
-            # Parse the JSON to extract "answer" and "highlighted_cells"
+            # Parse the JSON to extract "answer" and "relevant_cells"
             # If parsing fails, we default to "FALSE" and empty cells
             # -----------------------------
             parsed_answer = "FALSE"
-            highlighted_cells = []
+            relevant_cells = []
             try:
                 parsed_dict = extract_json_from_response(raw_response)
                 parsed_answer = parsed_dict.get("answer", "FALSE").upper()
-                highlighted_cells = parsed_dict.get("highlighted_cells", [])
+                relevant_cells = parsed_dict.get("relevant_cells", [])
             except Exception as e:
                 logging.warning(f"Failed to parse JSON from model output for table {table_id}, claim='{claim}'. "
                                 f"Raw response was:\n{raw_response}")
@@ -506,7 +506,7 @@ def test_model_on_claims(
                 "predicted_response": predicted_label,
                 "resp": raw_response,    # store the raw model response for debugging
                 "true_response": true_label,
-                "highlighted_cells": highlighted_cells  # store the parsed cells
+                "relevant_cells": relevant_cells  # store the parsed cells
             }
 
             results.append(row_result)
@@ -546,18 +546,18 @@ def process_claim(model_name: str,
             "predicted_response": None,
             "resp": "PROMPT_ERROR",
             "true_response": true_label,
-            "highlighted_cells": []
+            "relevant_cells": []
         }
     
     raw_response = llm.invoke(prompt).strip()
 
     # Attempt JSON parse:
     parsed_answer = "FALSE"
-    highlighted_cells = []
+    relevant_cells = []
     try:
         parsed_dict = extract_json_from_response(raw_response)
         parsed_answer = parsed_dict.get("answer", "FALSE").upper()
-        highlighted_cells = parsed_dict.get("highlighted_cells", [])
+        relevant_cells = parsed_dict.get("relevant_cells", [])
     except:
         pass
 
@@ -569,7 +569,7 @@ def process_claim(model_name: str,
         "predicted_response": predicted_label,
         "resp": raw_response,
         "true_response": true_label,
-        "highlighted_cells": highlighted_cells
+        "relevant_cells": relevant_cells
     }
 
 
