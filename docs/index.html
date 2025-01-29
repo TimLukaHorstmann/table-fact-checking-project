@@ -15,6 +15,12 @@
   </header>
 
   <main class="container">
+
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="precomputed">Precomputed Results</button>
+      <button class="mode-tab" data-mode="live">Live Check</button>
+    </div>
+
     <section class="controls">
       <div class="select-group">
         <label for="modelSelect">Model:</label>
@@ -52,6 +58,29 @@
       <div id="claimList" class="claim-list"></div>
       <div id="table-container"></div>
     </section>
+
+
+  <!-- Add this new section before the footer -->
+  <section id="liveCheckSection" class="results-section" style="display: none;">
+    <div class="live-input-section">
+      <div class="input-group">
+        <label for="inputTable">Paste Table (CSV format):</label>
+        <textarea id="inputTable" rows="6"></textarea>
+      </div>
+      <div class="input-group">
+        <label for="inputClaim">Enter Claim:</label>
+        <textarea id="inputClaim" rows="3"></textarea>
+      </div>
+      <button id="runLiveCheck" class="btn-primary">Run Live Check</button>
+    </div>
+    
+    <div id="liveResults" class="live-results">
+      <!-- This will contain similar structure to the precomputed results -->
+      <div id="liveClaimList" class="claim-list"></div>
+      <div id="liveTableContainer" class="table-container"></div>
+    </div>
+  </section>
+
   </main>
 
   <footer>
@@ -62,6 +91,23 @@
     </div>
   </footer>
 
+  <!-- Load transformers.js from a CDN, and expose the relevant symbols on window._transformers -->
+  <script type="module">
+    import {
+      pipeline,
+      AutoTokenizer,
+      AutoModelForCausalLM,
+    } from "https://cdn.jsdelivr.net/npm/@xenova/transformers/dist/transformers.min.js";
+
+    // Attach them to window so that app.js can use them:
+    window._transformers = {
+      pipeline,
+      AutoTokenizer,
+      AutoModelForCausalLM,
+    };
+  </script>
+
   <script src="app.js"></script>
+
 </body>
 </html>
