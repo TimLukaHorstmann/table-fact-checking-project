@@ -78,7 +78,7 @@ Table (Markdown):
 Claim: "{claim}"
 
 Instructions:
-- Carefully check each condition in the claim against the table.
+- Carefully check each condition in the claim against the table and determine which cells are relevant to the claim. These are the "highlighted_cells".
 - If fully supported, the 'answer' should be "TRUE". Otherwise "FALSE".
 """ + END_OF_PROMPT_INSTRUCTIONS
 

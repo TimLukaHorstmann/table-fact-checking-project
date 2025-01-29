@@ -16,37 +16,40 @@
 
   <main class="container">
 
+    <!-- Mode Tabs -->
     <div class="mode-tabs">
       <button class="mode-tab active" data-mode="precomputed">Precomputed Results</button>
       <button class="mode-tab" data-mode="live">Live Check</button>
     </div>
 
-    <section class="controls">
-      <div class="select-group">
-        <label for="modelSelect">Model:</label>
-        <select id="modelSelect"></select>
-      </div>
-      <div class="select-group">
-        <label for="datasetSelect">Dataset:</label>
-        <select id="datasetSelect"></select>
-      </div>
-      <div class="select-group">
-        <label for="learningTypeSelect">Learning Type:</label>
-        <select id="learningTypeSelect"></select>
-      </div>
-      <div class="select-group">
-        <label for="nValueSelect">N:</label>
-        <select id="nValueSelect"></select>
-      </div>
-      <div class="select-group">
-        <label for="formatTypeSelect">Format:</label>
-        <select id="formatTypeSelect"></select>
-      </div>
-
-      <button id="loadBtn" class="btn-primary">Load Results</button>
-    </section>
-
+    <!-- Precomputed Results Section -->
     <section id="resultsSection" class="results-section">
+      <!-- Controls for precomputed results -->
+      <section class="controls">
+        <div class="select-group">
+          <label for="modelSelect">Model:</label>
+          <select id="modelSelect"></select>
+        </div>
+        <div class="select-group">
+          <label for="datasetSelect">Dataset:</label>
+          <select id="datasetSelect"></select>
+        </div>
+        <div class="select-group">
+          <label for="learningTypeSelect">Learning Type:</label>
+          <select id="learningTypeSelect"></select>
+        </div>
+        <div class="select-group">
+          <label for="nValueSelect">N:</label>
+          <select id="nValueSelect"></select>
+        </div>
+        <div class="select-group">
+          <label for="formatTypeSelect">Format:</label>
+          <select id="formatTypeSelect"></select>
+        </div>
+
+        <button id="loadBtn" class="btn-primary">Load Results</button>
+      </section>
+
       <div id="infoPanel" class="info-panel">
         <p>Select a table from the dropdown once the data is loaded.</p>
       </div>
@@ -61,28 +64,50 @@
 
     <!-- Live Check Section -->
     <section id="liveCheckSection" class="results-section" style="display: none;">
-      <!-- Show model loading status here -->
+      <!-- Model loading status -->
       <div id="modelLoadingStatus" class="model-loading-status"></div>
 
       <div class="live-input-section">
-        <div class="input-group">
-          <label for="inputTable">Paste Table (CSV format):</label>
-          <textarea id="inputTable" rows="6"></textarea>
+        <!-- Model chooser for live inference -->
+        <div class="model-chooser">
+          <label for="liveModelSelect">Model:</label>
+          <select id="liveModelSelect">
+            <!-- Add or remove model options as desired -->
+            <option value="onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX">
+              DeepSeek-R1-Distill-Qwen-1.5B-ONNX
+            </option>
+            <option value="onnx-community/Qwen2.5-0.5B-Instruct">
+              Qwen2.5-0.5B-Instruct
+            </option>
+          </select>
+          <button id="loadLiveModel" class="btn-primary">Load Model</button>
         </div>
+
+        <!-- CSV input + live preview -->
+        <div class="input-group">
+          <label for="inputTable">Paste Table (CSV format, # delimited):</label>
+          <textarea id="inputTable" rows="6"></textarea>
+
+          <!-- Live table preview -->
+          <div id="livePreviewTable" class="table-container"></div>
+        </div>
+
+        <!-- Claim input -->
         <div class="input-group">
           <label for="inputClaim">Enter Claim:</label>
           <textarea id="inputClaim" rows="3"></textarea>
         </div>
+
+        <!-- Run button -->
         <button id="runLiveCheck" class="btn-primary">Run Live Check</button>
       </div>
 
-      <!-- Partial text streaming output area -->
+      <!-- Streaming output area -->
       <div id="liveStreamOutput" class="live-stream-output"></div>
 
+      <!-- Final result area -->
       <div id="liveResults" class="live-results">
-        <!-- This will contain similar structure to the precomputed results -->
         <div id="liveClaimList" class="claim-list"></div>
-        <div id="liveTableContainer" class="table-container"></div>
       </div>
     </section>
 
@@ -96,7 +121,7 @@
     </div>
   </footer>
 
-  <!-- Load transformers.js from a CDN, and expose the relevant symbols on window._transformers -->
+  <!-- Load transformers.js from a CDN -->
   <script type="module">
     import {
       pipeline,
@@ -115,6 +140,5 @@
   </script>
 
   <script src="app.js"></script>
-
 </body>
 </html>

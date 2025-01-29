@@ -1,13 +1,18 @@
+//
 // app.js
+//
 
-// Base URL or relative path to your CSV folder
+// Base URL for the CSVs
 const CSV_BASE_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/data/all_csv/";
 
 // Path to your manifest.json
-const MANIFEST_JSON_PATH = "manifest.json"; // Adjust if it's in a different location
+const MANIFEST_JSON_PATH = "manifest.json";
 
-let allResults = []; // Array of results objects
-let tableIdToResultsMap = {};
+//
+// Global variables
+//
+let allResults = [];               // For precomputed results
+let tableIdToResultsMap = {};      // table_id -> array of results
 let availableOptions = {
   models: new Set(),
   datasets: new Set(),
@@ -16,254 +21,62 @@ let availableOptions = {
   formatTypes: new Set()
 };
 
-// We'll store the pipeline object here once loaded
+// We'll store the pipeline object here for the live check
 let deepSeekPipeline = null;
 
-// UI elements for convenience
+// Some quick references
 const modelLoadingStatusEl = document.getElementById("modelLoadingStatus");
 const liveStreamOutputEl = document.getElementById("liveStreamOutput");
 
-// 1) On page load, fetch manifest.json and populate dropdowns
+// ---------------------
+// On page load
+// ---------------------
 document.addEventListener("DOMContentLoaded", async () => {
-  await initializeApp();
-  await initDeepSeekPipeline();
-});
-
-// Initialize the application
-async function initializeApp() {
   try {
+    // 1) Initialize the precomputed side
     const manifest = await fetchManifest();
     parseManifest(manifest);
     populateDropdowns();
     addLoadButtonListener();
 
-    // Tab switching
-    document.querySelectorAll('.mode-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
+    // 2) Setup tab switching
+    document.querySelectorAll(".mode-tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        document.querySelectorAll(".mode-tab").forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
 
-        document.getElementById('resultsSection').style.display = 
-          tab.dataset.mode === 'precomputed' ? 'block' : 'none';
-        document.getElementById('liveCheckSection').style.display = 
-          tab.dataset.mode === 'live' ? 'block' : 'none';
+        const showPrecomputed = (tab.dataset.mode === "precomputed");
+        document.getElementById("resultsSection").style.display = showPrecomputed ? "block" : "none";
+        document.getElementById("liveCheckSection").style.display = showPrecomputed ? "none" : "block";
       });
     });
+
+    // 3) Setup events for the live check portion
+    setupLiveCheckEvents();
 
   } catch (error) {
     console.error("Initialization failed:", error);
     const infoPanel = document.getElementById("infoPanel");
-    infoPanel.innerHTML = `<p style="color:red;">Failed to initialize the app: ${error}</p>`;
-  }
-}
-
-// initDeepSeekPipeline
-async function initDeepSeekPipeline() {
-  try {
-    modelLoadingStatusEl.textContent = "Loading model... ";
-    modelLoadingStatusEl.innerHTML += `<span class="spinner"></span>`;
-
-    console.log("🚀 Initializing DeepSeek pipeline...");
-
-    const { pipeline, TextStreamer } = window._transformers;
-
-    // FIRST try: WebGPU + half-precision
-    let generator;
-    try {
-      generator = await pipeline("text-generation",
-        "onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX",
-        //"onnx-community/Qwen2.5-0.5B-Instruct",
-        {
-          dtype: "q4f16", device: "webgpu"
-        }
-      );
-    } catch (gpuErr) {
-      console.warn("⚠️ WebGPU half-precision init failed, falling back to CPU WASM:", gpuErr);
-      // SECOND try: fallback to CPU
-      generator = await pipeline("text-generation",
-        "onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX",
-        {
-          backend: "wasm",
-          // or dtype: 'float32'
-        }
-      );
+    if (infoPanel) {
+      infoPanel.innerHTML = `<p style="color:red;">Failed to initialize the app: ${error}</p>`;
     }
-
-    deepSeekPipeline = generator;
-    console.log("✅ Model loaded successfully!");
-    modelLoadingStatusEl.textContent = "Model loaded successfully!";
-  } catch (err) {
-    console.error("🔥 Failed to initialize DeepSeek pipeline:", err);
-    modelLoadingStatusEl.textContent = `Model failed to load: ${err}`;
   }
-}
-
-
-function csvToMarkdown(csvStr) {
-  const lines = csvStr.trim().split(/\r?\n/);
-  const tableData = lines.map(line => line.split("#")); 
-  if (tableData.length === 0) return "";
-
-  const headers = tableData[0];
-  const rows = tableData.slice(1);
-
-  let md = `| ${headers.join(" | ")} |\n`;
-  md += `| ${headers.map(() => "---").join(" | ")} |\n`;
-  rows.forEach(row => {
-    md += `| ${row.join(" | ")} |\n`;
-  });
-
-  return md;
-}
-
-// Display final results in the UI
-function displayLiveResults(csvText, claim, answer, highlightedCells) {
-  const liveClaimList = document.getElementById("liveClaimList");
-  const liveTableContainer = document.getElementById("liveTableContainer");
-
-  // Clear old content
-  liveClaimList.innerHTML = "";
-  liveTableContainer.innerHTML = "";
-
-  // Show the claim + answer
-  const claimDiv = document.createElement("div");
-  claimDiv.className = "claim-item selected";
-  claimDiv.textContent = `Claim: ${claim} => Model says: ${answer}`;
-  liveClaimList.appendChild(claimDiv);
-
-  // Build the table
-  const lines = csvText.split(/\r?\n/).filter(line => line.trim().length > 0);
-  const tableData = lines.map(line => line.split("#")); 
-  if (!tableData.length) return;
-
-  const columns = tableData[0];
-  const dataRows = tableData.slice(1);
-
-  const tableEl = document.createElement("table");
-
-  // Header
-  const thead = document.createElement("thead");
-  const headerRow = document.createElement("tr");
-  columns.forEach(col => {
-    const th = document.createElement("th");
-    th.textContent = col;
-    headerRow.appendChild(th);
-  });
-  thead.appendChild(headerRow);
-  tableEl.appendChild(thead);
-
-  // Body
-  const tbody = document.createElement("tbody");
-  dataRows.forEach((rowValues, rowIndex) => {
-    const tr = document.createElement("tr");
-    rowValues.forEach((cellVal, colIndex) => {
-      const td = document.createElement("td");
-      td.textContent = cellVal;
-
-      // Check if we should highlight
-      const colName = columns[colIndex];
-      const shouldHighlight = highlightedCells.some(
-        hc => hc.row_index === rowIndex && hc.column_name?.toLowerCase() === colName.toLowerCase()
-      );
-      if (shouldHighlight) {
-        td.classList.add("highlight");
-      }
-
-      tr.appendChild(td);
-    });
-    tbody.appendChild(tr);
-  });
-  tableEl.appendChild(tbody);
-
-  liveTableContainer.appendChild(tableEl);
-}
-
-// Handler for the "Run Live Check" button
-document.getElementById("runLiveCheck").addEventListener("click", async () => {
-  if (!deepSeekPipeline) {
-    console.error("DeepSeek pipeline not yet initialized!");
-    modelLoadingStatusEl.textContent = "Model not ready. Please wait...";
-    return;
-  }
-
-  // 1) Read user input
-  const tableInput = document.getElementById("inputTable").value;
-  const claimInput = document.getElementById("inputClaim").value;
-
-  // 2) Convert CSV -> Markdown
-  const tablePrompt = csvToMarkdown(tableInput);
-
-  // 3) We'll create a single user "message"
-  const userPrompt = `
-You are given a table:
-${tablePrompt}
-
-Claim: "${claimInput}"
-
-Return JSON:
-{"answer": "TRUE" or "FALSE", "highlighted_cells": [{"row_index": number, "column_name": string}]}
-  `.trim();
-
-  // Clear any old streaming text
-  liveStreamOutputEl.textContent = "";
-
-  // 4) Prepare a TextStreamer to show partial tokens
-  const { TextStreamer } = window._transformers;
-  const streamer = new TextStreamer(deepSeekPipeline.tokenizer, {
-    skip_prompt: true,
-    // This callback gets called for every new token
-    callback_function: (token) => {
-      liveStreamOutputEl.textContent += token;
-    }
-  });
-
-  let result;
-  try {
-    // 5) Call the pipeline with messages + streaming
-    //    DeepSeek uses chat-like format (role + content).
-    const messages = [
-      { role: "user", content: String(userPrompt).trim() },
-    ];
-
-    result = await deepSeekPipeline(messages, {
-      max_new_tokens: 2048,
-      do_sample: false,
-      streamer,
-    });
-
-    console.log("DeepSeek raw result:", result);
-
-  } catch (err) {
-    console.error("Error running DeepSeek pipeline:", err);
-    liveStreamOutputEl.textContent += `\n\n[Error: ${err}]`;
-    return;
-  }
-
-  // 6) The final text is in `result[0].generated_text` (an array of message objects).
-  const rawResponse = Array.isArray(result) && result.length > 0 
-    ? result[0].generated_text?.at(-1)?.content || ""
-    : "";
-
-  // 7) Try to parse JSON from the rawResponse
-  let parsed = {};
-  try {
-    parsed = JSON.parse(rawResponse);
-  } catch (e) {
-    console.warn("Could not parse JSON from model output. Raw text:\n", rawResponse);
-  }
-
-  const finalAnswer = parsed.answer || "UNKNOWN";
-  const highlightedCells = parsed.highlighted_cells || [];
-
-  // 8) Update the UI with final answer + highlight
-  displayLiveResults(tableInput, claimInput, finalAnswer, highlightedCells);
 });
 
-// -------------------------
-// Manifest + precomputed results logic
-// -------------------------
+// ---------------------
+// PRECOMPUTED RESULTS
+// ---------------------
 
-// Fetch manifest.json
+/**
+ * Fetch the manifest.json.
+ * It should contain something like:
+ * {
+ *   "results_files": [
+ *     "results/results_with_cells_gpt4_test_set_1_zero_shot_naturalized.json",
+ *     ...
+ *   ]
+ * }
+ */
 async function fetchManifest() {
   const response = await fetch(MANIFEST_JSON_PATH);
   if (!response.ok) {
@@ -271,18 +84,23 @@ async function fetchManifest() {
   }
   const manifest = await response.json();
   if (!manifest.results_files || !Array.isArray(manifest.results_files)) {
-    throw new Error("Invalid manifest.json format.");
+    throw new Error("Invalid manifest.json format. Missing 'results_files' array.");
   }
   return manifest;
 }
 
-// Parse manifest.json and extract options
+/**
+ * Parse the manifest file, extracting model/dataset/learning/etc. info
+ */
 function parseManifest(manifest) {
   manifest.results_files.forEach(filename => {
-    // Expected filename format:
-    // results_with_cells_{MODEL}_{DATASET}_{N}_{LEARNING_TYPE}_{FORMAT_TYPE}.json
+    // If the file path starts with "results/", remove that so we can match the pattern easily
+    const shortName = filename.replace(/^results\//, "");
+
+    // We expect something like:
+    //   results_with_cells_{MODEL}_{DATASET}_{N}_{LEARNING_TYPE}_{FORMAT_TYPE}.json
     const regex = /^results_with_cells_(.+?)_(test_set|val_set)_(\d+|all)_(zero_shot|one_shot|few_shot)_(naturalized|markdown)\.json$/;
-    const match = filename.match(regex);
+    const match = shortName.match(regex);
     if (match) {
       const [_, model, dataset, nValue, learningType, formatType] = match;
       availableOptions.models.add(model);
@@ -291,12 +109,14 @@ function parseManifest(manifest) {
       availableOptions.nValues.add(nValue);
       availableOptions.formatTypes.add(formatType);
     } else {
-      console.warn(`Filename "${filename}" does not match the expected pattern and will be ignored.`);
+      console.warn(`Filename "${filename}" does not match the expected pattern; ignoring.`);
     }
   });
 }
 
-// Populate dropdowns based on available options
+/**
+ * Populate the 5 dropdowns for precomputed results
+ */
 function populateDropdowns() {
   populateSelect("modelSelect", Array.from(availableOptions.models).sort());
   populateSelect("datasetSelect", Array.from(availableOptions.datasets).sort());
@@ -309,10 +129,13 @@ function populateDropdowns() {
   populateSelect("formatTypeSelect", Array.from(availableOptions.formatTypes).sort());
 }
 
-// A helper to populate a <select> with an array of strings
+/**
+ * Helper to populate a <select> with an array of values
+ */
 function populateSelect(selectId, values) {
   const sel = document.getElementById(selectId);
-  sel.innerHTML = ""; // clear
+  if (!sel) return;
+  sel.innerHTML = "";
   values.forEach(v => {
     const opt = document.createElement("option");
     opt.value = v;
@@ -321,25 +144,29 @@ function populateSelect(selectId, values) {
   });
 }
 
-// Add event listener to "Load Results" button
+/**
+ * Add event listener to the "Load Results" button in the precomputed section
+ */
 function addLoadButtonListener() {
   const loadBtn = document.getElementById("loadBtn");
-  loadBtn.addEventListener("click", loadResults);
+  if (loadBtn) {
+    loadBtn.addEventListener("click", loadResults);
+  }
 }
 
-// Load the selected results JSON file
+/**
+ * Load the selected results JSON file based on user dropdowns
+ */
 async function loadResults() {
-  // Grab user selections
   const modelName = document.getElementById("modelSelect").value;
   const datasetName = document.getElementById("datasetSelect").value;
   const learningType = document.getElementById("learningTypeSelect").value;
   const nValue = document.getElementById("nValueSelect").value;
   const formatType = document.getElementById("formatTypeSelect").value;
 
-  // Construct the filename
-  const resultsFileName = `results_with_cells_${modelName}_${datasetName}_${nValue}_${learningType}_${formatType}.json`;
+  // Our JSON files live in the "results/" subfolder
+  const resultsFileName = `results/results_with_cells_${modelName}_${datasetName}_${nValue}_${learningType}_${formatType}.json`;
 
-  // Info panel
   const infoPanel = document.getElementById("infoPanel");
   infoPanel.innerHTML = `<p>Loading <strong>${resultsFileName}</strong> ...</p>`;
 
@@ -350,6 +177,7 @@ async function loadResults() {
     }
     allResults = await response.json();
     infoPanel.innerHTML = `<p>Loaded <strong>${allResults.length}</strong> results from <strong>${resultsFileName}</strong>.</p>`;
+
     buildTableMap();
     populateTableSelect();
   } catch (err) {
@@ -364,7 +192,9 @@ async function loadResults() {
   }
 }
 
-// Build a map: table_id -> array of results
+/**
+ * Build a map: table_id -> array of results
+ */
 function buildTableMap() {
   tableIdToResultsMap = {};
   allResults.forEach(item => {
@@ -376,12 +206,14 @@ function buildTableMap() {
   });
 }
 
-// Populate the tableSelect dropdown
+/**
+ * Populate the "tableSelect" dropdown with available table IDs
+ */
 function populateTableSelect() {
   const tableSelect = document.getElementById("tableSelect");
-  tableSelect.innerHTML = ""; // clear
-  const tableIds = Object.keys(tableIdToResultsMap);
+  tableSelect.innerHTML = "";
 
+  const tableIds = Object.keys(tableIdToResultsMap);
   if (tableIds.length === 0) {
     tableSelect.disabled = true;
     tableSelect.innerHTML = `<option value="">No tables available</option>`;
@@ -399,7 +231,7 @@ function populateTableSelect() {
   tableSelect.removeEventListener("change", onTableSelectChange);
   tableSelect.addEventListener("change", onTableSelectChange);
 
-  // By default, pick the first
+  // Select the first one automatically
   tableSelect.value = tableIds[0];
   onTableSelectChange();
 }
@@ -410,7 +242,9 @@ function onTableSelectChange() {
   showClaimsForTable(selectedTid);
 }
 
-// Display claims for the selected table
+/**
+ * Show claims for the chosen table
+ */
 function showClaimsForTable(tableId) {
   const claimListDiv = document.getElementById("claimList");
   claimListDiv.innerHTML = "";
@@ -418,15 +252,13 @@ function showClaimsForTable(tableId) {
   const container = document.getElementById("table-container");
   container.innerHTML = "";
 
-  if (!tableIdToResultsMap[tableId]) return;
-
-  const itemsForTable = tableIdToResultsMap[tableId];
+  const itemsForTable = tableIdToResultsMap[tableId] || [];
   itemsForTable.forEach((res, idx) => {
     const div = document.createElement("div");
     div.className = "claim-item";
     div.textContent = `Claim #${idx + 1}: ${res.claim}`;
 
-    // On click, select this claim and render the table
+    // On click, highlight and render
     div.addEventListener("click", () => {
       document.querySelectorAll(".claim-item").forEach(item => {
         item.classList.remove("selected");
@@ -438,13 +270,15 @@ function showClaimsForTable(tableId) {
     claimListDiv.appendChild(div);
   });
 
-  // Auto-show first claim
+  // Auto-click the first claim (if any)
   if (itemsForTable.length > 0) {
     claimListDiv.firstChild.click();
   }
 }
 
-// Render the claim and the corresponding table with highlights
+/**
+ * Render the chosen claim + the table with highlighted cells
+ */
 async function renderClaimAndTable(resultObj) {
   const container = document.getElementById("table-container");
   container.innerHTML = "";
@@ -459,7 +293,8 @@ async function renderClaimAndTable(resultObj) {
   `;
   container.appendChild(infoDiv);
 
-  const csvFileName = resultObj.table_id;
+  // Fetch the CSV
+  const csvFileName = resultObj.table_id; // e.g. "table_123.csv"
   const csvUrl = CSV_BASE_PATH + csvFileName;
 
   let csvText = "";
@@ -479,9 +314,9 @@ async function renderClaimAndTable(resultObj) {
 
   const lines = csvText.split(/\r?\n/).filter(line => line.trim().length > 0);
   const tableData = lines.map(line => line.split("#"));
-  if (!tableData || tableData.length === 0) {
+  if (!tableData.length) {
     const msg = document.createElement("p");
-    msg.textContent = "Table is empty or couldn't parse properly.";
+    msg.textContent = "Table is empty or could not be parsed.";
     container.appendChild(msg);
     return;
   }
@@ -489,8 +324,10 @@ async function renderClaimAndTable(resultObj) {
   const columns = tableData[0];
   const dataRows = tableData.slice(1);
 
+  // Build HTML table
   const tableEl = document.createElement("table");
 
+  // Header
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
   columns.forEach(col => {
@@ -501,20 +338,269 @@ async function renderClaimAndTable(resultObj) {
   thead.appendChild(headerRow);
   tableEl.appendChild(thead);
 
+  // Body
   const tbody = document.createElement("tbody");
-  dataRows.forEach((rowValues, rowIndex) => {
+  dataRows.forEach((rowVals, rowIndex) => {
     const tr = document.createElement("tr");
-    rowValues.forEach((cellVal, colIndex) => {
+    rowVals.forEach((cellVal, colIndex) => {
       const td = document.createElement("td");
       td.textContent = cellVal;
 
+      // Highlight if listed
       const columnName = columns[colIndex];
-      const highlight = resultObj.highlighted_cells.some(
-        hc =>
-          hc.row_index === rowIndex &&
-          hc.column_name.toLowerCase() === columnName.toLowerCase()
+      const shouldHighlight = resultObj.highlighted_cells.some(
+        hc => hc.row_index === rowIndex &&
+              hc.column_name.toLowerCase() === columnName.toLowerCase()
       );
-      if (highlight) {
+      if (shouldHighlight) {
+        td.classList.add("highlight");
+      }
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+  tableEl.appendChild(tbody);
+
+  container.appendChild(tableEl);
+}
+
+// ---------------------
+// LIVE CHECK LOGIC
+// ---------------------
+
+/**
+ * Validate if both Table and Claim inputs are non-empty.
+ * Enables or disables the "Run Live Check" button accordingly.
+ */
+function validateLiveCheckInputs() {
+  const tableInput = document.getElementById("inputTable").value.trim();
+  const claimInput = document.getElementById("inputClaim").value.trim();
+  const runLiveCheckBtn = document.getElementById("runLiveCheck");
+
+  if (tableInput && claimInput) {
+    runLiveCheckBtn.disabled = false;
+    runLiveCheckBtn.style.opacity = "1";
+    runLiveCheckBtn.style.cursor = "pointer";
+  } else {
+    runLiveCheckBtn.disabled = true;
+    runLiveCheckBtn.style.opacity = "0.6";
+    runLiveCheckBtn.style.cursor = "not-allowed";
+  }
+}
+
+
+function setupLiveCheckEvents() {
+  // 1) "Load Model" button
+  const loadModelBtn = document.getElementById("loadLiveModel");
+  loadModelBtn.addEventListener("click", async () => {
+    const modelId = document.getElementById("liveModelSelect").value;
+    await initLivePipeline(modelId);
+  });
+
+  // 2) Whenever user edits the CSV, re-render the preview and validate inputs
+  const inputTableEl = document.getElementById("inputTable");
+  const inputClaimEl = document.getElementById("inputClaim");
+  const runLiveCheckBtn = document.getElementById("runLiveCheck");
+
+  inputTableEl.addEventListener("input", () => {
+    const csvText = inputTableEl.value;
+    renderLivePreviewTable(csvText, []);
+    validateLiveCheckInputs();
+  });
+
+  // 3) Whenever user edits the Claim, validate inputs
+  inputClaimEl.addEventListener("input", () => {
+    validateLiveCheckInputs();
+  });
+
+  // 4) "Run Live Check" button
+  runLiveCheckBtn.addEventListener("click", async () => {
+    if (!deepSeekPipeline) {
+      console.warn("No pipeline loaded. Please load a model first.");
+      modelLoadingStatusEl.textContent = "Model not ready. Please load a model first.";
+      return;
+    }
+
+    // Read user inputs
+    const tableInput = inputTableEl.value.trim();
+    const claimInput = inputClaimEl.value.trim();
+
+    // Additional validation to ensure inputs are not empty
+    if (!tableInput || !claimInput) {
+      alert("Please provide both a table and a claim before running the live check.");
+      return;
+    }
+
+    // Convert CSV to Markdown table for prompt
+    const tablePrompt = csvToMarkdown(tableInput);
+
+    // Construct user prompt
+    const userPrompt = `
+You are tasked with determining whether a claim about the following table (in Markdown) is TRUE or FALSE.
+
+Table (Markdown):
+${tablePrompt}
+
+Claim: "${claimInput}"
+
+Instructions:
+- Carefully check each condition in the claim against the table and determine which cells are relevant to the claim. These are the "highlighted_cells".
+- If fully supported, the 'answer' should be "TRUE". Otherwise "FALSE".
+- Return only a valid JSON object with two keys:
+"answer": must be "TRUE" or "FALSE" (all caps)
+"highlighted_cells": a list of objects, each with "row_index" (int) and "column_name" (string)
+
+For example:
+
+{{
+  "answer": "TRUE",
+  "highlighted_cells": [
+    {{"row_index": 0, "column_name": "Revenue"}},
+    {{"row_index": 1, "column_name": "Employees"}}
+  ]
+}}
+
+No extra keys, no extra text. Just that JSON.
+`.trim();
+
+    // Clear any old streaming text
+    liveStreamOutputEl.textContent = "";
+
+    // Prepare a TextStreamer for partial tokens
+    const { TextStreamer } = window._transformers;
+    const streamer = new TextStreamer(deepSeekPipeline.tokenizer, {
+      skip_prompt: true,
+      callback_function: (token) => {
+        liveStreamOutputEl.textContent += token;
+      }
+    });
+
+    let result;
+    try {
+      // Chat format
+      const messages = [{ role: "user", content: userPrompt }];
+      result = await deepSeekPipeline(messages, {
+        max_new_tokens: 2048,
+        do_sample: false,
+        streamer
+      });
+    } catch (err) {
+      console.error("Error running pipeline:", err);
+      liveStreamOutputEl.textContent += `\n\n[Error: ${err}]`;
+      return;
+    }
+
+    // Extract final text
+    const rawResponse = (Array.isArray(result) && result.length > 0)
+      ? result[0].generated_text?.at(-1)?.content || ""
+      : "";
+
+    // Attempt to parse the JSON robustly
+    const parsed = extractJsonFromResponse(rawResponse);
+
+    const finalAnswer = parsed.answer || "UNKNOWN";
+    const highlightedCells = parsed.highlighted_cells || [];
+
+    // Update UI
+    displayLiveResults(tableInput, claimInput, finalAnswer, highlightedCells);
+  });
+   // Initially disable the "Run Live Check" button
+  runLiveCheckBtn.disabled = true;
+  runLiveCheckBtn.style.opacity = "0.6";
+  runLiveCheckBtn.style.cursor = "not-allowed";
+}
+
+
+
+/**
+ * Initialize (or re-initialize) the pipeline with a selected model
+ */
+async function initLivePipeline(modelId) {
+  // Clear any old pipeline reference
+  deepSeekPipeline = null;
+
+  // Show user
+  modelLoadingStatusEl.textContent = `Loading model: ${modelId} `;
+  modelLoadingStatusEl.innerHTML += `<span class="spinner"></span>`;
+
+  console.log(`Initializing pipeline with: ${modelId}`);
+  const { pipeline } = window._transformers;
+
+  try {
+    // Try WebGPU + half-precision
+    let generator;
+    try {
+      generator = await pipeline("text-generation", modelId, {
+        dtype: "q4f16",
+        device: "webgpu"
+      });
+    } catch (gpuErr) {
+      console.warn("GPU init failed, falling back to CPU...", gpuErr);
+      generator = await pipeline("text-generation", modelId, {
+        backend: "wasm",
+        // or dtype: 'float32'
+      });
+    }
+
+    deepSeekPipeline = generator;
+    modelLoadingStatusEl.textContent = `Model loaded: ${modelId}`;
+    // Change colour to green
+    modelLoadingStatusEl.style.color = "green";
+  } catch (err) {
+    console.error("Failed to init pipeline:", err);
+    modelLoadingStatusEl.textContent = `Failed to load model: ${err}`;
+  }
+}
+
+/**
+ * Render the CSV as an HTML table (live preview).
+ * `highlightedCells` is an array of {row_index, column_name} if we want to highlight cells.
+ */
+function renderLivePreviewTable(csvText, highlightedCells) {
+  const previewContainer = document.getElementById("livePreviewTable");
+  previewContainer.innerHTML = ""; // Clear old table
+
+  const lines = csvText.split(/\r?\n/).filter(line => line.trim().length > 0);
+  if (!lines.length) {
+    return; // No data to show
+  }
+
+  // Convert lines into array-of-arrays
+  const tableData = lines.map(line => line.split("#"));
+  if (!tableData.length) return;
+
+  const columns = tableData[0];
+  const dataRows = tableData.slice(1);
+
+  // Build table
+  const tableEl = document.createElement("table");
+
+  // Header
+  const thead = document.createElement("thead");
+  const headerRow = document.createElement("tr");
+  columns.forEach(col => {
+    const th = document.createElement("th");
+    th.textContent = col;
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  tableEl.appendChild(thead);
+
+  // Body
+  const tbody = document.createElement("tbody");
+  dataRows.forEach((rowVals, rowIndex) => {
+    const tr = document.createElement("tr");
+    rowVals.forEach((cellVal, colIndex) => {
+      const td = document.createElement("td");
+      td.textContent = cellVal;
+
+      // Check highlight
+      const colName = columns[colIndex];
+      const shouldHighlight = highlightedCells.some(
+        hc => hc.row_index === rowIndex &&
+              hc.column_name?.toLowerCase() === colName.toLowerCase()
+      );
+      if (shouldHighlight) {
         td.classList.add("highlight");
       }
 
@@ -524,5 +610,74 @@ async function renderClaimAndTable(resultObj) {
   });
   tableEl.appendChild(tbody);
 
-  container.appendChild(tableEl);
+  previewContainer.appendChild(tableEl);
+}
+
+/**
+ * Display final claim + result + highlight cells in the existing live preview table
+ */
+function displayLiveResults(csvText, claim, answer, highlightedCells) {
+  // 1) Show the claim + model's final answer
+  const liveClaimList = document.getElementById("liveClaimList");
+  liveClaimList.innerHTML = ""; // Clear old
+  const claimDiv = document.createElement("div");
+  claimDiv.className = "claim-item selected";
+  claimDiv.textContent = `Claim: "${claim}" => Model says: ${answer}`;
+  liveClaimList.appendChild(claimDiv);
+
+  // 2) Re-render the same table with highlights
+  renderLivePreviewTable(csvText, highlightedCells);
+}
+
+/**
+ * Convert CSV (#-delimited) to a Markdown table for the prompt.
+ */
+function csvToMarkdown(csvStr) {
+  const lines = csvStr.trim().split(/\r?\n/);
+  if (!lines.length) return "";
+
+  const tableData = lines.map(line => line.split("#"));
+  if (!tableData.length) return "";
+
+  const headers = tableData[0];
+  const rows = tableData.slice(1);
+
+  // Build Markdown
+  let md = `| ${headers.join(" | ")} |\n`;
+  md += `| ${headers.map(() => "---").join(" | ")} |\n`;
+  rows.forEach(row => {
+    md += `| ${row.join(" | ")} |\n`;
+  });
+
+  return md;
+}
+
+/**
+ * Attempt to parse JSON from the model's raw output.
+ * 1) Look for ```json code fence
+ * 2) If that fails, try to parse entire rawResponse
+ * 3) Otherwise return {}
+ */
+function extractJsonFromResponse(rawResponse) {
+  // 1) Regex for code fence: ```json ... ```
+  const fencePattern = /```json\s*([\s\S]*?)\s*```/i;
+  const fenceMatch = rawResponse.match(fencePattern);
+  if (fenceMatch) {
+    const jsonText = fenceMatch[1].trim();
+    try {
+      return JSON.parse(jsonText);
+    } catch (jsonErr) {
+      console.warn("[extractJsonFromResponse] Could not parse code-fenced JSON:", jsonErr);
+    }
+  }
+
+  // 2) Try parsing entire response
+  try {
+    return JSON.parse(rawResponse);
+  } catch (err) {
+    console.warn("[extractJsonFromResponse] Could not parse entire response as JSON:", err);
+  }
+
+  // 3) Fallback
+  return {};
 }
