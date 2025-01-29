@@ -1009,7 +1009,7 @@ def main(batch_prompts=False, parallel_models=False, max_workers=4) -> None:
     # write manifest file to docs/
     manifest_file = "../docs/manifest.json"
     result_files = [
-        f for f in os.listdir(results_folder)
+        f"results/{f}" for f in os.listdir(results_folder)
         if f.startswith("results_with_cells_") and f.endswith(".json")
     ]
     manifest = {

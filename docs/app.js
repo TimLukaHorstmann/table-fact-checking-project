@@ -226,7 +226,7 @@ Return JSON:
     ];
 
     result = await deepSeekPipeline(messages, {
-      max_new_tokens: 512,
+      max_new_tokens: 2048,
       do_sample: false,
       streamer,
     });
