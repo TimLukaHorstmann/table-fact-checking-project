@@ -4,7 +4,7 @@
 
 // Base URL for the CSVs
 const CSV_BASE_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/data/all_csv/";
-
+const TABLE_TO_PAGE_JSON_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/data/table_to_page.json";
 // Path to your manifest.json
 const MANIFEST_JSON_PATH = "manifest.json";
 
@@ -21,6 +21,9 @@ let availableOptions = {
   formatTypes: new Set()
 };
 let globalAbortController = null;
+let tableToPageMap = {};  // csv filename -> [title, link]
+
+// Update the path if your JSON file is elsewhere
 
 // We'll store the pipeline object here for the live check
 let deepSeekPipeline = null;
@@ -35,6 +38,9 @@ const liveStreamOutputEl = document.getElementById("liveStreamOutput");
 // ---------------------
 document.addEventListener("DOMContentLoaded", async () => {
   try {
+
+    tableToPageMap = await fetchTableToPage();
+
     // 1) Initialize the precomputed side
     const manifest = await fetchManifest();
     parseManifest(manifest);
@@ -65,6 +71,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 });
+
+async function fetchTableToPage() {
+  const response = await fetch(TABLE_TO_PAGE_JSON_PATH);
+  if (!response.ok) {
+    console.warn("Failed to fetch table_to_page.json. Titles/links won't be shown.");
+    return {};
+  }
+  return response.json();
+}
 
 // ---------------------
 // PRECOMPUTED RESULTS
@@ -296,6 +311,24 @@ async function renderClaimAndTable(resultObj) {
   `;
   container.appendChild(infoDiv);
 
+  // Show table title/link if available
+  const metaDiv = document.getElementById("tableMetaInfo");
+  if (metaDiv) {
+    // Clear previous
+    metaDiv.innerHTML = "";
+    
+    const meta = tableToPageMap[resultObj.table_id];
+    if (meta) {
+      const [tableTitle, wikipediaUrl] = meta;
+      metaDiv.innerHTML = `
+        <p><strong>Table Title:</strong> ${tableTitle}</p>
+        <p><strong>Wikipedia Link:</strong> <a href="${wikipediaUrl}" target="_blank">${wikipediaUrl}</a></p>
+      `;
+    } else {
+      metaDiv.innerHTML = `<p><em>No title/link found for this table</em></p>`;
+    }
+  }
+
   // Fetch the CSV
   const csvFileName = resultObj.table_id; // e.g. "table_123.csv"
   const csvUrl = CSV_BASE_PATH + csvFileName;
@@ -419,20 +452,46 @@ async function populateExistingTableDropdown() {
 async function fetchAndFillTable(tableId) {
   const inputTableEl = document.getElementById("inputTable");
   const previewContainer = document.getElementById("livePreviewTable");
+  const liveTableMetaInfo = document.getElementById("liveTableMetaInfo");
+  const includeTableNameOption = document.getElementById("includeTableNameOption");
 
-  inputTableEl.value = "";  // Clear previous input
-  previewContainer.innerHTML = "";  // Clear previous preview
+  inputTableEl.value = "";
+  previewContainer.innerHTML = "";
 
+  // Reset meta info UI
+  if (liveTableMetaInfo) {
+    liveTableMetaInfo.style.display = "none";
+    liveTableMetaInfo.innerHTML = "";
+  }
+  // Hide the "include table name" checkbox by default
+  includeTableNameOption.style.display = "none";
+
+  // The actual CSV file path
   const csvUrl = CSV_BASE_PATH + tableId;
-
   try {
     const response = await fetch(csvUrl);
     if (!response.ok) throw new Error(`Failed to fetch CSV: ${response.statusText}`);
 
     const csvText = await response.text();
-    inputTableEl.value = csvText;  // Fill the textarea
-    renderLivePreviewTable(csvText, []);  // Update live preview
-    validateLiveCheckInputs(); // Ensure "Run Check" button is enabled
+    inputTableEl.value = csvText;
+    renderLivePreviewTable(csvText, []);
+    validateLiveCheckInputs();
+
+    // Show table meta if we have it
+    const meta = tableToPageMap[tableId];
+    if (meta) {
+      const [tableTitle, wikipediaUrl] = meta;
+      if (liveTableMetaInfo) {
+        liveTableMetaInfo.style.display = "block";
+        liveTableMetaInfo.innerHTML = `
+          <p><strong>Table Title:</strong> ${tableTitle}</p>
+          <p><strong>Wikipedia Link:</strong> <a href="${wikipediaUrl}" target="_blank">${wikipediaUrl}</a></p>
+        `;
+      }
+      // Also show "Include Table Name" checkbox
+      includeTableNameOption.style.display = "block";
+    }
+    
   } catch (error) {
     console.error("Error loading table CSV:", error);
     alert("Failed to load table from dataset.");
@@ -522,11 +581,32 @@ function setupLiveCheckEvents() {
       alert("Please provide both a table and a claim before running the live check.");
       return;
     }
+
+    // NEW: See if we have selected an existing table from the TabFact set
+    const selectedFile = document.getElementById("existingTableSelect").value;
+    const includeTitleChecked = document.getElementById("includeTableNameCheck").checked;
+
     const tablePrompt = csvToMarkdown(tableInput);
+
+    // Optionally add the table's name to the user prompt
+  let optionalTitleSection = "";
+  if (selectedFile && includeTitleChecked) {
+    const meta = tableToPageMap[selectedFile];
+    if (meta) {
+      const [title, wikiLink] = meta;
+      optionalTitleSection = `
+The table is titled: "${title}".
+Link: ${wikiLink}
+`;
+    }
+  }
+
     const userPrompt = `
   You are checking if a claim about the following table is TRUE or FALSE ("answer") and which cells support it ("relevant_cells").
   Output ONLY valid JSON with keys "answer" ("TRUE" or "FALSE") and "relevant_cells" (list of {row_index, column_name} pairs, where the column_name must match EXACTLY one of the coumn names in the table).
 
+  ${optionalTitleSection}
+  
   Markdown table:
   ${tablePrompt}
   
