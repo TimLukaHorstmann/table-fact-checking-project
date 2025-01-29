@@ -59,27 +59,32 @@
       <div id="table-container"></div>
     </section>
 
+    <!-- Live Check Section -->
+    <section id="liveCheckSection" class="results-section" style="display: none;">
+      <!-- Show model loading status here -->
+      <div id="modelLoadingStatus" class="model-loading-status"></div>
 
-  <!-- Add this new section before the footer -->
-  <section id="liveCheckSection" class="results-section" style="display: none;">
-    <div class="live-input-section">
-      <div class="input-group">
-        <label for="inputTable">Paste Table (CSV format):</label>
-        <textarea id="inputTable" rows="6"></textarea>
+      <div class="live-input-section">
+        <div class="input-group">
+          <label for="inputTable">Paste Table (CSV format):</label>
+          <textarea id="inputTable" rows="6"></textarea>
+        </div>
+        <div class="input-group">
+          <label for="inputClaim">Enter Claim:</label>
+          <textarea id="inputClaim" rows="3"></textarea>
+        </div>
+        <button id="runLiveCheck" class="btn-primary">Run Live Check</button>
       </div>
-      <div class="input-group">
-        <label for="inputClaim">Enter Claim:</label>
-        <textarea id="inputClaim" rows="3"></textarea>
+
+      <!-- Partial text streaming output area -->
+      <div id="liveStreamOutput" class="live-stream-output"></div>
+
+      <div id="liveResults" class="live-results">
+        <!-- This will contain similar structure to the precomputed results -->
+        <div id="liveClaimList" class="claim-list"></div>
+        <div id="liveTableContainer" class="table-container"></div>
       </div>
-      <button id="runLiveCheck" class="btn-primary">Run Live Check</button>
-    </div>
-    
-    <div id="liveResults" class="live-results">
-      <!-- This will contain similar structure to the precomputed results -->
-      <div id="liveClaimList" class="claim-list"></div>
-      <div id="liveTableContainer" class="table-container"></div>
-    </div>
-  </section>
+    </section>
 
   </main>
 
@@ -97,13 +102,15 @@
       pipeline,
       AutoTokenizer,
       AutoModelForCausalLM,
-    } from "https://cdn.jsdelivr.net/npm/@xenova/transformers/dist/transformers.min.js";
+      TextStreamer
+    } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers";
 
-    // Attach them to window so that app.js can use them:
+    // Attach them to the global window object
     window._transformers = {
       pipeline,
       AutoTokenizer,
       AutoModelForCausalLM,
+      TextStreamer
     };
   </script>
 

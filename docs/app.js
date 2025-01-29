@@ -15,15 +15,17 @@ let availableOptions = {
   nValues: new Set(),
   formatTypes: new Set()
 };
+
+// We'll store the pipeline object here once loaded
 let deepSeekPipeline = null;
 
-
+// UI elements for convenience
+const modelLoadingStatusEl = document.getElementById("modelLoadingStatus");
+const liveStreamOutputEl = document.getElementById("liveStreamOutput");
 
 // 1) On page load, fetch manifest.json and populate dropdowns
 document.addEventListener("DOMContentLoaded", async () => {
-  // Initialize your entire app
   await initializeApp();
-  // After you finish the rest of your setup, also initialize the pipeline:
   await initDeepSeekPipeline();
 });
 
@@ -34,18 +36,20 @@ async function initializeApp() {
     parseManifest(manifest);
     populateDropdowns();
     addLoadButtonListener();
+
     // Tab switching
     document.querySelectorAll('.mode-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        
+
         document.getElementById('resultsSection').style.display = 
           tab.dataset.mode === 'precomputed' ? 'block' : 'none';
         document.getElementById('liveCheckSection').style.display = 
           tab.dataset.mode === 'live' ? 'block' : 'none';
       });
     });
+
   } catch (error) {
     console.error("Initialization failed:", error);
     const infoPanel = document.getElementById("infoPanel");
@@ -53,49 +57,46 @@ async function initializeApp() {
   }
 }
 
+// Initialize the text-generation pipeline with a text streamer
 async function initDeepSeekPipeline() {
   try {
+    // Indicate loading
+    modelLoadingStatusEl.textContent = "Loading model... ";
+    modelLoadingStatusEl.innerHTML += `<span class="spinner"></span>`; // optional spinner
+
     console.log("🚀 Initializing DeepSeek pipeline...");
 
-    // Import components from the transformers.js global scope
+    // Import from the global scope
     const { pipeline, TextStreamer } = window._transformers;
 
-    // ✅ Step 1: Create a text-generation pipeline using the correct model
+    // Create a text-generation pipeline
     const generator = await pipeline(
       "text-generation",
       "onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX",
-      { dtype: "q4f16" } // Correct dtype based on the model card
+      { dtype: "q4f16" } // Possibly switch to { backend: 'wasm' } if WebGPU fails
     );
 
-    console.log("✅ Model loaded successfully!");
-
-    // ✅ Step 2: Attach generator to global scope
+    // Mark pipeline as loaded
     deepSeekPipeline = generator;
 
+    console.log("✅ Model loaded successfully!");
+    modelLoadingStatusEl.textContent = "Model loaded successfully!";
   } catch (err) {
     console.error("🔥 Failed to initialize DeepSeek pipeline:", err);
+    modelLoadingStatusEl.textContent = `Model failed to load: ${err}`;
   }
 }
 
-
-
 function csvToMarkdown(csvStr) {
-  // Convert the CSV string (with # or commas) into an array of rows
   const lines = csvStr.trim().split(/\r?\n/);
   const tableData = lines.map(line => line.split("#")); 
-  // If your CSV is comma-separated, do line.split(",") instead.
-
-  // Build a markdown table
   if (tableData.length === 0) return "";
 
   const headers = tableData[0];
   const rows = tableData.slice(1);
 
-  // Construct the header row in markdown
   let md = `| ${headers.join(" | ")} |\n`;
   md += `| ${headers.map(() => "---").join(" | ")} |\n`;
-
-  // Add each data row
   rows.forEach(row => {
     md += `| ${row.join(" | ")} |\n`;
   });
@@ -103,39 +104,18 @@ function csvToMarkdown(csvStr) {
   return md;
 }
 
-
-function csvToNaturalText(csvStr) {
-  const lines = csvStr.trim().split(/\r?\n/);
-  const tableData = lines.map(line => line.split("#"));
-
-  if (tableData.length < 2) return "Table is empty or invalid";
-
-  const headers = tableData[0];
-  const rows = tableData.slice(1);
-
-  let result = [];
-  rows.forEach((row, rowIndex) => {
-    let rowText = `Row ${rowIndex + 1}: `;
-    row.forEach((cell, colIndex) => {
-      rowText += `${headers[colIndex]} is ${cell}, `;
-    });
-    result.push(rowText);
-  });
-  return result.join("\n");
-}
-
-
+// Display final results in the UI
 function displayLiveResults(csvText, claim, answer, highlightedCells) {
   const liveClaimList = document.getElementById("liveClaimList");
   const liveTableContainer = document.getElementById("liveTableContainer");
 
-  // Clear any old content
+  // Clear old content
   liveClaimList.innerHTML = "";
   liveTableContainer.innerHTML = "";
 
   // Show the claim + answer
   const claimDiv = document.createElement("div");
-  claimDiv.className = "claim-item selected"; 
+  claimDiv.className = "claim-item selected";
   claimDiv.textContent = `Claim: ${claim} => Model says: ${answer}`;
   liveClaimList.appendChild(claimDiv);
 
@@ -168,7 +148,7 @@ function displayLiveResults(csvText, claim, answer, highlightedCells) {
       const td = document.createElement("td");
       td.textContent = cellVal;
 
-      // Check if (rowIndex, colName) is in highlightedCells
+      // Check if we should highlight
       const colName = columns[colIndex];
       const shouldHighlight = highlightedCells.some(
         hc => hc.row_index === rowIndex && hc.column_name?.toLowerCase() === colName.toLowerCase()
@@ -186,23 +166,23 @@ function displayLiveResults(csvText, claim, answer, highlightedCells) {
   liveTableContainer.appendChild(tableEl);
 }
 
-
-
-
+// Handler for the "Run Live Check" button
 document.getElementById("runLiveCheck").addEventListener("click", async () => {
+  if (!deepSeekPipeline) {
+    console.error("DeepSeek pipeline not yet initialized!");
+    modelLoadingStatusEl.textContent = "Model not ready. Please wait...";
+    return;
+  }
+
   // 1) Read user input
   const tableInput = document.getElementById("inputTable").value;
   const claimInput = document.getElementById("inputClaim").value;
 
-  // 2) Convert CSV -> some textual representation
-  //    For a short table, you might just create a Markdown or
-  //    “naturalized” text version. For example:
-  const tablePrompt = csvToMarkdown(tableInput); 
-  // or: const tablePrompt = csvToNaturalText(tableInput);
+  // 2) Convert CSV -> Markdown
+  const tablePrompt = csvToMarkdown(tableInput);
 
-  // 3) Construct the final prompt (like your zero-shot approach).
-  //    Example (simplified):
-  const prompt = `
+  // 3) We'll create a single user "message"
+  const userPrompt = `
 You are given a table:
 ${tablePrompt}
 
@@ -212,47 +192,64 @@ Return JSON:
 {"answer": "TRUE" or "FALSE", "highlighted_cells": [{"row_index": number, "column_name": string}]}
   `.trim();
 
-  // 4) Invoke the pipeline if ready
-  if (!deepSeekPipeline) {
-    console.error("DeepSeek pipeline not yet initialized!");
-    return;
-  }
+  // Clear any old streaming text
+  liveStreamOutputEl.textContent = "";
 
-  // The pipeline call usage differs slightly depending on pipeline type:
+  // 4) Prepare a TextStreamer to show partial tokens
+  const { TextStreamer } = window._transformers;
+  const streamer = new TextStreamer(deepSeekPipeline.tokenizer, {
+    skip_prompt: true,
+    // This callback gets called for every new token
+    callback_function: (token) => {
+      liveStreamOutputEl.textContent += token;
+    }
+  });
+
   let result;
   try {
-    // If using 'text-generation' pipeline:
-    result = await deepSeekPipeline(prompt, {
-      // pass generation parameters if needed:
-      max_new_tokens: 128
+    // 5) Call the pipeline with messages + streaming
+    //    DeepSeek uses chat-like format (role + content).
+    const messages = [
+      { role: "user", content: userPrompt },
+    ];
+
+    result = await deepSeekPipeline(messages, {
+      max_new_tokens: 128,
+      do_sample: false,
+      streamer
     });
+
+    console.log("DeepSeek raw result:", result);
+
   } catch (err) {
     console.error("Error running DeepSeek pipeline:", err);
+    liveStreamOutputEl.textContent += `\n\n[Error: ${err}]`;
     return;
   }
 
-  // 5) result is often an array or object, depending on pipeline type.
-  //    For text-generation, you might get something like:
-  //    [ { generated_text: "..."} ]
-  console.log("DeepSeek raw result:", result);
+  // 6) The final text is in `result[0].generated_text` (an array of message objects).
+  const rawResponse = Array.isArray(result) && result.length > 0 
+    ? result[0].generated_text?.at(-1)?.content || ""
+    : "";
 
-  // 6) Parse out the model's JSON. 
-  //    e.g. if result[0].generated_text has the JSON or partial text
-  let rawResponse = Array.isArray(result) ? result[0].generated_text : result.generated_text || "";
+  // 7) Try to parse JSON from the rawResponse
   let parsed = {};
   try {
-    parsed = JSON.parse(rawResponse);  // Might need a safer approach
+    parsed = JSON.parse(rawResponse);
   } catch (e) {
     console.warn("Could not parse JSON from model output. Raw text:\n", rawResponse);
   }
 
-  // 7) Extract fields
   const finalAnswer = parsed.answer || "UNKNOWN";
   const highlightedCells = parsed.highlighted_cells || [];
 
-  // 8) Update the UI with finalAnswer + highlight
+  // 8) Update the UI with final answer + highlight
   displayLiveResults(tableInput, claimInput, finalAnswer, highlightedCells);
 });
+
+// -------------------------
+// Manifest + precomputed results logic
+// -------------------------
 
 // Fetch manifest.json
 async function fetchManifest() {
@@ -328,7 +325,6 @@ async function loadResults() {
   const formatType = document.getElementById("formatTypeSelect").value;
 
   // Construct the filename
-  // E.g. "results_with_cells_mistral_test_set_2_zero_shot_naturalized.json"
   const resultsFileName = `results_with_cells_${modelName}_${datasetName}_${nValue}_${learningType}_${formatType}.json`;
 
   // Info panel
@@ -388,7 +384,7 @@ function populateTableSelect() {
     tableSelect.appendChild(option);
   });
 
-  tableSelect.removeEventListener("change", onTableSelectChange); // Prevent multiple bindings
+  tableSelect.removeEventListener("change", onTableSelectChange);
   tableSelect.addEventListener("change", onTableSelectChange);
 
   // By default, pick the first
@@ -396,7 +392,6 @@ function populateTableSelect() {
   onTableSelectChange();
 }
 
-// Handle table selection change
 function onTableSelectChange() {
   const tableSelect = document.getElementById("tableSelect");
   const selectedTid = tableSelect.value;
@@ -405,50 +400,43 @@ function onTableSelectChange() {
 
 // Display claims for the selected table
 function showClaimsForTable(tableId) {
-    const claimListDiv = document.getElementById("claimList");
-    claimListDiv.innerHTML = "";
-  
-    const container = document.getElementById("table-container");
-    container.innerHTML = "";
-  
-    if (!tableIdToResultsMap[tableId]) return;
-  
-    const itemsForTable = tableIdToResultsMap[tableId];
-    itemsForTable.forEach((res, idx) => {
-      const div = document.createElement("div");
-      div.className = "claim-item";
-      div.textContent = `Claim #${idx + 1}: ${res.claim}`;
-  
-      // On click, select this claim and render the table
-      div.addEventListener("click", () => {
-        // Remove 'selected' from all .claim-item elements
-        document.querySelectorAll(".claim-item").forEach(item => {
-          item.classList.remove("selected");
-        });
-  
-        // Add 'selected' to the one that was clicked
-        div.classList.add("selected");
-  
-        // Render claim & table
-        renderClaimAndTable(res);
+  const claimListDiv = document.getElementById("claimList");
+  claimListDiv.innerHTML = "";
+
+  const container = document.getElementById("table-container");
+  container.innerHTML = "";
+
+  if (!tableIdToResultsMap[tableId]) return;
+
+  const itemsForTable = tableIdToResultsMap[tableId];
+  itemsForTable.forEach((res, idx) => {
+    const div = document.createElement("div");
+    div.className = "claim-item";
+    div.textContent = `Claim #${idx + 1}: ${res.claim}`;
+
+    // On click, select this claim and render the table
+    div.addEventListener("click", () => {
+      document.querySelectorAll(".claim-item").forEach(item => {
+        item.classList.remove("selected");
       });
-  
-      claimListDiv.appendChild(div);
+      div.classList.add("selected");
+      renderClaimAndTable(res);
     });
-  
-    // Optionally auto-show first claim
-    if (itemsForTable.length > 0) {
-      // Simulate a click on the first claim
-      claimListDiv.firstChild.click();
-    }
+
+    claimListDiv.appendChild(div);
+  });
+
+  // Auto-show first claim
+  if (itemsForTable.length > 0) {
+    claimListDiv.firstChild.click();
   }
+}
 
 // Render the claim and the corresponding table with highlights
 async function renderClaimAndTable(resultObj) {
   const container = document.getElementById("table-container");
   container.innerHTML = "";
 
-  // Show claim info
   const infoDiv = document.createElement("div");
   infoDiv.className = "info-panel";
   infoDiv.innerHTML = `
@@ -459,11 +447,9 @@ async function renderClaimAndTable(resultObj) {
   `;
   container.appendChild(infoDiv);
 
-  // Build CSV URL from the table_id
   const csvFileName = resultObj.table_id;
   const csvUrl = CSV_BASE_PATH + csvFileName;
 
-  // Fetch CSV
   let csvText = "";
   try {
     const resp = await fetch(csvUrl);
@@ -479,7 +465,6 @@ async function renderClaimAndTable(resultObj) {
     return;
   }
 
-  // Parse CSV lines
   const lines = csvText.split(/\r?\n/).filter(line => line.trim().length > 0);
   const tableData = lines.map(line => line.split("#"));
   if (!tableData || tableData.length === 0) {
@@ -492,10 +477,8 @@ async function renderClaimAndTable(resultObj) {
   const columns = tableData[0];
   const dataRows = tableData.slice(1);
 
-  // Create HTML table
   const tableEl = document.createElement("table");
 
-  // table head
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
   columns.forEach(col => {
@@ -506,7 +489,6 @@ async function renderClaimAndTable(resultObj) {
   thead.appendChild(headerRow);
   tableEl.appendChild(thead);
 
-  // table body
   const tbody = document.createElement("tbody");
   dataRows.forEach((rowValues, rowIndex) => {
     const tr = document.createElement("tr");
@@ -514,7 +496,6 @@ async function renderClaimAndTable(resultObj) {
       const td = document.createElement("td");
       td.textContent = cellVal;
 
-      // Highlight if in resultObj.highlighted_cells
       const columnName = columns[colIndex];
       const highlight = resultObj.highlighted_cells.some(
         hc =>
