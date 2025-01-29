@@ -507,8 +507,9 @@ function setupLiveCheckEvents() {
     }
   
     // Shrink "Run" button and show "Stop" icon, shrink to 100% minus 30px for icon
-    runLiveCheckBtn.style.width = "calc(100% - 30px)";
+    runLiveCheckBtn.style.width = "calc(100% - 40px)";
     stopLiveCheckBtn.style.display = "flex";  // Show stop button as flex
+    stopLiveCheckBtn.classList.add("loading"); // Add spinner animation
 
     runLiveCheckBtn.disabled = true;
     runLiveCheckBtn.style.opacity = "0.6";
@@ -665,7 +666,8 @@ function setupLiveCheckEvents() {
       runLiveCheckBtn.style.opacity = "1";
       runLiveCheckBtn.style.cursor = "pointer";
 
-      stopLiveCheckBtn.style.display = "none"; 
+      stopLiveCheckBtn.style.display = "none";
+      stopLiveCheckBtn.classList.remove("loading"); // Remove spinner animation
   
       if (err.name === "AbortError" || err.message.includes("aborted")) {
         console.warn("Generation was aborted.");
@@ -684,6 +686,7 @@ function setupLiveCheckEvents() {
     runLiveCheckBtn.style.cursor = "pointer";
 
     stopLiveCheckBtn.style.display = "none";
+    stopLiveCheckBtn.classList.remove("loading"); // Remove spinner animation
   
     // Because the model might have final leftover text in 'buffer'
     // that we haven't assigned yet, handle that:
@@ -727,7 +730,8 @@ function setupLiveCheckEvents() {
       runLiveCheckBtn.style.opacity = "1";
       runLiveCheckBtn.style.cursor = "pointer";
 
-      stopLiveCheckBtn.style.display = "none"; 
+      stopLiveCheckBtn.style.display = "none";
+      stopLiveCheckBtn.classList.remove("loading"); // Remove spinner animation
   });
 
 }
