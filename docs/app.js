@@ -57,28 +57,41 @@ async function initializeApp() {
   }
 }
 
-// Initialize the text-generation pipeline with a text streamer
+// initDeepSeekPipeline
 async function initDeepSeekPipeline() {
   try {
-    // Indicate loading
     modelLoadingStatusEl.textContent = "Loading model... ";
-    modelLoadingStatusEl.innerHTML += `<span class="spinner"></span>`; // optional spinner
+    modelLoadingStatusEl.innerHTML += `<span class="spinner"></span>`;
 
     console.log("🚀 Initializing DeepSeek pipeline...");
 
-    // Import from the global scope
     const { pipeline, TextStreamer } = window._transformers;
 
-    // Create a text-generation pipeline
-    const generator = await pipeline(
-      "text-generation",
-      "onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX",
-      { dtype: "q4f16" } // Possibly switch to { backend: 'wasm' } if WebGPU fails
-    );
+    // FIRST try: WebGPU + half-precision
+    let generator;
+    try {
+      generator = await pipeline("text-generation",
+        "onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX",
+        {
+          // Attempt half precision
+          dtype: "q4f16",
+          // or if you want to be explicit:
+          // backend: "webgpu"
+        }
+      );
+    } catch (gpuErr) {
+      console.warn("⚠️ WebGPU half-precision init failed, falling back to CPU WASM:", gpuErr);
+      // SECOND try: fallback to CPU
+      generator = await pipeline("text-generation",
+        "onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX",
+        {
+          backend: "wasm",
+          // or dtype: 'float32'
+        }
+      );
+    }
 
-    // Mark pipeline as loaded
     deepSeekPipeline = generator;
-
     console.log("✅ Model loaded successfully!");
     modelLoadingStatusEl.textContent = "Model loaded successfully!";
   } catch (err) {
@@ -86,6 +99,7 @@ async function initDeepSeekPipeline() {
     modelLoadingStatusEl.textContent = `Model failed to load: ${err}`;
   }
 }
+
 
 function csvToMarkdown(csvStr) {
   const lines = csvStr.trim().split(/\r?\n/);
@@ -210,13 +224,13 @@ Return JSON:
     // 5) Call the pipeline with messages + streaming
     //    DeepSeek uses chat-like format (role + content).
     const messages = [
-      { role: "user", content: userPrompt },
+      { role: "user", content: String(userPrompt).trim() },
     ];
 
     result = await deepSeekPipeline(messages, {
-      max_new_tokens: 128,
+      max_new_tokens: 512,
       do_sample: false,
-      streamer
+      streamer,
     });
 
     console.log("DeepSeek raw result:", result);
