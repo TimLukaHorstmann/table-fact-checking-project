@@ -53,10 +53,26 @@ document.addEventListener("DOMContentLoaded", async () => {
       tab.addEventListener("click", () => {
         document.querySelectorAll(".mode-tab").forEach(t => t.classList.remove("active"));
         tab.classList.add("active");
+    
+        // Hide all sections
+        document.getElementById("resultsSection").style.display = "none";
+        document.getElementById("liveCheckSection").style.display = "none";
+        document.getElementById("reportSection").style.display = "none";
+    
+        // Show the selected section
+        if (tab.dataset.mode === "precomputed") {
+          document.getElementById("resultsSection").style.display = "block";
+        } else if (tab.dataset.mode === "live") {
+          document.getElementById("liveCheckSection").style.display = "block";
+        } else if (tab.dataset.mode === "report") {
+          document.getElementById("reportSection").style.display = "block";
 
-        const showPrecomputed = (tab.dataset.mode === "precomputed");
-        document.getElementById("resultsSection").style.display = showPrecomputed ? "block" : "none";
-        document.getElementById("liveCheckSection").style.display = showPrecomputed ? "none" : "block";
+          // Ensure the PDF is loaded dynamically if needed
+          const pdfViewer = document.getElementById("pdfViewer");
+          if (!pdfViewer.src || pdfViewer.src === "about:blank") {
+            pdfViewer.src = "report.pdf"; // Change this if the PDF path changes dynamically
+          }
+        }
       });
     });
 
