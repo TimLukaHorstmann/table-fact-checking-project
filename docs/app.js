@@ -198,6 +198,10 @@ async function loadResults() {
 
     buildTableMap();
     populateTableSelect();
+
+    // Ensure the table chooser and meta info are displayed
+    document.getElementById("tableDropDown").style.display = "block";
+    document.getElementById("tableMetaInfo").style.display = "block";
   } catch (err) {
     console.error(`Failed to load or parse ${resultsFileName}:`, err);
     infoPanel.innerHTML = `<p style="color:red;">Failed to load <strong>${resultsFileName}</strong>: ${err}</p>`;
@@ -510,7 +514,7 @@ function validateLiveCheckInputs() {
   const runLiveCheckBtn = document.getElementById("runLiveCheck");
   const stopLiveCheckBtn = document.getElementById("stopLiveCheck");
 
-  if (tableInput && claimInput) {
+  if (tableInput && claimInput && deepSeekPipeline) {
     runLiveCheckBtn.disabled = false;
     runLiveCheckBtn.style.opacity = "1";
     runLiveCheckBtn.style.cursor = "pointer";
@@ -531,7 +535,8 @@ function setupLiveCheckEvents() {
   const loadModelBtn = document.getElementById("loadLiveModel");
   loadModelBtn.addEventListener("click", async () => {
     const modelId = document.getElementById("liveModelSelect").value;
-    await initLivePipeline(modelId);
+    const modelName = document.getElementById("liveModelSelect").selectedOptions[0].textContent;
+    await initLivePipeline(modelId, modelName);
   });
 
   // 2) Whenever user edits the CSV, re-render the preview and validate inputs
@@ -821,40 +826,100 @@ Link: ${wikiLink}
 /**
  * Initialize (or re-initialize) the pipeline with a selected model
  */
-async function initLivePipeline(modelId) {
+async function initLivePipeline(modelId, modelName) {
   // Clear any old pipeline reference
   deepSeekPipeline = null;
 
-  // Show user
-  modelLoadingStatusEl.textContent = `Loading model: ${modelId} `;
-  modelLoadingStatusEl.innerHTML += `<span class="spinner"></span>`;
+  // References to the elements
+  const modelLoadingStatusEl = document.getElementById("modelLoadingStatus");
+  const loadingTextEl = document.getElementById("modelLoadingText");
+  const progressText = document.getElementById("modelLoadingProgress");
+  const progressContainer = document.getElementById("modelProgressBarContainer");
+  const progressBar = document.getElementById("modelProgressBar");
+
+  // The "Load Model" button
+  const loadModelBtn = document.getElementById("loadLiveModel");
+
+  // Disable the button while loading
+  loadModelBtn.disabled = true;
+  loadModelBtn.style.opacity = "0.6";
+
+  // Reset the UI elements
+  loadingTextEl.textContent = `Loading model: ${modelName}`;
+  // Add a spinner after the text
+  loadingTextEl.insertAdjacentHTML("beforeend", `<span class="spinner"></span>`);
+
+  progressBar.style.width = "0%";
+  progressText.textContent = `0%`;
+
+  // Show the progress container & status area
+  modelLoadingStatusEl.style.display = "block";    // Make sure it's visible
+  progressContainer.style.display = "block";       // Show the progress bar
 
   console.log(`Initializing pipeline with: ${modelId}`);
+
   const { pipeline } = window._transformers;
 
   try {
-    // Try WebGPU + half-precision
+    // Define a progress callback function
+    const progressCallback = (progress) => {
+      const percent = Math.round(progress.progress);
+      const loadedSizeMB = (progress.loaded / (1024 * 1024)).toFixed(2);  // in MB
+      const totalSizeMB = (progress.total / (1024 * 1024)).toFixed(2);    // in MB
+  
+      // Update the width of the progress bar
+      progressBar.style.width = `${percent}%`;
+  
+      // Update the progress text to show loaded size, total size, and percentage
+      progressText.textContent = `${loadedSizeMB}MB / ${totalSizeMB}MB (${percent}%)`;
+    };
+
+    // Try to load using WebGPU (and half precision if "DeepSeek")
     let generator;
     try {
-      generator = await pipeline("text-generation", modelId, {
-        dtype: "q4f16",
-        device: "webgpu"
-      });
+      if (modelId.includes("DeepSeek") || modelId.includes("Llama")) {
+        generator = await pipeline("text-generation", modelId, {
+          dtype: "q4f16",
+          device: "webgpu",
+          progress_callback: progressCallback
+        });
+      } else {
+        generator = await pipeline("text-generation", modelId, {
+          device: "webgpu",
+          dtype: "fp32",
+          progress_callback: progressCallback
+        });
+      }
     } catch (gpuErr) {
       console.warn("GPU init failed, falling back to CPU...", gpuErr);
+      // Fallback to CPU
       generator = await pipeline("text-generation", modelId, {
         backend: "wasm",
-        // or dtype: 'float32'
+        progress_callback: progressCallback,
       });
     }
 
+    // Assign to global so we can call it later
     deepSeekPipeline = generator;
-    modelLoadingStatusEl.textContent = `Model loaded: ${modelId}`;
-    // Change colour to green
-    modelLoadingStatusEl.style.color = "green";
+
+    // Model loaded successfully => update UI
+    loadingTextEl.textContent = `Model loaded: ${modelName}`;
+    progressText.textContent = `100%`;
+    progressBar.style.width = `100%`;
+
+    // Optionally hide the progress bar after a short delay
+    setTimeout(() => {
+      progressContainer.style.display = "none";
+    }, 1000);
+
   } catch (err) {
     console.error("Failed to init pipeline:", err);
-    modelLoadingStatusEl.textContent = `Failed to load model: ${err}`;
+    loadingTextEl.textContent = `Failed to load model: ${err}`;
+    // Keep the progress bar, or hide it if you prefer
+  } finally {
+    // Re-enable the button
+    loadModelBtn.disabled = false;
+    loadModelBtn.style.opacity = "1";
   }
 }
 
@@ -924,6 +989,7 @@ function renderLivePreviewTable(csvText, relevantCells) {
  */
 function displayLiveResults(csvText, claim, answer, relevantCells) {
   // 1) Show the claim + model's final answer
+  document.getElementById("liveResults").style.display = "block";
   const liveClaimList = document.getElementById("liveClaimList");
   liveClaimList.innerHTML = ""; // Clear old
   const claimDiv = document.createElement("div");
