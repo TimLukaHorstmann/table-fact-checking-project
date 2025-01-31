@@ -367,9 +367,29 @@ th {
     opacity: 0.6; /* subtle */
     font-size: 0.85rem;
 }
+
 .thinking-label {
+    font-size: 0.85em;
     font-style: italic;
-}
+    background: linear-gradient(45deg, #ff5733, #ffcc00, #33cc33, #3399ff);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientText 2s infinite linear;
+  }
+  
+  @keyframes gradientText {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  
+  /* When done, remove the animated gradient so it looks normal text. */
+  .thinking-label.done {
+    animation: none; /* Stop animation */
+    background: none;
+    -webkit-text-fill-color: initial;
+  }
 
   /* Answer Overlay */
 .answer-overlay {
@@ -380,7 +400,7 @@ th {
 
 /* Footer */
 footer {
-    margin-top: 2rem;
+    margin-top: 5rem;
     padding: 1.5rem 0;
     background-color: #2c3e50;
     color: #fff;

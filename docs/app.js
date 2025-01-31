@@ -585,6 +585,9 @@ function setupLiveCheckEvents() {
       modelLoadingStatusEl.textContent = "Model not ready. Please load a model first.";
       return;
     }
+
+    // Record start time
+    const startTime = performance.now();
   
     // Shrink "Run" button and show "Stop" icon, shrink to 100% minus 30px for icon
     runLiveCheckBtn.style.width = "calc(100% - 40px)";
@@ -607,7 +610,8 @@ function setupLiveCheckEvents() {
     const selectedFile = document.getElementById("existingTableSelect").value;
     const includeTitleChecked = document.getElementById("includeTableNameCheck").checked;
 
-    const tablePrompt = csvToMarkdown(tableInput);
+    // const tablePrompt = csvToMarkdown(tableInput);
+    const tablePrompt = csvToJson(tableInput);
 
     // Optionally add the table's name to the user prompt
   let optionalTitleSection = "";
@@ -622,17 +626,32 @@ Link: ${wikiLink}
     }
   }
 
-    const userPrompt = `
-  You are checking if a claim about the following table is TRUE or FALSE ("answer") and which cells support it ("relevant_cells").
-  Output ONLY valid JSON with keys "answer" ("TRUE" or "FALSE") and "relevant_cells" (list of {row_index, column_name} pairs, where the column_name must match EXACTLY one of the coumn names in the table).
+  
+  const userPrompt=`You are checking whether a claim about a structured table is TRUE or FALSE ("answer") and which cells support it ("relevant_cells").
+    
+  Output ONLY valid JSON with:
+  - "answer" as "TRUE" or "FALSE".
+  - "relevant_cells" as a list of {row_index, column_name} pairs.
+  - **Row indices must be numerical** and match the corresponding row.
+  - **Column names must match exactly** the headers in the table.
 
   ${optionalTitleSection}
-  
-  Markdown table:
+
+  ### Table (JSON Format):
+  \`\`\`json
   ${tablePrompt}
-  
-  Claim: "${claimInput}"
-  `.trim();
+  \`\`\`
+
+  ### Claim:
+  "${claimInput}"
+
+  ### Instructions:
+  - Identify the **exact row index** where the relevant entity appears.
+  - Use the **exact column header names** when referring to relevant cells.
+  - Ensure **consistent formatting** in "relevant_cells", with row indices as integers and column names as strings.
+  - Do **not** generate extra explanations—only return valid JSON.
+
+  Now return your answer in JSON format.`.trim();
     
   // Clear old output
     liveThinkOutputEl.textContent = "";
@@ -705,39 +724,47 @@ Link: ${wikiLink}
       // Update the UI (in real-time)
       // Update UI elements
       if (isDeepSeek) {
-        // Show thinking area if there's any text
+        // Show "Thinking..." area if there's any text
         if (thinkText.trim().length > 0) {
-          liveThinkOutputEl.style.display = "block";
-          const thinkContentMarkdown = marked.parse(thinkText.trim());
-          const safeThinkContent = DOMPurify.sanitize(thinkContentMarkdown);
-          liveThinkOutputEl.innerHTML = `
-            <div class="thinking-overlay">
-              <span id="thinkingLabel" class="thinking-label">Thinking...</span>
-            </div>
-            <div id="thinkContent">${safeThinkContent}</div>
-          `;
+            if (!liveThinkOutputEl.style.display || liveThinkOutputEl.style.display === "none") {
+                liveThinkOutputEl.style.display = "block";
+            }
+            
+            // Get or create the thinking label
+            let thinkingLabel = document.getElementById("thinkingLabel");
+            if (!thinkingLabel) {
+                liveThinkOutputEl.innerHTML = `
+                  <div class="thinking-overlay">
+                    <span id="thinkingLabel" class="thinking-label">Thinking...</span>
+                  </div>
+                  <div id="thinkContent"></div>
+                `;
+                thinkingLabel = document.getElementById("thinkingLabel");
+            }
+    
+            // Get the think content div
+            const thinkContentDiv = document.getElementById("thinkContent");
+            if (thinkContentDiv) {
+                thinkContentDiv.innerHTML = DOMPurify.sanitize(marked.parse(thinkText.trim()));
+            }
         }
-
-        // Update main output (outside <think>)
-        const answerContentMarkdown = marked.parse(finalText);
-        const safeAnswerContent = DOMPurify.sanitize(answerContentMarkdown);
+  
         liveStreamOutputEl.style.display = "block";
         liveStreamOutputEl.innerHTML = `
           <div class="answer-overlay">Answer</div>
-          <div id="answerContent">${safeAnswerContent}</div>
+          <div id="answerContent">${DOMPurify.sanitize(marked.parse(finalText))}</div>
         `;
       } else {
         // For non-deepseek models, treat all output as final
         finalText += token;
-        const answerContentMarkdown = marked.parse(finalText);
-        const safeAnswerContent = DOMPurify.sanitize(answerContentMarkdown);
         liveStreamOutputEl.style.display = "block";
         liveStreamOutputEl.innerHTML = `
           <div class="answer-overlay">Answer</div>
-          <div id="answerContent">${safeAnswerContent}</div>
+          <div id="answerContent">${DOMPurify.sanitize(marked.parse(finalText))}</div>
         `;
       }
-      // After updating innerHTML
+  
+      // Syntax highlight
       document.querySelectorAll('#thinkContent pre code, #answerContent pre code').forEach((block) => {
         hljs.highlightElement(block);
       });
@@ -773,6 +800,16 @@ Link: ${wikiLink}
       if (err.name === "AbortError" || err.message.includes("aborted")) {
         console.warn("Generation was aborted.");
         liveStreamOutputEl.textContent += "\n\n[Generation Aborted]";
+        // update thinking label to show how many seconds before abort
+        if (isDeepSeek) {
+          const endTime = performance.now();
+          const secs = ((endTime - startTime) / 1000).toFixed(1);
+          const thinkingLabel = document.getElementById("thinkingLabel");
+          if (thinkingLabel) {
+            thinkingLabel.textContent = `Aborted after ${secs}s.`;
+            thinkingLabel.classList.add("done"); // stop gradient
+          }
+        }
         return;
       }
       console.error("Error running pipeline:", err);
@@ -799,7 +836,20 @@ Link: ${wikiLink}
         finalText += buffer;
       }
     }
-  
+    
+    // Compute how many seconds we spent thinking
+    const endTime = performance.now();
+    const secs = ((endTime - startTime) / 1000).toFixed(1);
+
+    // If DeepSeek, update the <think> overlay's label
+    if (isDeepSeek) {
+      const thinkingLabel = document.getElementById("thinkingLabel");
+      if (thinkingLabel) {
+        thinkingLabel.textContent = `Thought for ${secs} seconds.`;
+        thinkingLabel.classList.add("done");  // remove gradient animation
+      }
+    }
+
     // Finally, the text outside <think> is in finalText
     // We'll treat that as the "rawResponse" to parse for JSON
     // (The user specifically wants the JSON part AFTER the think block)
@@ -843,8 +893,12 @@ Link: ${wikiLink}
  * Initialize (or re-initialize) the pipeline with a selected model
  */
 async function initLivePipeline(modelId, modelName) {
-  // Clear any old pipeline reference
-  deepSeekPipeline = null;
+  // Clear any old pipeline reference before loading a new model
+  if (deepSeekPipeline) {
+    console.log("Clearing previous model from memory...");
+    deepSeekPipeline = null; // Remove reference
+    await new Promise(resolve => setTimeout(resolve, 100)); // Allow garbage collection
+  }
 
   // References to the elements
   const modelLoadingStatusEl = document.getElementById("modelLoadingStatus");
@@ -887,7 +941,10 @@ async function initLivePipeline(modelId, modelName) {
       progressBar.style.width = `${percent}%`;
   
       // Update the progress text to show loaded size, total size, and percentage
-      progressText.textContent = `${loadedSizeMB}MB / ${totalSizeMB}MB (${percent}%)`;
+      // check if neither is NaN
+      if (!isNaN(loadedSizeMB) && !isNaN(totalSizeMB)) {
+        progressText.textContent = `${loadedSizeMB}MB / ${totalSizeMB}MB (${percent}%)`;
+      }
     };
 
     // Try to load using WebGPU (and half precision if "DeepSeek")
@@ -1040,6 +1097,16 @@ function csvToMarkdown(csvStr) {
   return md;
 }
 
+function csvToJson(csvStr) {
+  const lines = csvStr.trim().split(/\r?\n/);
+  if (!lines.length) return "{}"; // Empty JSON if no data
+
+  const headers = lines[0].split("#");
+  const rows = lines.slice(1).map(line => line.split("#"));
+
+  return JSON.stringify({ columns: headers, data: rows }, null, 2);
+}
+
 function extractJsonFromResponse(rawResponse) {
   let jsonText = rawResponse.trim();
 
@@ -1050,39 +1117,38 @@ function extractJsonFromResponse(rawResponse) {
     jsonText = fenceMatch[1].trim();
   }
 
-  // 2) Fix common formatting errors
-
-  // - Replace {row_index, "column_name"} with {"row_index": row_index, "column_name": "column_name"}
-  // Updated Regex to allow numeric row_index
-  jsonText = jsonText.replace(
-    /\{(\d+|[^"\s]+),\s*"([^"]+)"\}/g,
-    '{"row_index": "$1", "column_name": "$2"}'
-  );
-
-  // - Ensure all keys are properly quoted
-  jsonText = jsonText.replace(
-    /(\{|,)\s*([\w\d_]+)\s*:/g,
-    '$1 "$2":'
-  );
-
-  // - Fix unquoted values like TRUE/FALSE → "TRUE"/"FALSE"
-  jsonText = jsonText.replace(
-    /:\s*(TRUE|FALSE)([\s,\}])/gi,
-    ': "$1"$2'
-  );
-
-  // - Handle single quotes (change to double quotes)
-  jsonText = jsonText.replace(/'/g, '"');
+  // 2) Fix common formatting issues
+  jsonText = jsonText.replace(/'/g, '"'); // Convert single quotes to double quotes
+  jsonText = jsonText.replace(/(\{|,)\s*([\w\d_]+)\s*:/g, '$1 "$2":'); // Quote unquoted keys
+  jsonText = jsonText.replace(/:\s*(TRUE|FALSE)([\s,\}])/gi, ': "$1"$2'); // Quote booleans
 
   // 3) Attempt to parse JSON
+  let parsed;
   try {
-    return JSON.parse(jsonText);
+    parsed = JSON.parse(jsonText);
   } catch (err) {
     console.warn("[extractJsonFromResponse] Could not parse JSON:", err);
-    // Print raw for debugging
     console.log("Attempted JSON Text:", jsonText);
     return {}; // Return empty object as a fallback
   }
+
+  // 4) Normalize `relevant_cells` structure
+  if (Array.isArray(parsed.relevant_cells)) {
+    parsed.relevant_cells = parsed.relevant_cells.map(cell => {
+      if (Array.isArray(cell) && cell.length === 2) {
+        // Convert [row, "column"] to {row_index, column_name}
+        return {
+          row_index: Number(cell[0]), // Ensure row_index is a number
+          column_name: String(cell[1]) // Ensure column_name is a string
+        };
+      } else if (typeof cell === "object" && cell.row_index !== undefined && cell.column_name) {
+        return cell; // Already correctly formatted
+      }
+      return null; // Invalid entries removed
+    }).filter(Boolean); // Remove null values
+  }
+
+  return parsed;
 }
 
 
