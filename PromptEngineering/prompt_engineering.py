@@ -278,7 +278,8 @@ def run_pipeline_for_model(model_name: str, dataset: str, learning_type: str, fo
         all_csv_folder=csv_folder,
         learning_type=learning_type,
         format_type=format_type,
-        model=model
+        model=model,
+        model_name=model_name
     )
     
     # Process claims using batch mode if requested.
@@ -314,9 +315,11 @@ def run_pipeline_for_model(model_name: str, dataset: str, learning_type: str, fo
     logging.info(f"Results saved to {results_file}")
 
     # also save final results to docs/
-    with open(f"../docs/results/results_with_cells_{model_name}_{os.path.basename(dataset).replace('.json','')}_{args.N if args.N else 'all'}_{learning_type}_{format_type}.json", "w") as f:
+    website_results_folder = "../docs/results"
+    os.makedirs(website_results_folder, exist_ok=True)
+    with open(f"{website_results_folder}/results_with_cells_{model_name}_{os.path.basename(dataset).replace('.json','')}_{args.N if args.N else 'all'}_{learning_type}_{format_type}.json", "w") as f:
         json.dump(results, f, indent=2)
-    logging.info(f"Wrote results to ../docs/results_with_cells_{model_name}_{os.path.basename(dataset).replace('.json','')}_{args.N if args.N else 'all'}_{learning_type}_{format_type}.json")
+    logging.info(f"Wrote results to {website_results_folder}/results_with_cells_{model_name}_{os.path.basename(dataset).replace('.json','')}_{args.N if args.N else 'all'}_{learning_type}_{format_type}.json")
 
     
     metrics_folder = os.path.join(results_folder, f"plots_prompt_engineering_{combo_str}")
@@ -380,7 +383,8 @@ def main():
 
     
     # write manifest file to docs/
-    manifest_file = "../docs/manifest.json"
+    manifest_file = "../docs/results/manifest.json"
+    os.makedirs("../docs/results", exist_ok=True)
     result_files = [
         f"results/{f}" for f in os.listdir("../docs/results")
         if f.startswith("results_with_cells_") and f.endswith(".json")

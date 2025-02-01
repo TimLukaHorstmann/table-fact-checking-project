@@ -37,6 +37,8 @@ from sklearn.metrics import (
 from langchain_ollama import OllamaLLM
 import torch
 
+import subprocess
+
 ################################################################################
 #                             LOGGING CONFIGURATION
 ################################################################################
@@ -44,13 +46,37 @@ import torch
 log_filename = f"logs/logs_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
 os.makedirs("logs", exist_ok=True)
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.WARN,
     format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(),
         logging.FileHandler(log_filename, mode="w")
     ],
 )
+
+
+################################################################################
+#                  STARTING UP OLLAMA (SUPPRESSING GIN OUTPUTS)
+################################################################################
+
+# Global flag to ensure we only start Ollama once.
+OLLAMA_STARTED = False
+
+def ensure_ollama_running():
+    """Ensure that Ollama is running by starting it in a subprocess if necessary."""
+    global OLLAMA_STARTED
+    if not OLLAMA_STARTED:
+        try:
+            process = subprocess.Popen(
+                "OLLAMA_LOG_LEVEL=ERROR ollama serve",
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                shell=True
+            )
+            OLLAMA_STARTED = True
+            logging.info("Ollama started successfully (or was already running).")
+        except Exception as e:
+            logging.error("Failed to start Ollama: " + str(e))
 
 ################################################################################
 #                          UTILITY FUNCTIONS
@@ -148,12 +174,15 @@ class BaseFactChecker:
         all_csv_folder: str,
         learning_type: str = "zero_shot",
         format_type: str = "naturalized",
-        model: Optional[OllamaLLM] = None
+        model: Optional[OllamaLLM] = None,
+        model_name: Optional[str] = None,
     ):
+        ensure_ollama_running()
         self.all_csv_folder = all_csv_folder
         self.learning_type = learning_type
         self.format_type = format_type
         self.model = model
+        self.model_name = model_name
 
     def load_table(self, table_id: str) -> Optional[pd.DataFrame]:
         """
@@ -263,7 +292,7 @@ def test_model_on_claims(
     keys = list(full_cleaned_data.keys())
     limit = len(keys) if test_all else min(N, len(keys))
     logging.info(f"Testing {limit} tables out of {len(keys)}.")
-    for i in tqdm(range(limit), desc="Processing tables"):
+    for i in tqdm(range(limit), desc=f"{fact_checker.model_name} - Processing tables"):
         table_id = keys[i]
         claims = full_cleaned_data[table_id][0]
         labels = full_cleaned_data[table_id][1]
@@ -349,7 +378,7 @@ def test_model_on_claims_parallel(
                     format_type,
                     approach
                 ))
-        for future in tqdm(as_completed(tasks), total=len(tasks), desc="Processing claims"):
+        for future in tqdm(as_completed(tasks), total=len(tasks), desc=f"{model_name} - Processing claims"):
             try:
                 result = future.result()
                 results.append(result)

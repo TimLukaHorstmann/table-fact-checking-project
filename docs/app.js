@@ -31,10 +31,29 @@ const liveStreamOutputEl = document.getElementById("liveStreamOutput");
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    tableToPageMap = await fetchTableToPage();
-    const manifest = await fetchManifest();
-    parseManifest(manifest);
-    populateDropdowns();
+    // Attempt to fetch the table-to-page mapping.
+    try {
+      tableToPageMap = await fetchTableToPage();
+    } catch (e) {
+      console.warn("Failed to fetch table_to_page.json. Continuing without it.", e);
+      tableToPageMap = {};
+    }
+
+    // Attempt to fetch and process the manifest.
+    let manifest;
+    try {
+      manifest = await fetchManifest();
+      if (!manifest.results_files || !Array.isArray(manifest.results_files)) {
+        console.warn("Manifest does not contain results_files. Using an empty list.");
+        manifest.results_files = [];
+      }
+      parseManifest(manifest);
+      populateDropdowns();
+    } catch (manifestError) {
+      console.warn("Failed to fetch or parse manifest.json. Continuing without manifest.", manifestError);
+    }
+
+    // Continue with the rest of the initialization.
     populateExistingTableDropdown();
     addLoadButtonListener();
     setupTabSwitching();
