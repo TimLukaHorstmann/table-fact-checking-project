@@ -11,11 +11,14 @@
     <div class="header-container">
       <img src="ipp.png" alt="IP Paris Logo" class="logo">
       <h1>Table Fact Checking Project - Explorer</h1>
+      <div class="toggle-switch">
+        <input type="checkbox" id="darkModeToggle" />
+        <label for="darkModeToggle"></label>
+      </div>      
     </div>
   </header>
 
   <main class="container">
-
     <!-- Mode Tabs -->
     <div class="mode-tabs">
       <button class="mode-tab active" data-mode="precomputed">Precomputed Results</button>
@@ -29,25 +32,24 @@
       <section class="controls">
         <div class="select-group">
           <label for="modelSelect">Model:</label>
-          <select id="modelSelect"></select>
+          <select id="modelSelect" class="paginated"></select>
         </div>
         <div class="select-group">
           <label for="datasetSelect">Dataset:</label>
-          <select id="datasetSelect"></select>
+          <select id="datasetSelect" class="paginated"></select>
         </div>
         <div class="select-group">
           <label for="learningTypeSelect">Learning Type:</label>
-          <select id="learningTypeSelect"></select>
+          <select id="learningTypeSelect" class="paginated"></select>
         </div>
         <div class="select-group">
           <label for="nValueSelect">N:</label>
-          <select id="nValueSelect"></select>
+          <select id="nValueSelect" class="paginated"></select>
         </div>
         <div class="select-group">
           <label for="formatTypeSelect">Format:</label>
-          <select id="formatTypeSelect"></select>
+          <select id="formatTypeSelect" class="paginated"></select>
         </div>
-
         <button id="loadBtn" class="btn-primary">Load Results</button>
       </section>
 
@@ -59,7 +61,6 @@
         <label for="tableSelect">Table:</label>
         <select id="tableSelect"></select>
       </div>
-      <!-- Precomputed area: place to show table meta -->
       <div id="tableMetaInfo" class="info-panel" style="display: none;"></div>
       <div id="claimList" class="claim-list"></div>
       <div id="table-container"></div>
@@ -72,57 +73,36 @@
         <div class="model-chooser">
           <label for="liveModelSelect">Model:</label>
           <select id="liveModelSelect">
-            <!-- Add or remove model options as desired -->
-            <option value="onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX">
-              DeepSeek-R1-Distill-Qwen-1.5B-ONNX
-            </option>
-            <option value="onnx-community/Llama-3.2-1B-Instruct">
-              Llama-3.2-1B-Instruct (experimental)
-            </option>
-            <option value="onnx-community/Qwen2.5-0.5B-Instruct">
-              Qwen2.5-0.5B-Instruct (experimental)
-            </option>
+            <option value="onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX">DeepSeek-R1-Distill-Qwen-1.5B-ONNX</option>
+            <option value="onnx-community/Llama-3.2-1B-Instruct">Llama-3.2-1B-Instruct (experimental)</option>
+            <option value="onnx-community/Qwen2.5-0.5B-Instruct">Qwen2.5-0.5B-Instruct (experimental)</option>
           </select>
           <button id="loadLiveModel" class="btn-primary">Load Model</button>
-
           <div id="modelLoadingStatus" style="display: none;">
-            <!-- We separate the text from the progress bar so we don't overwrite the bar -->
             <span id="modelLoadingText">Loading model:</span>
             <br />
-            
-            <!-- Keep these progress elements in the DOM at all times -->
             <span id="modelLoadingProgress">0%</span>
-            <div id="modelProgressBarContainer" style="width: 100%; background-color: #ddd; border-radius: 5px; overflow: hidden; margin-top: 5px; display: none;">
-              <div id="modelProgressBar" style="width: 0%; height: 20px; background-color: #4caf50; transition: width 0.2s;"></div>
+            <div id="modelProgressBarContainer" class="progress-bar-container" style="display: none;">
+              <div id="modelProgressBar" class="progress-bar"></div>
             </div>
           </div>
         </div>
         <p id="loadInfo">First download may take a little bit. Subsequent loads will read from cache.</p>
 
-
         <!-- CSV input + live preview -->
         <div class="input-group">
           <label for="inputTable">Paste Table (CSV format, # delimited):</label>
-          
-          <!-- Wrap label & dropdown in a flex container for inline display -->
           <div class="inline-dropdown">
             <label for="existingTableSelect">Or choose an existing one from the TabFact dataset:</label>
-            <select id="existingTableSelect">
-              <option value="">-- Select a Table --</option>
-            </select>
+            <select id="existingTableSelect"></select>
           </div>
-          <!-- Checkbox to optionally include table name in the prompt -->
           <div class="inline-checkbox" id="includeTableNameOption" style="display: none;">
             <label for="includeTableNameCheck">
               <input type="checkbox" id="includeTableNameCheck" />
               Include table title in prompt
             </label>
           </div>
-
           <textarea id="inputTable" rows="6"></textarea>
-
-          <!-- Live table preview -->
-          <!-- Live area: place to show table meta (title & link) below the preview -->
           <div id="liveTableMetaInfo" class="info-panel" style="display:none;"></div>
           <div id="livePreviewTable" class="table-container"></div>
         </div>
@@ -133,7 +113,7 @@
           <textarea id="inputClaim" rows="3"></textarea>
         </div>
 
-        <!-- Run button -->
+        <!-- Run button and Stop button in one flex container -->
         <div class="button-group">
           <button id="runLiveCheck" class="btn-primary">Run Live Check</button>
           <button id="stopLiveCheck" class="icon-button" style="display: none;">
@@ -146,23 +126,15 @@
             </div>
           </button>
         </div>
-
       </div>
 
-      <!-- Think output area for DeepSeek model -->
       <div id="liveThinkOutput" class="live-stream-output" style="display: none;"></div>
-
-      <!-- Streaming output area -->
       <div id="liveStreamOutput" class="live-stream-output" style="display: none;"></div>
-
-      <!-- Final result area -->
       <div id="liveResults" class="live-results" style="display: none;">
         <div id="liveClaimList" class="claim-list"></div>
       </div>
-
       <p id="disclaimer">AI-generated, for reference only</p>
     </section>
-
 
     <!-- Report Section -->
     <section id="reportSection" class="results-section" style="display: none;">
@@ -170,8 +142,6 @@
         <iframe id="pdfViewer" width="100%" height="800px"></iframe>
       </div>
     </section>
-
-
   </main>
 
   <footer>
@@ -190,14 +160,7 @@
       AutoModelForCausalLM,
       TextStreamer
     } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.3.2/dist/transformers.min.js";
-
-    // Attach them to the global window object
-    window._transformers = {
-      pipeline,
-      AutoTokenizer,
-      AutoModelForCausalLM,
-      TextStreamer
-    };
+    window._transformers = { pipeline, AutoTokenizer, AutoModelForCausalLM, TextStreamer };
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/dompurify@2.3.10/dist/purify.min.js"></script>
@@ -205,5 +168,11 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
   <script src="app.js"></script>
+  <!-- Dark mode toggle script -->
+  <script>
+    document.getElementById("darkModeToggle").addEventListener("change", function() {
+      document.body.classList.toggle("dark-mode", this.checked);
+    });
+  </script>
 </body>
 </html>

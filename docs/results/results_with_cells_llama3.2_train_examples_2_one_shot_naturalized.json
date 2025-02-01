@@ -1,0 +1,167 @@
+[
+  {
+    "table_id": "2-15401676-3.html.csv",
+    "claim": "there be 2 different game where the highest score be 3 goal",
+    "predicted_response": 0,
+    "resp": "",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15401676-3.html.csv",
+    "claim": "friedenreich be mention as a brazil scorer for 2 different game",
+    "predicted_response": 0,
+    "resp": "",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15401676-3.html.csv",
+    "claim": "haroldo be mention as a brazil scorer for 2 different game",
+    "predicted_response": 0,
+    "resp": "",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15401676-3.html.csv",
+    "claim": "4 of the 5 game be for the south american championship",
+    "predicted_response": 0,
+    "resp": "",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15401676-3.html.csv",
+    "claim": "4 of the 5 game be play in may 1919",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 2, \"column_name\": \"date\"},\n    {\"row_index\": 3, \"column_name\": \"date\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "date"
+      },
+      {
+        "row_index": 3,
+        "column_name": "date"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15401676-3.html.csv",
+    "claim": "all 5 of the game be for the south american championship",
+    "predicted_response": 0,
+    "resp": "Based on the table and claim provided, here is the evaluation result in JSON format:\n\n{\"answer\":\"FALSE\",\"relevant_cells\":[{\"row_index\":2,\"column_name\":\"result\"},{\"row_index\":3,\"column_name\":\"competition\"}]}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15401676-3.html.csv",
+    "claim": "neco be mention as a brazil scorer for 2 different game",
+    "predicted_response": 0,
+    "resp": "Based on the given table and claim, here is the evaluation result:\n\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 3, \"column_name\": \"Brazil Scorers\"},\n    {\"row_index\": 1, \"column_name\": \"Brazil Scorers\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15401676-3.html.csv",
+    "claim": "friedenreich be mention as a brazil scorer for 4 different game",
+    "predicted_response": 0,
+    "resp": "To evaluate the claim, we can iterate through each row of the table and check if Freidenreich is mentioned as a scorer for 4 different games.\n\nHere's a Python function to solve this problem:\n\n```python\ndef evaluate_claim(table):\n    brazil_scorers = set()\n    \n    # Extract relevant information from table\n    for i, row in enumerate(table):\n        date = row['date']\n        result = row['result']\n        score = row['score'].split('-')\n        scorers = [scorer.strip() for scorer in row['scorers'].split(',')]\n        \n        if 'brazil' in scorers:\n            brazil_scorers.add(score[1])\n    \n    # Check if Freidenreich is mentioned as a Brazil scorer 4 times\n    freidenreich_count = sum(1 for scorer in brazil_scorers if 'friedenreich' in scorer)\n    \n    answer = 'TRUE' if freidenreich_count == 4 else 'FALSE'\n    \n    relevant_cells = []\n    for i, row in enumerate(table):\n        date = row['date']\n        result = row['result']\n        score = row['score'].split('-')\n        scorers = [scorer.strip() for scorer in row['scorers'].split(',')]\n        \n        if 'brazil' in scorers:\n            relevant_cells.append({'row_index': i, 'column_name': 'Scorers'})\n    \n    return {\n        \"answer\": answer,\n        \"relevant_cells\": relevant_cells\n    }\n\n# Example usage\ntable = [\n    {\"date\": \"May 11, 1919\", \"result\": \"W\", \"score\": \"6-0\", \"scorers\": \"Friedenreich (3), Neco (2), Haroldo\"},\n    {\"date\": \"May 18, 1919\", \"result\": \"W\", \"score\": \"3-1\", \"scorers\": \"Heitor, Am\u00edlcar, Millon\"},\n    {\"date\": \"May 26, 1919\", \"result\": \"D\", \"score\": \"2-2\", \"scorers\": \"Neco (2)\"},\n    {\"date\": \"May 29, 1919\", \"result\": \"W\", \"score\": \"1-0\", \"scorers\": \"Friedenreich\"},\n    {\"date\": \"June 1, 1919\", \"result\": \"D\", \"score\": \"3-3\", \"scorers\": \"Haroldo, Arolindo (2)\"}\n]\n\nprint(evaluate_claim(table))\n```\n\nWhen you run this code with the provided table, it will print:\n\n```json\n{\n    \"answer\": \"FALSE\",\n    \"relevant_cells\": [\n        {\"row_index\": 1, \"column_name\": \"Scorers\"},\n        {\"row_index\": 4, \"column_name\": \"Scorers\"}\n    ]\n}\n```\n\nBecause Freidenreich is mentioned as a scorer only 2 times.",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 1,
+        "column_name": "Scorers"
+      },
+      {
+        "row_index": 4,
+        "column_name": "Scorers"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15401676-3.html.csv",
+    "claim": "there be 2 different game where the lowest score be 3 goal",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 3, \"column_name\": \"Score\"}, {\"row_index\": 5, \"column_name\": \"Score\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "Score"
+      },
+      {
+        "row_index": 5,
+        "column_name": "Score"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15401676-3.html.csv",
+    "claim": "2 of the 5 game be play in may 1919",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": []\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "1-11820086-1.html.csv",
+    "claim": "racing like a pro be the most viewed episode",
+    "predicted_response": 0,
+    "resp": "To determine if the claim is true or false based on the provided table and naturalized text, we need to evaluate which episode was most viewed.\n\nAccording to the data:\nRow 2 has a US viewers (millions) of 3.57\nThe \"most viewed\" information for an episode of the series \"Haven\" must be found in another row with a column of \"US viewers (millions)\".\n\nUpon inspection, there is no other row that surpasses Row 2's viewership. Hence,\nAnswer: FALSE\n\nThe relevant cells are:\n- Row Index: 2\n- Column Name: US Viewers",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "1-11820086-1.html.csv",
+    "claim": "4 year , 6 month , 2 day be the oldest episode in season",
+    "predicted_response": 0,
+    "resp": "Based on the table provided, I will evaluate the claim.\n\nThe claim states: \"4 year , 6 month , 2 day be the oldest episode in season\"\n\nLooking at the table, we can see that Row 1 has a date of January 8, 2008 which is earlier than any other row's date. The years in the title match up to this date.\n\nTherefore, the answer is:\n\n{\n\"answer\": \"TRUE\",\n\"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"no in series\"}\n]\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "1-11820086-1.html.csv",
+    "claim": "cryin' won't help you now be the least viewed episode",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 16, \"column_name\": \"US Viewers (millions)\"} \n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 16,
+        "column_name": "US Viewers (millions)"
+      }
+    ]
+  },
+  {
+    "table_id": "1-11820086-1.html.csv",
+    "claim": "greg prange direct 4 episode",
+    "predicted_response": 0,
+    "resp": "For the claim: \"greg prange direct 4 episode\"\n\nAnswer: FALSE.\n\nRelevant cells:\n[\n  {\"row_index\": 13, \"column_name\": \"directed by\"},\n  {\"row_index\": 17, \"column_name\": \"directed by\"}\n]",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "1-11820086-1.html.csv",
+    "claim": "mark schwahn write 8 episode",
+    "predicted_response": 0,
+    "resp": "{\"answer\":\"FALSE\",\"relevant_cells\":[{\"row_index\":17,\"column_name\":\"written by\"},{\"row_index\":8,\"column_name\":\"written by\"},{\"row_index\":2,\"column_name\":\"written by\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 17,
+        "column_name": "written by"
+      },
+      {
+        "row_index": 8,
+        "column_name": "written by"
+      },
+      {
+        "row_index": 2,
+        "column_name": "written by"
+      }
+    ]
+  }
+]

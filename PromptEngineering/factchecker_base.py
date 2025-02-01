@@ -41,7 +41,8 @@ import torch
 #                             LOGGING CONFIGURATION
 ################################################################################
 
-log_filename = f"logs_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+log_filename = f"logs/logs_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+os.makedirs("logs", exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
