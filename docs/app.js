@@ -19,6 +19,7 @@ let availableOptions = {
 };
 let globalAbortController = null;
 let tableToPageMap = {};  // csv filename -> [title, link]
+let resultsChartInstance = null;
 
 // For live inference
 let deepSeekPipeline = null;
@@ -199,6 +200,7 @@ function onTableSelectChange() {
   const tableSelect = document.getElementById("tableSelect");
   const selectedTid = tableSelect.value;
   showClaimsForTable(selectedTid);
+  updateResultsChart(selectedTid);
 }
 
 function showClaimsForTable(tableId) {
@@ -210,7 +212,25 @@ function showClaimsForTable(tableId) {
   itemsForTable.forEach((res, idx) => {
     const div = document.createElement("div");
     div.className = "claim-item";
-    div.textContent = `Claim #${idx + 1}: ${res.claim}`;
+    
+    // Determine if the claim was answered correctly.
+    const isCorrect = res.predicted_response === res.true_response;
+    // Add extra class based on correctness.
+    div.classList.add(isCorrect ? "correct" : "incorrect");
+
+    // Create a symbol element: green check or red cross.
+    const symbolSpan = document.createElement("span");
+    symbolSpan.className = "result-symbol";
+    symbolSpan.textContent = isCorrect ? "✓" : "✕";
+
+    // Build the claim text.
+    const claimText = document.createTextNode(`Claim #${idx + 1}: ${res.claim}`);
+    
+    // Append the symbol and text to the div.
+    div.appendChild(symbolSpan);
+    div.appendChild(claimText);
+
+    // Click event to show full claim details and table.
     div.addEventListener("click", () => {
       document.querySelectorAll(".claim-item").forEach(item => item.classList.remove("selected"));
       div.classList.add("selected");
@@ -222,6 +242,7 @@ function showClaimsForTable(tableId) {
     claimListDiv.firstChild.click();
   }
 }
+
 
 async function renderClaimAndTable(resultObj) {
   const container = document.getElementById("table-container");
@@ -304,6 +325,85 @@ async function renderClaimAndTable(resultObj) {
   tableEl.appendChild(tbody);
   container.appendChild(tableEl);
 }
+
+
+
+function updateResultsChart(tableId) {
+  const resultsHeader = document.getElementById("resultsHeader");
+  const chartContainer = document.getElementById("chartContainer");
+  if (!resultsHeader) return; // safety check if header isn't in the DOM
+
+  // Get results for the selected table
+  const results = tableIdToResultsMap[tableId] || [];
+  let correctCount = 0;
+  let incorrectCount = 0;
+  results.forEach(result => {
+    if (result.predicted_response === result.true_response) {
+      correctCount++;
+    } else {
+      incorrectCount++;
+    }
+  });
+
+  // If there are no results, hide the header (which includes the chart)
+  if (results.length === 0) {
+    resultsHeader.style.display = "none";
+    return;
+  } else {
+    resultsHeader.style.display = "flex";
+  }
+
+  // Prepare the data for a bar chart
+  const data = {
+    labels: ["Correct", "Incorrect"],
+    datasets: [{
+      label: "Number of Claims",
+      data: [correctCount, incorrectCount],
+      backgroundColor: ["#4caf50", "#f44336"],
+      hoverBackgroundColor: ["#66bb6a", "#ef5350"],
+      barThickness: 30  // Adjust this for a more compact look
+    }]
+  };
+
+  const ctx = document.getElementById("resultsChart").getContext("2d");
+
+  if (resultsChartInstance) {
+    resultsChartInstance.data = data;
+    resultsChartInstance.update();
+  } else {
+    resultsChartInstance = new Chart(ctx, {
+      type: "bar",
+      data: data,
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                // context.parsed.y contains the count when using a vertical bar chart.
+                return `${context.label}: ${context.parsed.y !== undefined ? context.parsed.y : context.parsed}`;
+              }
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1  // Makes sure counts are shown as whole numbers
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+
+
+
 
 //
 // LIVE CHECK functions

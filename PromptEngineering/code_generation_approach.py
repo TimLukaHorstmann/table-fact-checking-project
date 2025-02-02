@@ -21,10 +21,19 @@ from factchecker_base import BaseFactChecker, test_model_on_claims, test_model_o
 from langchain_ollama import OllamaLLM
 
 class CodeGenerationFactChecker(BaseFactChecker):
+    """
+    CodeGenerationFactChecker is a stub for a code generation approach.
+    
+    Extend this class to instruct the LLM to generate executable code (e.g., using pandas)
+    that extracts or computes evidence from the table. This can involve:
+      - Providing a code template in the prompt.
+      - Specifying clear instructions on how the generated code should process the table.
+      - Including an example of acceptable code output.
+    """
     def generate_prompt(self, table_id: str, claim: str) -> Optional[str]:
         logging.info("Code generation approach stub: Implement code-generation instructions here.")
-        # TODO: Implement your code generation logic.
-        # For example, instruct the LLM to output pandas code that extracts the relevant evidence.
+        # TODO: Provide instructions to the LLM to output executable code.
+        # For instance, "Write a Python function using pandas to filter rows where the claim holds..."
         return None
 
 def run_pipeline_for_model(model_name: str, dataset: str, learning_type: str, format_type: str, args):

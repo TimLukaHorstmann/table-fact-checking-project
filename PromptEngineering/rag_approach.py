@@ -20,9 +20,19 @@ from factchecker_base import BaseFactChecker, test_model_on_claims, test_model_o
 from langchain_ollama import OllamaLLM
 
 class RAGFactChecker(BaseFactChecker):
+    """
+    RAGFactChecker implements a Retrieval-Augmented Generation approach.
+    
+    To extend this stub:
+      - Implement table encoding to transform the table into a searchable or vectorized format.
+      - Retrieve relevant passages or cells.
+      - Integrate the retrieved evidence into the prompt before querying the LLM.
+    """
     def generate_prompt(self, table_id: str, claim: str) -> Optional[str]:
         logging.info("RAG approach stub: Implement retrieval and reasoning here.")
-        # TODO: Implement table encoding, retrieval, and reasoning logic.
+        # TODO: 1) Load and encode the table data.
+        #       2) Retrieve related evidence based on the claim.
+        #       3) Format a prompt that combines the table, retrieved evidence, and the claim.
         return None
 
 def run_pipeline_for_model(model_name: str, dataset: str, learning_type: str, format_type: str, args):
