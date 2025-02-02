@@ -21,7 +21,7 @@ python prompt_engineering.py \
   --dataset tokenized_data/test_examples.json,tokenized_data/val_examples.json \
   --learning_type zero_shot,one_shot \
   --format_type markdown,naturalized \
-  --models mistral,llama3.2,phi4 \
+  --models mistral:latest,llama3.2:latest,phi4:latest \
   --parallel_models \
   --batch_prompts \
   --max_workers 4 \

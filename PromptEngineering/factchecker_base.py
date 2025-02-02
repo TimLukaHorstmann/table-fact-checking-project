@@ -183,6 +183,7 @@ class BaseFactChecker:
         self.format_type = format_type
         self.model = model
         self.model_name = model_name
+        self.host_name = os.uname().nodename
 
     def load_table(self, table_id: str) -> Optional[pd.DataFrame]:
         """
@@ -378,7 +379,7 @@ def test_model_on_claims_parallel(
                     format_type,
                     approach
                 ))
-        for future in tqdm(as_completed(tasks), total=len(tasks), desc=f"{model_name} - Processing claims"):
+        for future in tqdm(as_completed(tasks), total=len(tasks), desc=f"Machine {os.uname().nodename} -> {model_name} - Processing claims"):
             try:
                 result = future.result()
                 results.append(result)

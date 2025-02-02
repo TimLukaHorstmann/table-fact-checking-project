@@ -1,0 +1,1447 @@
+[
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema be in the top 5 for the master tournament , the us open , and the open championship",
+    "predicted_response": 0,
+    "resp": "function checkClaim() {\n  var row = [\n    [\"tournament\", \"masters tournament\", \"wins\", \"0\"],\n    [\"tournament\", \"us open\", \"wins\", \"0\"],\n    [\"tournament\", \"the open championship\", \"wins\", \"1\"],\n    [\"tournament\", \"pga championship\", \"wins\", \"0\"],\n    [\"tournament\", \"totals\", \"wins\", \"1\"]\n  ];\n\n  for (var i = 0; i < row.length; ++i) {\n    if (row[i][2] >= 5 && row[i][3] == 't') {\n      console.log(\"TRUE\");\n      return JSON.stringify({\n        answer: \"TRUE\",\n        relevant_cells: [\n          {\"row_index\": i, \"column_name\": row[i][1]}\n        ]\n      });\n    }\n  }\n\n  console.log(\"FALSE\");\n  return JSON.stringify({\n    answer: \"FALSE\",\n    relevant_cells: []\n  })\n}\n\ncheckClaim();",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema do not win in the us open",
+    "predicted_response": 0,
+    "resp": "Based on the provided data, let's analyze the claim \"tony lema does not win in the us open\".\n\nLooking at the table, we can see that there is no information about Tony Lema winning or losing in any of the tournaments. However, we can also observe that Row 2 says \"tournament is us open wins is 0\". \n\nThis statement directly contradicts the claim. The US Open wins are indeed 0 for a player named \"tony lema\" if we only look at row 2.\n\nTherefore, the claim is FALSE.\n\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 2, \"column_name\": \"wins\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tournament that tony lema have participate in include the master tournament , the us open , the pga championship and the open championship",
+    "predicted_response": 0,
+    "resp": "for row_index in range(5):\n    if row_index == 0:\n        if 'masters' not in table[row_index]['tournament']:\n            return {\"answer\": \"FALSE\", \"relevant_cells\": []}\n    elif row_index == 1 and 'us open' not in table[row_index]['tournament']:\n        return {\"answer\": \"FALSE\", \"relevant_cells\": []}\n    elif row_index == 2 and 'the open championship' not in table[row_index]['tournament']:\n        return {\"answer\": \"FALSE\", \"relevant_cells\": []}\n    elif row_index == 3 and 'pga championship' not in table[row_index]['tournament']:\n        return {\"answer\": \"FALSE\", \"relevant_cells\": []}\n\nif any('masters' in row['tournament'] or \n      'us open' in row['tournament'] or\n      'the open championship' in row['tournament'] or\n      'pga championship' in row['tournament'] for row_index, row in enumerate(table) if row_index != 5):\n    print({\"answer\": \"TRUE\", \"relevant_cells\": [{\"row_index\": i+1, \"column_name\": col} for i, row in enumerate(table) for col, val in row.items() if 'tournament' in row and (val.lower() == 'masters' or val.lower() == 'us open' or val.lower() == 'the open championship' or val.lower() == 'pga championship')]})\nelse:\n    print({\"answer\": \"FALSE\", \"relevant_cells\": []})",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "the only tournament that tony lema win in be the open championship",
+    "predicted_response": 0,
+    "resp": "To determine if the claim is true or false, we will analyze the provided table and check for any matches in the column named 'tournaments' where it contains Tony Lema's name.\n\nFirst, let's look at the data from the table:\n\nRow 1: tournament is Masters Tournament wins is 0 top - 5 is 1 top - 10 is 2 top - 25 is 4 events is 4 cuts made is 4\n\nRow 2: tournament is US Open wins is 0 top - 5 is 2 top - 10 is 3 top - 25 is 4 events is 6 cuts made is 5\n\nRow 3: tournament is The Open Championship wins is 1 top - 5 is 2 top - 10 is 2 top - 25 is 2 events is 3 cuts made is 3\n\nRow 4: tournament is PGA Championship wins is 0 top - 5 is 0 top - 10 is 1 top - 25 is 2 events is 5 cuts made is 4\n\nRow 5: tournament is Total Wins is 1 top - 5 is 5 top - 10 is 8 top - 25 is 12 events is 18 cuts made is 16\n\nAfter analyzing the table, we found that there's only one case where Tony Lema won in The Open Championship. Therefore, the claim is TRUE.\n\nHere's a valid JSON object with the required information:\n\n{\n    \"answer\": \"TRUE\",\n    \"relevant_cells\": [\n        {\"row_index\": 3, \"column_name\": \"The Open Championship\"}\n    ]\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tournament that tony lema have not participate in include the master tournament , the us open , the pga championship and the open championship",
+    "predicted_response": 0,
+    "resp": "To answer this question, I will first identify if Tony Lema participated in any of the mentioned tournaments.\n\nLooking at the table provided:\n\n- The Masters Tournament has a wins count of 0, which suggests it is not one where Tony Lema won.\n- The US Open has a wins count of 0, which also suggests it is not one where Tony Lema won.\n- The PGA Championship has a wins count of 0, indicating that he didn't win this tournament either.\n- The Open Championship has a wins count of 1, showing that he did participate in and may have won the championship.\n\nTherefore, based on this analysis, I will create an object with the appropriate keys.\n\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"Masters Tournament\"},\n    {\"row_index\": 1, \"column_name\": \"US Open\"},\n    {\"row_index\": 2, \"column_name\": \"PGA Championship\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema make it to the top 10 in the pga championship , but do not continue on",
+    "predicted_response": 0,
+    "resp": "function getRelevantCells() {\n  const claim = 'tony lema make it to the top 10 in the pga championship , but do not continue on';\n  const rows = [\n    { row: 1, wins: 0, top_5: 1, top_10: 2, top_25: 4, events: 4, cuts_made: 4 },\n    { row: 2, wins: 0, top_5: 2, top_10: 3, top_25: 4, events: 6, cuts_made: 5 },\n    { row: 3, wins: 1, top_5: 2, top_10: 2, top_25: 2, events: 3, cuts_made: 3 },\n    { row: 4, wins: 0, top_5: 0, top_10: 1, top_25: 2, events: 5, cuts_made: 4 },\n    { row: 5, wins: 1, top_5: 5, top_10: 8, top_25: 12, events: 18, cuts_made: 16 }\n  ];\n\n  const pgaChampionship = rows.find(row => row.tournament === 'pga championship');\n  if (pgaChampionship && pgaChampionship.top_5 > 0) {\n    return { answer: \"FALSE\" };\n  }\n\n  for (const row of rows) {\n    if (row.tournament === 'pgatw') continue;\n\n    if (row.top_10 > 0) return { answer: \"FALSE\", relevant_cells: [] };\n\n    return { answer: \"TRUE\",\n      relevant_cells: [\n        { row_index: row.row, column_name: \"top_10\" },\n        { row_index: row.row, column_name: \"cuts_made\" }]\n    }\n  }\n\n  return { answer: 'FALSE', relevant_cells: [] };\n}\n\nconsole.log(JSON.stringify(getRelevantCells()));",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema be in the top 5 for the pga championship , the us open , and the open championship",
+    "predicted_response": 0,
+    "resp": "const data = {\n  \"Row 1\": {\"tournament\":\"Masters Tournament\",\"wins\":\"0\",\"top-5\":\"1\",\"top-10\":\"2\",\"top-25\":\"4\",\"events\":\"4\",\"cuts_made\":\"4\"},\n  \"Row 2\": {\"tournament\":\"US Open\",\"wins\":\"0\",\"top-5\":\"2\",\"top-10\":\"3\",\"top-25\":\"4\",\"events\":\"6\",\"cuts_made\":\"5\"},\n  \"Row 3\": {\"tournament\":\"The Open Championship\",\"wins\":\"1\",\"top-5\":\"2\",\"top-10\":\"2\",\"top-25\":\"2\",\"events\":\"3\",\"cuts_made\":\"3\"},\n  \"Row 4\": {\"tournament\":\"PGA Championship\",\"wins\":\"0\",\"top-5\":\"0\",\"top-10\":\"1\",\"top-25\":\"2\",\"events\":\"5\",\"cuts_made\":\"4\"},\n  \"Row 5\": {\"tournament\":\"Total Tour (WGCs)\",\"wins\":\"1\",\"top-5\":\"5\",\"top-10\":\"8\",\"top-25\":\"12\",\"events\":\"18\",\"cuts_made\":\"16\"}\n};\n\nconst claim = \"tony lema be in the top 5 for the pga championship , the us open , and the open championship\";\nconst answer = claim.split(' ').some(c => {\n  return data[0] && \n    (data[0].tournament.toLowerCase() === c.toLowerCase().replace(\"pga\", \"pga championship\").replace(/be /, \"\") || \n     data[2].tournament.toLowerCase() === c.toLowerCase().replace(\"open\", \"the open championship\").replace(/be /, \"\") ||\n     data[1].tournament.toLowerCase() === c.toLowerCase().replace(\"us \", \"us open\").replace(/be /, \"\"));\n})\n\nconst relevant_cells = [\n  {row_index:0,column_name:\"tournament\"},\n  {row_index:2,column_name:\"tournament\"},\n  {row_index:1,column_name:\"tournament\"}\n]\n\nconsole.log(JSON.stringify({answer: answer ? 'TRUE' : 'FALSE',relevant_cells}))",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tournament that tony lema won in be pga championship",
+    "predicted_response": 0,
+    "resp": "Given the information provided, it seems like there is a missing piece of data in your prompt: the name 'tony lema'. Without this information, I am unable to determine whether claim is supported by the table.\n\nHowever, since you have provided an example and asked me to use it if possible. Using your example:\n\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"Revenue\"},\n    {\"row_index\": 1, \"column_name\": \"Employees\"}\n  ]\n}\n\nThis is because the table only contains data about golf tournaments (PGA, US Open, Masters, The Open Championship) and their respective statistics. There is no information available for a person named Tony Lema to determine whether he won any tournament in PGA championship.\n\nHowever, there was one other player with that name, Tony Lema had 8 wins on the PGA tour so if you would want the answer to be \"TRUE\", then it should look something like this:\n\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 5, \"column_name\": \"top - 25\"},\n    {\"row_index\": 5, \"column_name\": \"events\"}\n  ]\n}\n\nThis is because the statistics match those of Tony Lema.",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "paul emerick do not have the greatest number of tries out of the 9 total player",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"Tries\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "Tries"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "the greatest number of drop from 1 player happen over the span of 8 year",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": []}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema do not win in the pga championship",
+    "predicted_response": 0,
+    "resp": "To determine whether the claim is TRUE or FALSE, we need to analyze the data for the PGA Championship tournament.\n\nLet's start by looking at the relevant columns:\n\n* wins\n* top - 5\n* top - 10\n* top - 25\n* events\n* cuts made\n\nAccording to the data, the PGA Championship has the following values:\n- wins: 0\n- top - 5: 0\n- top - 10: 1\n- top - 25: 2\n- events: 5\n- cuts made: 4\n\nSince Tony Lemieux did not win in the PGA Championship, the claim is supported by the data. Therefore, the answer is:\n\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"events\"},\n    {\"row_index\": 1, \"column_name\": \"cuts made\"},\n    {\"row_index\": 2, \"column_name\": \"top - 25\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "chris wyles be 1 of the 2 player with drop during their time on the rugby team",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 6, \"column_name\": \"drop\"}, {\"row_index\": 8, \"column_name\": \"drop\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "drop"
+      },
+      {
+        "row_index": 8,
+        "column_name": "drop"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "riann van zyl have the shortest time span on the united state national rugby union team and tie with 3 others for the smallest number of tries",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 9, \"column_name\": \"span\"}, {\"row_index\": 5, \"column_name\": \"tries\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 9,
+        "column_name": "span"
+      },
+      {
+        "row_index": 5,
+        "column_name": "tries"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema make it to the top 10 in the us open , but do not continue on",
+    "predicted_response": 0,
+    "resp": "import json\nimport pandas as pd\n\n# Load the data from the table\ndata = {\n    \"tournament\": [\"Masters\", \"US Open\", \"The Open Championship\", \"PGA Championship\", \"Totals\"],\n    \"wins\": [0, 0, 1, 0, 1],\n    \"top - 5\": [1, 2, 2, 0, 5],\n    \"top - 10\": [2, 3, 2, 1, 8],\n    \"top - 25\": [4, 4, 2, 2, 12],\n    \"events\": [4, 6, 3, 5, 18],\n    \"cuts made\": [4, 5, 3, 4, 16]\n}\n\ndf = pd.DataFrame(data)\n\n# Check the claim\nclaim_row = df.loc[df[\"tournament\"] == \"US Open\"]\nif len(claim_row) > 0:\n    if claim_row.iloc[0][\"top - 5\"] < 10 and claim_row.iloc[0][\"cuts made\"] >= 5:\n        print(\"TRUE\")\n    else:\n        print(\"FALSE\")\nelse:\n    print(\"FALSE\")\n\n# Print the relevant cells\nrelevant_cells = [\n    {\"row_index\": 1, \"column_name\": \"top - 5\"},\n    {\"row_index\": 2, \"column_name\": \"cuts made\"}\n]\njson_object = json.dumps({\"answer\": \"TRUE\", \"relevant_cells\": relevant_cells})\nprint(json_object)",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "the greatest number of drop from 1 player happen over the span of only 1 year",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 6, \"column_name\": \"drop\"}, {\"row_index\": 8, \"column_name\": \"drop\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "drop"
+      },
+      {
+        "row_index": 8,
+        "column_name": "drop"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "3 of the 9 player have not yet finish their span of play on the united state national rugby union team",
+    "predicted_response": 0,
+    "resp": "import json\nimport pandas as pd\n\ndata = {\n    'player': ['vaea anitoni', 'paul emerick', 'todd clever', 'philip eloff', 'takudzwa ngwenya', 'chris wyles', 'david fee', 'mike hercus', 'riaan van zyl'],\n    'span': ['1992 - 2000', '2003 - 2012', '2003 - ', '2000 - 2007', '2007 - ', '2007 - ', '2002 - 2005', '2002 - 2009', '2003 - 2004'],\n    'start': [44, 49, 51, 34, 27, 35, 28, 45, 12],\n    'tries': [26, 17, None, 10, 10, 10, 9, 9, 9],\n    'conv': [0, 0, 11, 10, 10, 14, 9, 9, 9],\n    'pens': [0, 0, 0, 0, 0, 14, 0, 90, 0],\n    'drop': [0, 0, 0, 0, 0, 1, 0, 4, 0]\n}\n\ndf = pd.DataFrame(data)\n\nplayer_data = df[df['tries'].isnull()]\n\nrelevant_cells = []\nfor index, row in player_data.iterrows():\n    relevant_cells.append({\"row_index\": index + 1, \"column_name\": 'span'})\n    relevant_cells.append({\"row_index\": index + 1, \"column_name\": 'start'})\n\nanswer = \"TRUE\"\n\nprint(json.dumps({\"answer\": answer, \"relevant_cells\": relevant_cells}))",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "all of the player have already finish their span of play on the united state national rugby union team",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 2, \"column_name\": \"span\"},\n    {\"row_index\": 3, \"column_name\": \"span\"},\n    {\"row_index\": 4, \"column_name\": \"span\"},\n    {\"row_index\": 5, \"column_name\": \"span\"},\n    {\"row_index\": 6, \"column_name\": \"span\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "span"
+      },
+      {
+        "row_index": 3,
+        "column_name": "span"
+      },
+      {
+        "row_index": 4,
+        "column_name": "span"
+      },
+      {
+        "row_index": 5,
+        "column_name": "span"
+      },
+      {
+        "row_index": 6,
+        "column_name": "span"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "chris wyles be the only player with drop during his time on the rugby team",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 6, \"column_name\": \"drop\"}, {\"row_index\": 8, \"column_name\": \"drop\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "drop"
+      },
+      {
+        "row_index": 8,
+        "column_name": "drop"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "riann van zyl have the longest time span on the united state national rugby union team and tie with only 1 other player for the greatest number of tries",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 6, \"column_name\": \"Tries\"},\n    {\"row_index\": 8, \"column_name\": \"Tries\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "Tries"
+      },
+      {
+        "row_index": 8,
+        "column_name": "Tries"
+      }
+    ]
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "the sweet dream episode happen later in the series than the witchfinder",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 11, \"column_name\": \"Episode Title\"}, {\"row_index\": 10, \"column_name\": \"Episode Title\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 11,
+        "column_name": "Episode Title"
+      },
+      {
+        "row_index": 10,
+        "column_name": "Episode Title"
+      }
+    ]
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "david moore direct 3 episode of series 2 of merlin",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"no for series is\"}}, {\"row_index\": 5, \"column_name\": \"directed by\"}]}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "the lady of the lake episode have the most uk viewer",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 9, \"column_name\": \"uk viewers\"},\n    {\"row_index\": 12, \"column_name\": \"uk viewers\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 9,
+        "column_name": "uk viewers"
+      },
+      {
+        "row_index": 12,
+        "column_name": "uk viewers"
+      }
+    ]
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "lucy watkins only write 1 episode of series 2",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 11, \"column_name\": \"written by\"},\n    {\"row_index\": 2, \"column_name\": \"written by\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 11,
+        "column_name": "written by"
+      },
+      {
+        "row_index": 2,
+        "column_name": "written by"
+      }
+    ]
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "beauty and the beast (part 2) have more uk viewer than beauty and the beast (part 1)",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 6, \"column_name\": \"UK Viewers (million)\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "UK Viewers (million)"
+      }
+    ]
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "the sweet dream episode happen earlier in the series than the witchfinder",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 10, \"column_name\": \"original air date\"}, {\"row_index\": 7, \"column_name\": \"original air date\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 10,
+        "column_name": "original air date"
+      },
+      {
+        "row_index": 7,
+        "column_name": "original air date"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "paul emerick do not have fewer tries than any other player",
+    "predicted_response": 0,
+    "resp": "function checkClaim() {\n  var claim = 'paul emerick do not have fewer tries than any other player';\n  var table = [\n    {player: 'vaea anitoni', span: '1992 - 2000', start: 44, tries: 26, conv: 0, pens: 0, drop: 0},\n    {player: 'paul emerick', span: '2003 - 2012', start: 49, tries: 17, conv: 0, pens: 0, drop: 0},\n    {player: 'todd clever', span: '2003 - ', start: 51, tries: 11, conv: 0, pens: 0, drop: 0},\n    {player: 'philip eloff', span: '2000 - 2007', start: 34, tries: 10, conv: 0, pens: 0, drop: 0},\n    {player: 'takudzwa ngwenya', span: '2007 - ', start: 27, tries: 10, conv: 0, pens: 0, drop: 0},\n    {player: 'chris wyles', span: '2007 - ', start: 35, tries: 10, conv: 14, pens: 22, drop: 1},\n    {player: 'david fee', span: '2002 - 2005', start: 28, tries: 9, conv: 0, pens: 0, drop: 0},\n    {player: 'mike hercus', span: '2002 - 2009', start: 45, tries: 9, conv: 90, pens: 76, drop: 4},\n    {player: 'riaan van zyl', span: '2003 - 2004', start: 12, tries: 9, conv: 0, pens: 0, drop: 0}\n  ];\n\n  var hasFewerTriesThanOtherPlayers = false;\n  \n  table.forEach(function(player) {\n    if(player.player === 'paul emerick') {\n      player.tries = 17;\n    }\n    \n    for(var i=0; i<table.length; i++) {\n      if(i !== player.index && table[i].tries < player.tries) {\n        hasFewerTriesThanOtherPlayers = true;\n      }\n    }\n  });\n\n  return JSON.stringify({\n    \"answer\": hasFewerTriesThanOtherPlayers ? \"FALSE\" : \"TRUE\",\n    \"relevant_cells\": [\n      {\"row_index\": 0, \"column_name\": \"Player\"},\n      {\"row_index\": 1, \"column_name\": \"Paul Emerick Tries\"}\n    ]\n  });\n}\n\nprint(checkClaim());",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "david moore direct 5 episode of series 2 of merlin",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"Episode Director\"}], [{\"row_index\": 3, \"column_name\": \"Episode Writer\"}]}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "lucy watkins only write 6 episode of series 2",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 10, \"column_name\": \"written by\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 10,
+        "column_name": "written by"
+      }
+    ]
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "beauty and the beast (part 2) have less uk viewer than beauty and the beast (part 1)",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 5, \"column_name\": \"UK Viewers\"}, {\"row_index\": 6, \"column_name\": \"UK Viewers\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "UK Viewers"
+      },
+      {
+        "row_index": 6,
+        "column_name": "UK Viewers"
+      }
+    ]
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "the lady of the lake episode have the least uk viewer",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 9, \"column_name\": \"UK Viewers\"},\n    {\"row_index\": 10, \"column_name\": \"UK Viewers\"},\n    {\"row_index\": 11, \"column_name\": \"UK Viewers\"},\n    {\"row_index\": 12, \"column_name\": \"UK Viewers\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 9,
+        "column_name": "UK Viewers"
+      },
+      {
+        "row_index": 10,
+        "column_name": "UK Viewers"
+      },
+      {
+        "row_index": 11,
+        "column_name": "UK Viewers"
+      },
+      {
+        "row_index": 12,
+        "column_name": "UK Viewers"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "jonathan legear score 4 more goal than mat\u00edas su\u00e1rez , the next highest rank player in the belgian first dvision a league who play in the belgian cup",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 5, \"column_name\": \"total\"}, {\"row_index\": 13, \"column_name\": \"total\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "total"
+      },
+      {
+        "row_index": 13,
+        "column_name": "total"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "guillaume gillet score 3 time as much as each of the other 2 player in the uefa champion league tournament",
+    "predicted_response": 0,
+    "resp": "true\n[\n    {\"row_index\": 3, \"column_name\": \"total\"},\n    {\"row_index\": 4, \"column_name\": \"total\"},\n    {\"row_index\": 15, \"column_name\": \"total\"}\n]",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "though 4 player from belgian first division a be in the top 19 scorer , the top scorer (matias suarez) have 8 fewer goal than mbark boussoufa , who have 11 goal",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 4, \"column_name\": \"total\"}, {\"row_index\": 15, \"column_name\": \"total\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "total"
+      },
+      {
+        "row_index": 15,
+        "column_name": "total"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "4 player score 3 goal total , and all 4 be in league 5",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": []\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "thomas chatelle score 4 more goal than mat\u00edas su\u00e1rez , the next highest rank player in the belgian first dvision a league who play in the belgian cup",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 7, \"column_name\": \"total\"}, {\"row_index\": 13, \"column_name\": \"total\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 7,
+        "column_name": "total"
+      },
+      {
+        "row_index": 13,
+        "column_name": "total"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "4 player score 3 goal total , and all 4 be in league 4",
+    "predicted_response": 0,
+    "resp": "function isClaimSupportedByData(data) {\n  const league = data.find(row => row['league'] === 4);\n  \n  if (!league) return false;\n\n  return data.filter(row => row['total'] === 3 && row['league'] === 4).length >= 4;\n}\n\nconst supportedCell = isClaimSupportedByData([\n  { player: 'player1', league: 11, total: 11 }, \n  { player: 'player2', league: 9, total: 9 },\n  { player: 'player3', league: 8, total: 8 },\n  { player: 'player4', league: 5, total: 7 },\n  { player: 'player5', league: 6, total: 6 },\n  { player: 'player6', league: 4, total: 4 }, \n  { player: 'player7', league: 4, total: 4 },\n  { player: 'player8', league: 4, total: 4},\n  { player: 'player9', league: 4, total: 4},\n  { player: 'player10', league: 2, total: 3 },\n  { player: 'player11', league: 3, total: 3 },\n  { player: 'player12', league: 2, total: 3 },\n  { player: 'player13', league: 1, total: 3 },\n  { player: 'player14', league: 3, total: 3 },\n  { player: 'player15', league: 2, total: 2 },\n  { player: 'player16', league: 1, total: 2 },\n  { player: 'player17', league: 1, total: 1 },\n  { player: 'player18', league: 1, total: 1 },\n  { player: 'player19', league: 0, total: 1 },\n\n]); \n\nconst relevantCells = supportedCell.map((cell) => ({\n    row_index: cell.row_index,\n    column_name: cell.league,\n}));\n\nif (isClaimSupportedByData(supportedCell)) {\n  return {\n    answer: \"TRUE\",\n    relevant_cells\n}\n} else {\n  return{\n    answer:\"FALSE\",\n    relevant_cells:[]\n  }\n};",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "jelle van damme score 3 time as much as each of the other 2 player in the uefa champion league tournament",
+    "predicted_response": 0,
+    "resp": "The claim is FALSE.\n\n\"relevant_cells\": [\n    {\"row_index\": 14, \"column_name\": \"Score\"},\n    {\"row_index\": 11, \"column_name\": \"Score\"},\n    {\"row_index\": 15, \"column_name\": \"Score\"}\n]",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "of the 4 player who play in the belgian cup , lucas biglia score more goal than the other player combine",
+    "predicted_response": 0,
+    "resp": "Given the provided table and claim, we can determine the answer as follows:\n\nThe table contains information about players who participated in various competitions (e.g., league, playoff, super cup). The claim is about Lucas Biglia scoring more goals than other players combined in the Belgian Cup.\n\nTo verify this claim, we need to analyze the data related to the Belgian Cup. Unfortunately, the original table does not provide specific information about each player's performance in the Belgian Cup (e.g., goals scored).\n\nHowever, we can look for clues that might support or refute the claim:\n\n- The column \"total\" seems to represent the total number of goals scored by each player.\n- Lucas Biglia has a \"total\" of 3, which is relatively low compared to other players.\n\nSince the table does not provide specific information about Belgian Cup performance, we cannot directly verify the claim. However, based on the available data, it's possible that there are other players with more goals scored in the Belgian Cup, making the claim potentially false.\n\nTherefore, the answer is:\n\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": []\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "though 4 player from belgian first division a be in the top 19 scorer , the top scorer (matias suarez) have 5 fewer goal than bart goor , who have 11 goal",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 15, \"column_name\": \"total\"},\n    {\"row_index\": 16, \"column_name\": \"super cup\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 15,
+        "column_name": "total"
+      },
+      {
+        "row_index": 16,
+        "column_name": "super cup"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "rafael m\u00e1rquez score 3 goal in his career at international friendly competition",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": []\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "2000 be the only year rafael m\u00e1rquez score more than 1 goal in international competition",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"goal\"}, {\"row_index\": 3, \"column_name\": \"goal\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 3,
+        "column_name": "goal"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "rafael m\u00e1rquez score a goal at both the 2006 and 2010 fifa world cup",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": []\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "mexico only lose 1 time in international competition when rafael m\u00e1rquez score a goal",
+    "predicted_response": 0,
+    "resp": "{\"answer\":\"FALSE\",\"relevant_cells\":[{\"row_index\":12,\"column_name\":\"score\"},{\"row_index\":13,\"column_name\":\"result\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 12,
+        "column_name": "score"
+      },
+      {
+        "row_index": 13,
+        "column_name": "result"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "rafael m\u00e1rquez do not score a goal in international competition in 2001 or 2009 or 2012",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 3, \"column_name\": \"date\"}, {\"row_index\": 5, \"column_name\": \"date\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "date"
+      },
+      {
+        "row_index": 5,
+        "column_name": "date"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "rafael m\u00e1rquez score fewer than 3 goal in his career at international friendly competition",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 4, \"column_name\": \"goal\"}, {\"row_index\": 13, \"column_name\": \"goal\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 13,
+        "column_name": "goal"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "rafael m\u00e1rquez score a goal at the 2006 , but remain scoreless during the 2010 fifa world cup",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 8, \"column_name\": \"score\"}, {\"row_index\": 11, \"column_name\": \"score\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 8,
+        "column_name": "score"
+      },
+      {
+        "row_index": 11,
+        "column_name": "score"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "2000 be 1 of 2 year rafael m\u00e1rquez score more than 1 goal in international competition",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 2, \"column_name\": \"goal\"},\n    {\"row_index\": 3, \"column_name\": \"goal\"},\n    {\"row_index\": 4, \"column_name\": \"goal\"},\n    {\"row_index\": 5, \"column_name\": \"goal\"},\n    {\"row_index\": 6, \"column_name\": \"goal\"},\n    {\"row_index\": 7, \"column_name\": \"goal\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 3,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 4,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 5,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 6,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 7,
+        "column_name": "goal"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "mexico lose 1 of 2 time in international competition when rafael m\u00e1rquez score a goal",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": []}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "rafael m\u00e1rquez do not remain scoreless in international competition in 2001 or 2009 or 2012",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 3, \"column_name\": \"score\"},\n    {\"row_index\": 6, \"column_name\": \"score\"},\n    {\"row_index\": 7, \"column_name\": \"score\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "score"
+      },
+      {
+        "row_index": 6,
+        "column_name": "score"
+      },
+      {
+        "row_index": 7,
+        "column_name": "score"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17231086-6.html.csv",
+    "claim": "3 of the people tie for ninth place be from the united state",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": []\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "of the 4 player who play in the belgian cup , jonathan legear score more goal than the other player combine",
+    "predicted_response": 0,
+    "resp": "function claim() {\n  var players_in_belgian_cup = [];\n  for (var i = 0; i < 20; i++) {\n    if (['guillaume gillet', 'marcin wasilewski', 'jonathan legear'].indexOf(Row[i].player) !== -1) {\n      players_in_belgian_cup.push(i);\n    }\n  }\n\n  var total_goals_by_players = {};\n  for (var i = 0; i < 20; i++) {\n    if (players_in_belgian_cup.indexOf(i) !== -1) {\n      total_goals_by_players[Row[i].player] = Row[i].total;\n    }\n  }\n\n  var players_with_goals = Object.keys(total_goals_by_players).length;\n\n  if (players_with_goals > 0 && total_goals_by_players['jonathan legear'] > total_goals_by_players[Object.keys(total_goals_by_players)[0]]) {\n    return JSON.stringify({\n      \"answer\": \"TRUE\",\n      \"relevant_cells\": [\n        {\"row_index\": players_in_belgian_cup[0], \"column_name\": \"total\"},\n        {\"row_index\": players_in_belgian_cup.length - 1, \"column_name\": \"total\"}\n      ]\n    });\n  } else {\n    return JSON.stringify({\n      \"answer\": \"FALSE\",\n      \"relevant_cells\": [\n        {\"row_index\": players_in_belgian_cup[0], \"column_name\": \"total\"},\n        {\"row_index\": players_in_belgian_cup.length - 1, \"column_name\": \"total\"}\n      ]\n    });\n  }\n}\n\nvar Row = [\n  {player: 'mbark boussoufa', league: 11, title: 0, playoff: 0, super_cup: 0, total: 11},\n  {player: 'tom de sutter', league: 9, title: 0, playoff: 0, super_cup: 0, total: 9},\n  {player: 'guillaume gillet', league: 8, title: 0, playoff: 0, super_cup: 0, total: 9},\n  {player: 'marcin wasilewski', league: 8, title: 0, playoff: 0, super_cup: 0, total: 8},\n  {player: 'jonathan legear', league: 5, title: 1, playoff: 0, super_cup: 0, total: 7},\n  {player: 'nicol\u00e1s frutos', league: 6, title: 0, playoff: 0, super_cup: 0, total: 6},\n  {player: 'thomas chatelle', league: 4, title: 0, playoff: 0, super_cup: 0, total: 4},\n  {player: 'roland juh\u00e1sz', league: 4, title: 0, playoff: 0, super_cup: 0, total: 4},\n  {player: 'stanislav vl\u010dek', league: 4, title: 0, playoff: 0, super_cup: 0, total: 4},\n  {player: 'lucas biglia', league: 2, title: 0, playoff: 0, super_cup: 0, total: 3},\n  {player: 'dmitri bulykin', league: 3, title: 0, playoff: 0, super_cup: 0, total: 3},\n  {player: 'jan pol\u00e1k', league: 2, title: 0, playoff: 0, super_cup: 0, total: 3},\n  {player: 'mat\u00edas su\u00e1rez', league: 1, title: 0, playoff: 0, super_cup: 1, total: 3},\n  {player: 'jelle van damme', league: 3, title: 0, playoff: 0, super_cup: 0, total: 3},\n  {player: 'oleksandr iakovenko', league: 2, title: 0, playoff: 0, super_cup: 0, total: 2},\n  {player: 'her\u00e1n losada', league: 1, title: 0, playoff: 0, super_cup: 0, total: 2},\n  {player: 'v\u00edctor bern\u00e1rdez', league: 1, title: 0, playoff: 0, super_cup: 0, total: 1},\n  {player: 'bart goor', league: 1, title: 0, playoff: 0, super_cup: 0, total: 1},\n  {player: 'nemanja rni\u0107', league: 0, title: 0, playoff: 0, super_cup: 0, total: 1}\n];\n\nclaim();",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17231086-6.html.csv",
+    "claim": "the average score for player from japan be 281",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 6, \"column_name\": \"score\"}, {\"row_index\": 7, \"column_name\": \"score\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "score"
+      },
+      {
+        "row_index": 7,
+        "column_name": "score"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17231086-6.html.csv",
+    "claim": "a majority of the people who score under par be from the united state",
+    "predicted_response": 0,
+    "resp": "for i in range(6):\n  score = eval(f\"71 + 72 + 68 + {i + 69}\")\n  if score < 283 and 'United States' not in [row[2] for row in rows[i]]:\n    return {\n      \"answer\": \"FALSE\",\n      \"relevant_cells\": [\n        {\"row_index\": i, \"column_name\": \"score\"}\n      ]\n    }",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17231086-6.html.csv",
+    "claim": "the most amount of money win by someone from wale be 67823",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 4, \"column_name\": \"money\"},\n    {\"row_index\": 6, \"column_name\": \"money\"},\n    {\"row_index\": 7, \"column_name\": \"money\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "money"
+      },
+      {
+        "row_index": 6,
+        "column_name": "money"
+      },
+      {
+        "row_index": 7,
+        "column_name": "money"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17231086-6.html.csv",
+    "claim": "3 of the people tie for fifth place be from the united state",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": []\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17231086-6.html.csv",
+    "claim": "there be a total of 5 country represent by the player",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": []\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17231086-6.html.csv",
+    "claim": "the most amount of money win by someone from wale be 46823",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 4, \"column_name\": \"money\"},\n    {\"row_index\": 5, \"column_name\": \"money\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "money"
+      },
+      {
+        "row_index": 5,
+        "column_name": "money"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17231086-6.html.csv",
+    "claim": "there be a total of 4 country represent by the player",
+    "predicted_response": 0,
+    "resp": "let table = {\n  \"1\": {\"Place\": 1,\"Player\": \"Curtis Strange\", \"Country\": \"United States\",\"Score\": 278,\"Par\": -2,\"Money\": 200000},\n  \"2\": {\"Place\": \"T2\",\"Player\": \"Chip Beck\", \"Country\": \"United States\",\"Score\": 279,\"Par\": -1,\"Money\": 67823},\n  \"3\": {\"Place\": \"T2\",\"Player\": \"Mark McCumber\", \"Country\": \"United States\",\"Score\": 279,\"Par\": -1,\"Money\": 67823},\n  \"4\": {\"Place\": \"T2\",\"Player\": \"Ian Woosnam\", \"Country\": \"Wales\",\"Score\": 279,\"Par\": -1,\"Money\": 67823},\n  \"5\": {\"Place\": 5,\"Player\": \"Brian Claar\", \"Country\": \"United States\",\"Score\": 280,\"Par\": \"E\",\"Money\": 34345},\n  \"6\": {\"Place\": \"T6\",\"Player\": \"Masashi Ozaki\", \"Country\": \"Japan\",\"Score\": 281,\"Par\": \"+1\",\"Money\": 28220},\n  \"7\": {\"Place\": \"T6\",\"Player\": \"Scott Simpson\", \"Country\": \"United States\",\"Score\": 281,\"Par\": \"+1\",\"Money\": 28220},\n  \"8\": {\"Place\": 8,\"Player\": \"Peter Jacobsen\", \"Country\": \"United States\",\"Score\": 282,\"Par\": \"+2\",\"Money\": 24307},\n  \"9\": {\"Place\": \"T9\",\"Player\": \"Paul Azinger\", \"Country\": \"United States\",\"Score\": 283,\"Par\": \"+3\",\"Money\": 19968},\n  \"10\": {\"Place\": \"T9\",\"Player\": \"Hubert Green\", \"Country\": \"United States\",\"Score\": 283,\"Par\": \"+3\",\"Money\": 19968},\n  \"11\": {\"Place\": \"T9\",\"Player\": \"Tom Kite\", \"Country\": \"United States\",\"Score\": 283,\"Par\": \"+3\",\"Money\": 19968},\n  \"12\": {\"Place\": \"T9\",\"Player\": \"Jos\u00e9 Mar\u00eda Olaz\u00e1bal\", \"Country\": \"Spain\",\"Score\": 283,\"Par\": \"+3\",\"Money\": 19968}\n};\n\nlet count = new Map();\n\ntable[\"1\"].Country.forEach(country => {\n  if (!count.has(country)) {\n    count.set(country, 0);\n  }\n  count.set(country, count.get(country) + 1);\n});\n\nif (count.size === 4) {\n  return JSON.stringify({\n    \"answer\": \"TRUE\",\n    \"relevant_cells\": [\n      {\"row_index\": 0,\"column_name\": \"Country\"},\n      {\"row_index\": 0,\"column_name\": \"United States\"},\n      {\"row_index\": 1,\"column_name\": \"Country\"},\n      {\"row_index\": 1,\"column_name\": \"Wales\"}\n    ]\n  });\n} else {\n  return JSON.stringify({\n    \"answer\": \"FALSE\",\n    \"relevant_cells\": []\n  });\n}\n  }",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17231086-6.html.csv",
+    "claim": "a majority of the people who score over par be from the united state",
+    "predicted_response": 0,
+    "resp": "let trueCells = []\nlet falseCells = []\n\nfor (let i=0; i<12; i++) {\n  const rowValues = tableRows[i].split(' ')\n  for (let j=4; j<9; j+=2) {\n    let scoreString;\n    if(tableRowTypes[i] === 'par+1' || tableRowTypes[i] === '+1'){\n      scoreString = `+${rowValues[j]}`\n    } else{\n        scoreString = rowValues[j]\n    }\n    const overParScore = parseInt(scoreString)\n    if (overParScore > 0) {\n      if(tableCountries[i] === 'United States') {\n        trueCells.push({\n          \"row_index\": i,\n          \"column_name\": `score is ${tableRowScores[i]} to par is ${tableRowPars[i]}`,\n        });\n      } else{\n        falseCells.push(\n          { \n            \"row_index\": i, \n            \"column_name\": `score is ${tableRowScores[i]} to par is ${tableRowPars[i]}` \n          }\n        )\n      }\n    }\n\n  }\n}\n\nif (trueCells.length >= falseCells.length) {\n  return JSON.stringify({\n    \"answer\": \"TRUE\",\n    \"relevant_cells\": trueCells,\n  });\n} else{\n  return JSON.stringify({\n    \"answer\": \"FALSE\",\n    \"relevant_cells\": falseCells\n  })\n}\nfunction tableRows(){\n  const rows = [\"71 + 64 + 73 + 70 =\", \"71 + 69 + 71 + 68 =\", \"70 + 68 + 72 + 69 =\", \"70 + 68 + 73 + 68 =\", \"71 + 72 + 68 + 69 =\", \"70 + 71 + 68 + 72 =\", \"67 + 70 + 69 + 75 =\", \"71 + 70 + 71 + 70 =\", \"71 + 72 + 70 + 70 =\", \"69 + 72 + 74 + 68 =\", \"69 + 72 + 70 + 72 =\"]\n  return rows\n}\n\nfunction tableRowTypes(){\n  const rowTypes = [\"United States\", \"United States\", \"United States\", \"Wales\", \"United States\", \"Japan\", \"United States\", \"United States\", \"United States\", \"United States\",\"Spain\"]\n  return rowTypes\n}\n\nfunction tableCountries(){\n  const countries = ['United States', 'United States', 'United States', 'Wales','United States', 'Japan' ,'United States', 'United States' , 'United States', 'United States', 'Spain']\n  return countries\n}\n\nfunction tableRowScores(){\n    const scores = [71, 71,70,70,71,70,67,71,71,69,69]\n    return scores\n}\n\nfunction tableRowPars(){\n    const pars = [-2,-1,-1,-1,+3,+1,+1,+2,+3,+3]\n    return pars\n\n}\n\nconst tableData = {\n  \"tableRows\": tableRows(),\n  \"tableRowTypes\": tableRowTypes(),\n  \"tableCountries\": tableCountries(),\n  \"tableRowScores\": tableRowScores(),\n  \"tableRowPars\" : tableRowPars()\n}\nconsole.log(tableData)",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-13041602-6.html.csv",
+    "claim": "there be no day in august 2005 in which the brewer have a winning record",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 20, \"column_name\": \"score\"},\n    {\"row_index\": 22, \"column_name\": \"score\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 20,
+        "column_name": "score"
+      },
+      {
+        "row_index": 22,
+        "column_name": "score"
+      }
+    ]
+  },
+  {
+    "table_id": "2-13041602-6.html.csv",
+    "claim": "there be only 2 day during august 2005 on which the brewer have a 50 / 50 win / loss record",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 14, \"column_name\": \"record\"},\n    {\"row_index\": 15, \"column_name\": \"record\"},\n    {\"row_index\": 16, \"column_name\": \"record\"},\n    {\"row_index\": 17, \"column_name\": \"record\"},\n    {\"row_index\": 18, \"column_name\": \"record\"},\n    {\"row_index\": 19, \"column_name\": \"record\"},\n    {\"row_index\": 20, \"column_name\": \"record\"},\n    {\"row_index\": 21, \"column_name\": \"record\"},\n    {\"row_index\": 22, \"column_name\": \"record\"},\n    {\"row_index\": 23, \"column_name\": \"record\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 14,
+        "column_name": "record"
+      },
+      {
+        "row_index": 15,
+        "column_name": "record"
+      },
+      {
+        "row_index": 16,
+        "column_name": "record"
+      },
+      {
+        "row_index": 17,
+        "column_name": "record"
+      },
+      {
+        "row_index": 18,
+        "column_name": "record"
+      },
+      {
+        "row_index": 19,
+        "column_name": "record"
+      },
+      {
+        "row_index": 20,
+        "column_name": "record"
+      },
+      {
+        "row_index": 21,
+        "column_name": "record"
+      },
+      {
+        "row_index": 22,
+        "column_name": "record"
+      },
+      {
+        "row_index": 23,
+        "column_name": "record"
+      }
+    ]
+  },
+  {
+    "table_id": "2-13041602-6.html.csv",
+    "claim": "the brewer lose in the game that have the biggest attendance in the month of august",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": []}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-13041602-6.html.csv",
+    "claim": "the brewer win the game which have the lowest attendance of the month",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": []\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-13041602-6.html.csv",
+    "claim": "there be only 4 day in august on which the brewer do not have to play a game",
+    "predicted_response": 0,
+    "resp": "For August only has 31 days and the Brewers are missing games on row 26 and 27 which both have day's that are not in Aug so this claim is FALSE.\n\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": []\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-13041602-6.html.csv",
+    "claim": "there be 3 day in august 2005 in which the brewer have a winning record",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": []}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-13041602-6.html.csv",
+    "claim": "the brewer win in the game that have the biggest attendance in the month of august",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": []}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-13041602-6.html.csv",
+    "claim": "the brewer lose the game which have the lowest attendance of the month",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 26, \"column_name\": \"attendance\"}, {\"row_index\": 27, \"column_name\": \"attendance\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 26,
+        "column_name": "attendance"
+      },
+      {
+        "row_index": 27,
+        "column_name": "attendance"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17231086-6.html.csv",
+    "claim": "the average score for player from japan be 251",
+    "predicted_response": 0,
+    "resp": "import json\nfrom collections import deque\n\ndef get_row(row_index):\n    row = rows[row_index]\n    return {\n        'place': row['place'],\n        'player': row['player'],\n        'country': row['country'],\n        'score': sum(map(int, row['score'].split('+'))),\n        'par': int(row['par']),\n        'money': int(row['money'])\n    }\n\ndef is_true():\n    total = 0\n    for row in rows[6:]:\n        score = get_row(row).get('score')\n        if isinstance(score, str) and '+' in score:\n            continue\n        assert isinstance(score, (int, float))\n        total += score\n    \n    average_score_per_player_from_japan = total / sum(1 for row in rows if row['country'] == 'japan' and get_row(row).get('score') is not None)\n    \n    return \"TRUE\" if average_score_per_player_from_japan == 251 else \"FALSE\"\n\ndef find_relevant_cells():\n    players_from_japan = [row for index, row in enumerate(rows) if row['country'] == 'japan']\n    relevant_cells = []\n    for player_index, player_row in enumerate(players_from_japan):\n        score = sum(map(int, player_row['score'].split('+')))\n        assert isinstance(score, (int, float))\n        relevant_cells.append(\n            {\n                \"row_index\": players_from_japan.index(player_row) + 1,\n                \"column_name\": 'score',\n            }\n        )\n    return relevant_cells\n\nrows = [\n    {\"place\": 1, \"player\": \"curtis strange\", \"country\": \"united states\", \"score\": \"71+64+73+70\", \"par\": \"-\", \"money\": \"200000\"},\n    {\"place\": 2, \"player\": \"chip beck\", \"country\": \"united states\", \"score\": \"71+69+71+68\", \"par\": \"-\", \"money\": \"67823\"},\n    {\"place\": 3, \"player\": \"mark mccumber\", \"country\": \"united states\", \"score\": \"70+68+72+69\", \"par\": \"-\", \"money\": \"67823\"},\n    {\"place\": 4, \"player\": \"ian woosnam\", \"country\": \"wales\", \"score\": \"70+68+73+68\", \"par\": \"-\", \"money\": \"67823\"},\n    {\"place\": 5, \"player\": \"brian claar\", \"country\": \"united states\", \"score\": \"71+72+68+69\", \"par\": '=', \"money\": \"34345\"},\n    {\"place\": 6, \"player\": \"masashi ozaki\", \"country\": \"japan\", \"score\": \"70+71+68+72\", \"par\": \"+\", \"money\": \"28220\"},\n    {\"place\": 7, \"player\": \"scott simpson\", \"country\": \"united states\", \"score\": \"67+70+69+75\", \"par\": \"+\", \"money\": \"28220\"},\n    {\"place\": 8, \"player\": \"peter jacobsen\", \"country\": \"united states\", \"score\": \"71+70+71+70\", \"par\": \"+\", \"money\": \"24307\"},\n    {\"place\": 9, \"player\": \"paul azinger\", \"country\": \"united states\", \"score\": \"71+72+70+70\", \"par\": \"+\", \"money\": \"19968\"},\n    {\"place\": 10, \"player\": \"hubert green\", \"country\": \"united states\", \"score\": \"69+72+74+68\", \"par\": \"+\", \"money\": \"19968\"},\n    {\"place\": 11, \"player\": \"tom kite\", \"country\": \"united states\", \"score\": \"67+69+69+78\", \"par\": \"+\", \"money\": \"19968\"},\n    {\"place\": 12, \"player\": \"jos\u00e9 mar\u00eda olaz\u00e1bal\", \"country\": \"spain\", \"score\": \"69+72+70+72\", \"par\": \"+\", \"money\": \"19968\"},\n]\n\nprint(json.dumps({\"answer\": is_true(), 'relevant_cells': find_relevant_cells()}, indent=2))",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-14101654-10.html.csv",
+    "claim": "except for slovakia , all other country be from north america",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 6, \"column_name\": \"Nationality\"}, {\"row_index\": 11, \"column_name\": \"Nationality\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "Nationality"
+      },
+      {
+        "row_index": 11,
+        "column_name": "Nationality"
+      }
+    ]
+  },
+  {
+    "table_id": "2-13041602-6.html.csv",
+    "claim": "there be only 3 day during august 2005 on which the brewer have a 50 / 50 win / loss record",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 5, \"column_name\": \"record\"},\n    {\"row_index\": 11, \"column_name\": \"record\"},\n    {\"row_index\": 12, \"column_name\": \"record\"},\n    {\"row_index\": 14, \"column_name\": \"record\"},\n    {\"row_index\": 15, \"column_name\": \"record\"},\n    {\"row_index\": 16, \"column_name\": \"record\"},\n    {\"row_index\": 17, \"column_name\": \"record\"},\n    {\"row_index\": 18, \"column_name\": \"record\"},\n    {\"row_index\": 19, \"column_name\": \"record\"},\n    {\"row_index\": 20, \"column_name\": \"record\"},\n    {\"row_index\": 21, \"column_name\": \"record\"},\n    {\"row_index\": 22, \"column_name\": \"record\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "record"
+      },
+      {
+        "row_index": 11,
+        "column_name": "record"
+      },
+      {
+        "row_index": 12,
+        "column_name": "record"
+      },
+      {
+        "row_index": 14,
+        "column_name": "record"
+      },
+      {
+        "row_index": 15,
+        "column_name": "record"
+      },
+      {
+        "row_index": 16,
+        "column_name": "record"
+      },
+      {
+        "row_index": 17,
+        "column_name": "record"
+      },
+      {
+        "row_index": 18,
+        "column_name": "record"
+      },
+      {
+        "row_index": 19,
+        "column_name": "record"
+      },
+      {
+        "row_index": 20,
+        "column_name": "record"
+      },
+      {
+        "row_index": 21,
+        "column_name": "record"
+      },
+      {
+        "row_index": 22,
+        "column_name": "record"
+      }
+    ]
+  },
+  {
+    "table_id": "2-14101654-10.html.csv",
+    "claim": "only round 3 be not list 2 time",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 3, \"column_name\": \"Round\"}, {\"row_index\": 5, \"column_name\": \"Round\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "Round"
+      },
+      {
+        "row_index": 5,
+        "column_name": "Round"
+      }
+    ]
+  },
+  {
+    "table_id": "2-14101654-10.html.csv",
+    "claim": "no 2 player attend the same college / junior / club team (league)",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"College / Junior / Club Team (League)\"}, {\"row_index\": 3, \"column_name\": \"College / Junior / Club Team (League)\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "College / Junior / Club Team (League)"
+      },
+      {
+        "row_index": 3,
+        "column_name": "College / Junior / Club Team (League)"
+      }
+    ]
+  },
+  {
+    "table_id": "2-14101654-10.html.csv",
+    "claim": "5 player be from the united state and canada each",
+    "predicted_response": 0,
+    "resp": "{\"answer\":\"FALSE\",\"relevant_cells\":[{\"row_index\":4,\"column_name\":\"nationality\"},{\"row_index\":5,\"column_name\":\"nationality\"},{\"row_index\":6,\"column_name\":\"nationality\"},{\"row_index\":7,\"column_name\":\"nationality\"},{\"row_index\":9,\"column_name\":\"nationality\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "nationality"
+      },
+      {
+        "row_index": 5,
+        "column_name": "nationality"
+      },
+      {
+        "row_index": 6,
+        "column_name": "nationality"
+      },
+      {
+        "row_index": 7,
+        "column_name": "nationality"
+      },
+      {
+        "row_index": 9,
+        "column_name": "nationality"
+      }
+    ]
+  },
+  {
+    "table_id": "2-14101654-10.html.csv",
+    "claim": "the number of player from canada outnumber the number of player from the united state",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 6, \"column_name\": \"nationality\"}, {\"row_index\": 8, \"column_name\": \"nationality\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "nationality"
+      },
+      {
+        "row_index": 8,
+        "column_name": "nationality"
+      }
+    ]
+  },
+  {
+    "table_id": "2-14101654-10.html.csv",
+    "claim": "triston grant be the only player list for left wing",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 10, \"column_name\": \"position\"},\n    {\"row_index\": 11, \"column_name\": \"position\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 10,
+        "column_name": "position"
+      },
+      {
+        "row_index": 11,
+        "column_name": "position"
+      }
+    ]
+  },
+  {
+    "table_id": "2-14101654-10.html.csv",
+    "claim": "the only player not from the united state or canada be from norway",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 5, \"column_name\": \"nationality\"}, {\"row_index\": 6, \"column_name\": \"nationality\"}, {\"row_index\": 7, \"column_name\": \"nationality\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "nationality"
+      },
+      {
+        "row_index": 6,
+        "column_name": "nationality"
+      },
+      {
+        "row_index": 7,
+        "column_name": "nationality"
+      }
+    ]
+  },
+  {
+    "table_id": "2-14101654-10.html.csv",
+    "claim": "2 player be draft in each round round 3 and 9",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": []\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-14101654-10.html.csv",
+    "claim": "every player come from either a college program or a junior / club team",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 6, \"column_name\": \"nationality\"},\n    {\"row_index\": 7, \"column_name\": \"nationality\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "nationality"
+      },
+      {
+        "row_index": 7,
+        "column_name": "nationality"
+      }
+    ]
+  },
+  {
+    "table_id": "2-14101654-10.html.csv",
+    "claim": "triston grant play the same position as the other payer draft in his round",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 10, \"column_name\": \"position\"}, {\"row_index\": 11, \"column_name\": \"position\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 10,
+        "column_name": "position"
+      },
+      {
+        "row_index": 11,
+        "column_name": "position"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17514817-1.html.csv",
+    "claim": "west berkshire brewery 's maggs magnificent mild be its most decorate beer between 1995 and 2009",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 4, \"column_name\": \"beer name\"}, {\"row_index\": 5, \"column_name\": \"beer name\"}, {\"row_index\": 6, \"column_name\": \"beer name\"}, {\"row_index\": 11, \"column_name\": \"beer name\"}, {\"row_index\": 14, \"column_name\": \"beer name\"}, {\"row_index\": 15, \"column_name\": \"beer name\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "beer name"
+      },
+      {
+        "row_index": 5,
+        "column_name": "beer name"
+      },
+      {
+        "row_index": 6,
+        "column_name": "beer name"
+      },
+      {
+        "row_index": 11,
+        "column_name": "beer name"
+      },
+      {
+        "row_index": 14,
+        "column_name": "beer name"
+      },
+      {
+        "row_index": 15,
+        "column_name": "beer name"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17514817-1.html.csv",
+    "claim": "3 of west berkshire brewery 's beer each win a single award between 1995 and 2009",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 8, \"column_name\": \"Prize\"},\n    {\"row_index\": 15, \"column_name\": \"Prize\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 8,
+        "column_name": "Prize"
+      },
+      {
+        "row_index": 15,
+        "column_name": "Prize"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17514817-1.html.csv",
+    "claim": "west berkshire brewery 's maggs magnificent mild 2 time win an award at the siba national beer competition between 1995 and 2009",
+    "predicted_response": 0,
+    "resp": "{\n\"answer\": \"FALSE\",\n\"relevant_cells\": []\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17514817-1.html.csv",
+    "claim": "west berkshire brewery 's good old boy beer do not win a single award between 1995 and 2009",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 3, \"column_name\": \"prize\"}, {\"row_index\": 14, \"column_name\": \"prize\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "prize"
+      },
+      {
+        "row_index": 14,
+        "column_name": "prize"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17514817-1.html.csv",
+    "claim": "west berkshire brewery 's dr hexter healer beer win 3 gold medal between 1995 and 2009",
+    "predicted_response": 0,
+    "resp": "import json\nfrom itertools import groupby\n\ndata = {\n    \"1995\": {\"beer name\": \"good old boy\", \"prize\": \"overall winner\", \"category\": \"beer of the festival\", \"competition\": \"camra white horse branch beer festival\"},\n    \"1997\": {\"beer name\": \"dr hexter 's healer\", \"prize\": \"runner up\", \"category\": \"beer of the festival\", \"competition\": \"camra northamptonshire branch beer festival\"},\n    \"2002\": {\"beer name\": \"good old boy\", \"prize\": \"gold medal\", \"category\": \"best bitter\", \"competition\": \"siba south east region beer competition\"},\n    # ... other rows\n}\n\ndef check_claim(data, start_year, end_year):\n    for row_index, row in enumerate(data.values()):\n        if row[\"beer name\"] == 'dr hexter 's healer' and row['year'] >= start_year and row['year'] <= end_year:\n            gold_medals = 0\n            for cell in data.values():\n                if (cell.get('beer name') == 'dr hexter 's healer' or cell['beer name'].lower().find(cell['beer name'].replace(\" '\",\"\").split(\"'\")[1]) == \"healer\") and ('gold medal' in str(cell).lower()) and row['year'] >= start_year and row['year'] <= end_year:\n                    gold_medals += 1\n            if gold_medals >=3 :\n                return True\n\n    return False\n\nclaim = check_claim(data,1995,2009)\nresult = json.dumps({\"answer\": str(claim).lower(), \"relevant_cells\": [{\"row_index\": i+1,\"column_name\": key} for i, row in enumerate(data.values()) for key, value in row.items() if 'year' in value]})\n\nprint(result)",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17514817-1.html.csv",
+    "claim": "west berkshire brewery 's maggs magnificent mild have win a gold medal every single instance in which it win a prize between 1995 and 2009",
+    "predicted_response": 0,
+    "resp": "for each year in range (1995, 2010):\n     # get the relevant beer\n    Beer = maggs_mild[year]\n    if Beer is None:\n        break\n    # check to see what medal it won\n    if Beer['prize'] == 'gold':\n         continue\n    else:\n      # print all of its medals\n    print(Beer)",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17514817-1.html.csv",
+    "claim": "west berkshire brewery 's maggs magnificent mild 2 time receive a bronze award at the siba national beer competition between 1995 and 2005",
+    "predicted_response": 0,
+    "resp": "var relevantCells = [\n  {\"row_index\": 14, \"column_name\": \"Bronze Medals\"},\n  {\"row_index\": 13, \"column_name\": \"Bronze Medals\"}\n];\n\nconsole.log(JSON.stringify({\n  answer: \"TRUE\",\n  relevantCells\n}))",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-13041602-6.html.csv",
+    "claim": "there be only 3 day in august on which the brewer do not have to play a game",
+    "predicted_response": 0,
+    "resp": "import json\nimport re\nfrom datetime import datetime\n\ndef is_true(data):\n    pattern = r'August \\d{2}'\n    days_in_august = [31,28,31,30,31,30,31,31,30,31,30,31]\n    count = 0\n    \n    for day in data:\n        try:\n            date = datetime.strptime(day['date'], '%Y-%m-%d')\n            month, day = date.month, date.day\n            if month == 8 and day in days_in_august:\n                count += 1\n        except ValueError:\n            pass\n\n    return count >= 3 \n\ndata = [\n    {\"date\": \"2022-08-02\", \"opponent\": \"Mets\", \"score\": \"8 - 9 (11)\", \"loss\": \"Santana (2 - 5)\", \"attendance\": 32453, \"record\": \"52 - 55\"},\n    {\"date\": \"2022-08-03\", \"opponent\": \"Mets\", \"score\": \"6 - 4\", \"loss\": \"Looper (4 - 5)\", \"attendance\": 40659, \"record\": \"53 - 55\"},\n    {\"date\": \"2022-08-04\", \"opponent\": \"Mets\", \"score\": \"12 - 9\", \"loss\": \"Hern\u00e1ndez (5 - 5)\", \"attendance\": 30359, \"record\": \"54 - 55\"},\n    {\"date\": \"2022-08-05\", \"opponent\": \"Phillies\", \"score\": \"3 - 1 (10)\", \"loss\": \"Geary (1 - 1)\", \"attendance\": 31759, \"record\": \"55 - 55\"},\n    {\"date\": \"2022-08-06\", \"opponent\": \"Phillies\", \"score\": \"2 - 8\", \"loss\": \"Capuano (12 - 7)\", \"attendance\": 35800, \"record\": \"55 - 56\"},\n    {\"date\": \"2022-08-07\", \"opponent\": \"Phillies\", \"score\": \"2 - 0\", \"loss\": \"Padilla (5 - 11)\", \"attendance\": 35017, \"record\": \"56 - 56\"},\n    {\"date\": \"2022-08-08\", \"opponent\": \"Cardinals\", \"score\": \"4 - 8\", \"loss\": \"Wise (4 - 4)\", \"attendance\": 30260, \"record\": \"56 - 57\"},\n    {\"date\": \"2022-08-09\", \"opponent\": \"Cardinals\", \"score\": \"2 - 5\", \"loss\": \"Davis (9 - 8)\", \"attendance\": 28556, \"record\": \"56 - 58\"},\n    {\"date\": \"2022-08-10\", \"opponent\": \"Cardinals\", \"score\": \"0 - 3\", \"loss\": \"Sheets (9 - 10)\", \"attendance\": 28337, \"record\": \"64 - 68\"},\n    {\"date\": \"2022-08-11\", \"opponent\": \"Pirates\", \"score\": \"6 - 5\", \"loss\": \"Mesa (2 - 8)\", \"attendance\": 15062, \"record\": \"65 - 68\"}\n]\n\nrelevant_cells = []\nfor data_entry in data:\n    if is_true([data_entry]):\n        relevant_cells.append({\"row_index\": data.index(data_entry)+1, \"column_name\": \"Date\"})\nprint(json.dumps({\"answer\": \"TRUE\" if is_true(data) else \"FALSE\", \"relevant_cells\": relevant_cells}))",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17340355-10.html.csv",
+    "claim": "the highest attendance be at the american airline center",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 3, \"column_name\": \"attendance\"},\n    {\"row_index\": 4, \"column_name\": \"attendance\"},\n    {\"row_index\": 5, \"column_name\": \"attendance\"},\n    {\"row_index\": 7, \"column_name\": \"attendance\"},\n    {\"row_index\": 8, \"column_name\": \"attendance\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "attendance"
+      },
+      {
+        "row_index": 4,
+        "column_name": "attendance"
+      },
+      {
+        "row_index": 5,
+        "column_name": "attendance"
+      },
+      {
+        "row_index": 7,
+        "column_name": "attendance"
+      },
+      {
+        "row_index": 8,
+        "column_name": "attendance"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17514817-1.html.csv",
+    "claim": "west berkshire brewery 's dr hexter healer beer have only receive a silver medal between 1995 and 2009",
+    "predicted_response": 1,
+    "resp": "Let's analyze the data and determine if the claim is TRUE or FALSE.\n\nWe need to check if Dr Hexter Healer beer has only received a Silver Medal between 1995 and 2009. \n\nFrom the table:\n\n- Row 1: Gold Medal\n- Row 2: Silver Medal\n- Row 3: Gold Medal\n- Row 4: Second Reserve Champion (not explicitly stated, but implied to be at least a silver medal) \n- Row 5: Gold Medal\n- Row 6: Silver Medal\n- Row 7: Silver Medal\n- Row 8: Gold Medal\n- Row 9: Silver Medal\n- Row 10: Overall Winner (implying Gold Medal)\n- Row 11: Gold Medal\n- Row 12: Third Place (not explicitly stated, but implies at least a gold medal for the year before)\n- Row 13: Gold Medal\n- Row 14: Bronze Medal\n- Row 15: Silver Medal\n- Row 16: Third Place\n- Row 17: Silver Medal\n- Row 18: Silver Medal\n- Row 19: Bronze Medal\n- Row 20: Gold Medal\n- Row 21: Bronze Medal\n- Row 22: Bronze Medal\n- Row 23: Gold Medal\n- Row 24: Gold Medal\n- Row 25: Silver Medal\n- Row 26: Gold Medal\n- Row 27: Gold Medal\n- Row 28: Gold Medal\n\nIn the given timeframe, Dr Hexter Healer has received:\n\n*   2 gold medals \n*   5 silver medals \n\nIt appears that Dr Hexter Healer beer has only received a Silver Medal between 1995 and 2009.\n\n```json\n{\n    \"answer\": \"TRUE\",\n    \"relevant_cells\": [\n        {\"row_index\": 2, \"column_name\": \"prize\"},\n        {\"row_index\": 6, \"column_name\": \"prize\"},\n        {\"row_index\": 7, \"column_name\": \"prize\"},\n        {\"row_index\": 15, \"column_name\": \"prize\"},\n        {\"row_index\": 17, \"column_name\": \"prize\"},\n        {\"row_index\": 25, \"column_name\": \"prize\"}\n    ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "prize"
+      },
+      {
+        "row_index": 6,
+        "column_name": "prize"
+      },
+      {
+        "row_index": 7,
+        "column_name": "prize"
+      },
+      {
+        "row_index": 15,
+        "column_name": "prize"
+      },
+      {
+        "row_index": 17,
+        "column_name": "prize"
+      },
+      {
+        "row_index": 25,
+        "column_name": "prize"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17340355-10.html.csv",
+    "claim": "3 of the game at the us airways center have the same attendance",
+    "predicted_response": 0,
+    "resp": "To determine whether the claim about attendance at US Airways Center matches across multiple games is true or false, we'll examine the relevant data in the table:\n\n- Row 3: game is 77 date is april 5 team is dallas location attendance is american airlines center 20301\n- Row 7: game is 81 date is april 13 team is memphis location attendance is us airways center 18422\n- Row 8: game is 82 date is april 15 team is golden state location attendance is us airways center record is 46 - 36\n\nThe attendance in these rows are different, so the claim that three of the games at US Airways Center have the same attendance does not hold.\n\nHere's a JSON object indicating this:\n\n{\n    \"answer\": \"FALSE\",\n    \"relevant_cells\": [\n        {\"row_index\": 7, \"column_name\": \"Attendance\"},\n        {\"row_index\": 8, \"column_name\": \"Attendance\"}\n    ]\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17340355-10.html.csv",
+    "claim": "the game against new orleans didn't have the highest attendance",
+    "predicted_response": 0,
+    "resp": "{\"answer\":\"FALSE\",\"relevant_cells\":[{\"row_index\":4,\"column_name\":\"Attendance\"},{\"row_index\":5,\"column_name\":\"Attendance\"},{\"row_index\":6,\"column_name\":\"Attendance\"},{\"row_index\":7,\"column_name\":\"Attendance\"},{\"row_index\":8,\"column_name\":\"Attendance\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "Attendance"
+      },
+      {
+        "row_index": 5,
+        "column_name": "Attendance"
+      },
+      {
+        "row_index": 6,
+        "column_name": "Attendance"
+      },
+      {
+        "row_index": 7,
+        "column_name": "Attendance"
+      },
+      {
+        "row_index": 8,
+        "column_name": "Attendance"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17340355-10.html.csv",
+    "claim": "golden state , memphis , and new orleans all have the same attendance",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 4, \"column_name\": \"attendance\"},\n    {\"row_index\": 5, \"column_name\": \"attendance\"},\n    {\"row_index\": 6, \"column_name\": \"attendance\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "attendance"
+      },
+      {
+        "row_index": 5,
+        "column_name": "attendance"
+      },
+      {
+        "row_index": 6,
+        "column_name": "attendance"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17340355-10.html.csv",
+    "claim": "the highest attendance be at the target center",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 6, \"column_name\": \"Attendance\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "Attendance"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17340355-10.html.csv",
+    "claim": "the game at the fedexforum take place after the game at the target center",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 5, \"column_name\": \"date\"},\n    {\"row_index\": 6, \"column_name\": \"date\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "date"
+      },
+      {
+        "row_index": 6,
+        "column_name": "date"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17514817-1.html.csv",
+    "claim": "west berkshire brewery 's good old boy beer have 5 award between 1995 and 2009",
+    "predicted_response": 0,
+    "resp": "var table = [\n  { year: 1995, beer_name: 'Good Old Boy', prize: 'Overall Winner', category: 'Beer of the Festival', competition: 'CAMRA White Horse Branch Beer Festival' },\n  { year: 1997, beer_name: 'Dr Hexter''s Healer', prize: 'Runner Up', category: 'Beer of the Festival', competition: 'CAMRA Northamptonshire Branch Beer Festival' },\n  { year: 2002, beer_name: 'Good Old Boy', prize: 'Gold Medal', category: 'Best Bitter', competition: 'SIBA South East Region Beer Competition' },\n  { year: 2002, beer_name: 'Good Old Boy', prize: 'Second Reserve Champion', category: '', competition: 'SIBA South East Region Beer Competition' },\n  { year: 2002, beer_name: 'Maggs Magnificent Mild', prize: 'Gold Medal', category: 'Mild and Porter', competition: 'SIBA South East Region Beer Competition' },\n  { year: 2002, beer_name: 'Mr Chubb''s Lunchtime Bitter', prize: 'Silver Medal', category: 'Standard Bitter', competition: 'SIBA South East Region Beer Competition' },\n  { year: 2002, beer_name: 'Dr Hexter''s Healer', prize: 'Silver Medal', category: 'Strong Ale', competition: 'SIBA South East Region Beer Competition' },\n  { year: 2003, beer_name: 'Maggs Magnificent Mild', prize: 'Gold Medal', category: 'Mild and Porter', competition: 'SIBA National Beer Competition' },\n  { year: 2003, beer_name: 'Full Circle', prize: 'Silver Medal', category: 'Best Bitter', competition: 'CAMRA Great British Beer Festival' },\n  { year: 2004, beer_name: 'Maggs Magnificent Mild', prize: 'Overall Winner', category: 'Beer of the Festival', competition: 'Bracknell Blues and Real Ale Festival' },\n  { year: 2005, beer_name: 'Maggs Magnificent Mild', prize: 'Gold Medal', category: 'Mild', competition: 'CAMRA Reading Branch Beer Festival' },\n  { year: 2005, beer_name: 'Maggs Magnificent Mild', prize: 'Third Place', category: '', competition: 'CAMRA Reading Branch Beer Festival' },\n  { year: 2005, beer_name: 'Maggs Magnificent Mild', prize: 'Gold Medal', category: 'Mild', competition: 'SIBA South East Region Beer Competition' },\n  { year: 2005, beer_name: 'Maggs Magnificent Mild', prize: 'Bronze Medal', category: '', competition: 'SIBA South East Region Beer Competition' },\n  { year: 2005, beer_name: 'Good Old Boy', prize: 'Silver Medal', category: 'Best Bitter', competition: 'SIBA South East Region Beer Competition' },\n  { year: 2005, beer_name: 'Dr Hexter''s Wedding Ale', prize: 'Third Place', category: 'Best Bitter', competition: 'Norwich Beer Festival' },\n  { year: 2006, beer_name: 'Maggs Magnificent Mild', prize: 'Silver Medal', category: 'Mild', competition: 'SIBA National Beer Competition' },\n  { year: 2006, beer_name: 'Maggs Magnificent Mild', prize: 'Silver Medal', category: 'Mild', competition: 'CAMRA Reading Branch Beer Festival' },\n  { year: 2006, beer_name: 'Old Father Thames', prize: 'Bronze Medal', category: 'Light Bitters', competition: 'SIBA South East Region Beer Competition' },\n  { year: 2007, beer_name: 'Skiff', prize: 'Gold Medal', category: 'Standard Bitter', competition: 'CAMRA Reading Branch Beer Festival' },\n  { year: 2007, beer_name: 'Full Circle', prize: '', category: '', competition: '' },\n  { year: 2007, beer_name: 'Maggs Magnificent Mild', prize: '', category: '', competition: '' },\n  { year: 2007, beer_name: 'Dr Hexter''s Healer', prize: '', category: '', competition: '' }\n];\n\nvar relevantCells = table.filter(row => row.beer_name === \"Good Old Boy\").map((row, i) => ({ row_index: i + 1, column_name: row.prize }));\n\nif (relevantCells.length >= 5)\n  console.log(JSON.stringify({ answer: 'TRUE', relevantCells }));\nelse\n  console.log(JSON.stringify({ answer: 'FALSE', relevantCells: [] }));",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17340355-10.html.csv",
+    "claim": "the game against minnesota have a lower attendance than the game against new orleans",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 6, \"column_name\": \"Attendance\"}, {\"row_index\": 4, \"column_name\": \"Attendance\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "Attendance"
+      },
+      {
+        "row_index": 4,
+        "column_name": "Attendance"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17340355-10.html.csv",
+    "claim": "the game against new orleans have the highest attendance",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 4, \"column_name\": \"Attendance\"}, {\"row_index\": 5, \"column_name\": \"Attendance\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "Attendance"
+      },
+      {
+        "row_index": 5,
+        "column_name": "Attendance"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17340355-10.html.csv",
+    "claim": "the game at the target center take place after the game at the fedexforum",
+    "predicted_response": 0,
+    "resp": "import json\n\ndata = {\n    \"game is 75 date is april 1 team is houston location attendance is us airways center 18422 record is 41 - 34\",\n    \"game is 76 date is april 3 team is sacramento location attendance is us airways center 18422 record is 42 - 34\",\n    \"game is 77 date is april 5 team is dallas location attendance is american airlines center 20301 record is 42 - 35\",\n    \"game is 78 date is april 8 team is new orleans location attendance is new orleans arena 17781 record is 43 - 35\",\n    \"game is 79 date is april 10 team is memphis location attendance is fedexforum 15908 record is 43 - 36\",\n    \"game is 80 date is april 11 team is minnesota location attendance is target center 18478 record is 44 - 36\",\n    \"game is 81 date is april 13 team is memphis location attendance is us airways center 18422 record is 45 - 36\",\n    \"game is 82 date is april 15 team is golden state location attendance is us airways center record is 46 - 36\"\n}\n\n# Create a dictionary to store the data\ntable_data = {}\n\nfor index, row in enumerate(data):\n    row_dict = {}\n    for cell in row.split():\n        if ' is' in cell:\n            column_name, value = cell.split(' is')\n            row_dict[column_name] = value\n        elif '-' in cell:\n            key, value = cell.split('-')\n            row_dict[key] = value\n\n# The target center games are after the fedexforum game\ntarget_center_games = [index for index, row in table_data.items() if 'target' in row['location']]\nfedexforum_game_index = [index for index, row in table_data.items() if 'fedexforum' in row['location']][0]\n\n# Check if all target center games are after the fedexforum game\nif len(target_center_games) == len(fedexforum_game_index):\n    print('TRUE')\nelse:\n    print('FALSE')\n\nrelevant_cells = []\nfor index, row in table_data.items():\n    for column_name in ['location', 'team']:\n        if column_name in row:\n            relevant_cells.append({\"row_index\": index, \"column_name\": column_name})\nprint(json.dumps({\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": relevant_cells\n}))",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17340355-10.html.csv",
+    "claim": "the game against minnesota have a higher attendance than the game against new orleans",
+    "predicted_response": 0,
+    "resp": "import json\n\n# Define the table data\ntable_data = {\n    1: [\"game\", \"is\", \"75\", \"date\", \"is\", \"april\", \"1\", \"team\", \"is\", \"houston\", \"location\", \"attendance\", \"is\", \"US Airways Center\", \"18422\", \"record\", \"is\", \"41 - 34\"],\n    2: [\"game\", \"is\", \"76\", \"date\", \"is\", \"april\", \"3\", \"team\", \"is\", \"Sacramento\", \"location\", \"attendance\", \"is\", \"US Airways Center\", \"18422\", \"record\", \"is\", \"42 - 34\"],\n    3: [\"game\", \"is\", \"77\", \"date\", \"is\", \"april\", \"5\", \"team\", \"is\", \"Dallas\", \"location\", \"attendance\", \"is\", \"American Airlines Center\", \"20301\", \"record\", \"is\", \"42 - 35\"],\n    4: [\"game\", \"is\", \"78\", \"date\", \"is\", \"april\", \"8\", \"team\", \"is\", \"New Orleans\", \"location\", \"attendance\", \"is\", \"New Orleans Arena\", \"17781\", \"record\", \"is\", \"43 - 35\"],\n    5: [\"game\", \"is\", \"79\", \"date\", \"is\", \"april\", \"10\", \"team\", \"is\", \"Memphis\", \"location\", \"attendance\", \"is\", \"FedExForum\", \"15908\", \"record\", \"is\", \"43 - 36\"],\n    6: [\"game\", \"is\", \"80\", \"date\", \"is\", \"april\", \"11\", \"team\", \"is\", \"Minnesota\", \"location\", \"attendance\", \"is\", \"Target Center\", \"18478\", \"record\", \"is\", \"44 - 36\"],\n    7: [\"game\", \"is\", \"81\", \"date\", \"is\", \"april\", \"13\", \"team\", \"is\", \"Memphis\", \"location\", \"attendance\", \"is\", \"US Airways Center\", \"18422\", \"record\", \"is\", \"45 - 36\"],\n    8: [\"game\", \"is\", \"82\", \"date\", \"is\", \"april\", \"15\", \"team\", \"is\", \"Golden State\", \"location\", \"attendance\", \"is\", \"US Airways Center\", \"\", \"record\", \"is\", \"46 - 36\"]\n}\n\n# Define the relevant columns\nrelevant_columns = [\"Location\", \"Attendance\"]\n\n# Find the attendance values for Minnesota and New Orleans\nminnesota_attendance = [row[3] for row in table_data[6]]\nnew_orleans_attendance = [row[3] for row in table_data[4]]\n\n# Check if the game against Minnesota has a higher attendance than the game against New Orleans\nif max(minnesota_attendance) > min(new_orleans_attendance):\n    print(\"{'answer': 'TRUE', 'relevant_cells': [{'row_index': 6, 'column_name': 'Attendance'}, {'row_index': 4, 'column_name': 'Attendance'}]}\")\nelse:\n    print(\"{'answer': 'FALSE', 'relevant_cells': []}\")",
+    "true_response": 1,
+    "relevant_cells": []
+  }
+]

@@ -1,0 +1,796 @@
+[
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema be in the top 5 for the master tournament , the us open , and the open championship",
+    "predicted_response": 0,
+    "resp": "Let's analyze the claim.\n\nThe claim is: \"tony lema be in the top 5 for the master tournament , the us open , and the open championship\"\n\nSince there is no information about Tony Lema in the table, we cannot determine if he is in the top 5 or not. The table only contains general statistics about tournaments.\n\nTherefore, we can conclude that the claim is FALSE.\n\nHere's the response in JSON format:\n\n{\"answer\": \"FALSE\", \"relevant_cells\": []}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tournament that tony lema have participate in include the master tournament , the us open , the pga championship and the open championship",
+    "predicted_response": 0,
+    "resp": "For the given table and claim, we can evaluate as follows:\n\n- The Masters Tournament has been won by Tony Lema (Row 1).\n- The US Open was won by Tony Lema (Row 2).\n- The PGA Championship was won by Tony Lema (Row 4).\n\nTherefore, all of these tournaments have been participated in by Tony Lema. Hence, the answer is \"TRUE\".\n\nHere's the JSON response:\n\n{\n    \"answer\": \"TRUE\",\n    \"relevant_cells\": [\n        {\"row_index\": 0, \"column_name\": \"tournament\"},\n        {\"row_index\": 1, \"column_name\": \"wins\"},\n        {\"row_index\": 4, \"column_name\": \"tournament\"}\n    ]\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema do not win in the us open",
+    "predicted_response": 0,
+    "resp": "import json\n\ndata = {\n    \"tournament\": [\"Masters\", \"US Open\", \"The Open Championship\", \"PGA Championship\", \"Total\"],\n    \"wins\": [0, 0, 1, 0, 1],\n    \"top_5\": [1, 2, 2, 0, 5],\n    \"top_10\": [2, 3, 2, 1, 8],\n    \"top_25\": [4, 4, 2, 2, 12],\n    \"events\": [4, 6, 3, 5, 18],\n    \"cuts_made\": [4, 5, 3, 4, 16]\n}\n\nus_open_data = data[\"wins\"][1]\n\nif us_open_data == 0:\n    answer = \"TRUE\"\nelse:\n    answer = \"FALSE\"\n\nrelevant_cells = [\n    {\"row_index\": 1, \"column_name\": \"wins\"},\n    {\"row_index\": 1, \"column_name\": \"top_5\"}\n]\n\noutput = {\n    \"answer\": answer,\n    \"relevant_cells\": relevant_cells\n}\n\nprint(json.dumps(output))",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "the only tournament that tony lema win in be the open championship",
+    "predicted_response": 0,
+    "resp": "import json\nfrom dataclasses import dataclass\n\n@dataclass\nclass Cell:\n    row_index: int\n    column_name: str\n\ndef check_claim():\n    tournaments = [\n        {\"tournament\": \"Masters\", \"wins\": 0, \"top_5\": 1, \"top_10\": 2, \"top_25\": 4, \"events\": 4, \"cuts_made\": 4},\n        {\"tournament\": \"US Open\", \"wins\": 0, \"top_5\": 2, \"top_10\": 3, \"top_25\": 4, \"events\": 6, \"cuts_made\": 5},\n        {\"tournament\": \"The Open Championship\", \"wins\": 1, \"top_5\": 2, \"top_10\": 2, \"top_25\": 2, \"events\": 3, \"cuts_made\": 3},\n        {\"tournament\": \"PGA Championship\", \"wins\": 0, \"top_5\": 0, \"top_10\": 1, \"top_25\": 2, \"events\": 5, \"cuts_made\": 4},\n        {\"tournament\": \"Total\", \"wins\": 1, \"top_5\": 5, \"top_10\": 8, \"top_25\": 12, \"events\": 18, \"cuts_made\": 16}\n    ]\n\n    tony_lema_data = [t for t in tournaments if t[\"tournament\"] == \"Tony Lema\"]\n\n    if len(tony_lema_data) > 0:\n        return {\n            \"answer\": \"TRUE\",\n            \"relevant_cells\": [\n                {\"row_index\": i, \"column_name\": col} \n                for i, row in enumerate(tony_lema_data[0])\n                for col in [\"wins\", \"top_5\", \"top_10\", \"top_25\", \"events\", \"cuts_made\"]\n            ]\n        }\n    else:\n        return {\n            \"answer\": \"FALSE\",\n            \"relevant_cells\": []\n        }\n\nresult = check_claim()\nprint(json.dumps(result, indent=2))",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema make it to the top 10 in the pga championship , but do not continue on",
+    "predicted_response": 0,
+    "resp": "For the purpose of this exercise, let's assume we have the table data as follows:\n\n```json\n{\n  \"table_data\": [\n    {\n      \"tournament\": \"Masters\",\n      \"wins\": 0,\n      \"top_5\": 1,\n      \"top_10\": 2,\n      \"top_25\": 4,\n      \"events\": 4,\n      \"cuts_made\": 4\n    },\n    {\n      \"tournament\": \"US Open\",\n      \"wins\": 0,\n      \"top_5\": 2,\n      \"top_10\": 3,\n      \"top_25\": 4,\n      \"events\": 6,\n      \"cuts_made\": 5\n    },\n    {\n      \"tournament\": \"The Open Championship\",\n      \"wins\": 1,\n      \"top_5\": 2,\n      \"top_10\": 2,\n      \"top_25\": 2,\n      \"events\": 3,\n      \"cuts_made\": 3\n    },\n    {\n      \"tournament\": \"PGA Championship\",\n      \"wins\": 0,\n      \"top_5\": 0,\n      \"top_10\": 1,\n      \"top_25\": 2,\n      \"events\": 5,\n      \"cuts_made\": 4\n    },\n    {\n      \"tournament\": \"Total\",\n      \"wins\": 1,\n      \"top_5\": 5,\n      \"top_10\": 8,\n      \"top_25\": 12,\n      \"events\": 18,\n      \"cuts_made\": 16\n    }\n  ]\n}\n```\n\nBased on the provided table data, we will check if \"tony lema\" made it to the top 10 in the PGA Championship but did not continue on.\n\nLooking at the data:\n\n- The column for the tournament is \"PGA Championship\".\n- The row for \"PGA Championship\" has a wins value of 0.\n- There is no indication that \"tony lema\" participated in the \"PGA Championship\".\n\nTherefore, the answer to the claim that \"tony lema make it to the top 10 in the pga championship , but do not continue on\" is FALSE.\n\nHere's a valid JSON object with two keys:\n\n```json\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 4, \"column_name\": \"wins\"},\n    {\"row_index\": 3, \"column_name\": \"tournament\"}\n  ]\n}\n```\n\nNote that we are looking for the row index of the tournament and wins to determine if \"tony lema\" participated in a tournament.",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tournament that tony lema have not participate in include the master tournament , the us open , the pga championship and the open championship",
+    "predicted_response": 0,
+    "resp": "import json\n\ndata = {\n    \"Row 1\": {\"tournament\": \"masters tournament\", \"wins\": 0, \"top - 5\": 1, \"top - 10\": 2, \"top - 25\": 4, \"events\": 4, \"cuts made\": 4},\n    \"Row 2\": {\"tournament\": \"us open\", \"wins\": 0, \"top - 5\": 2, \"top - 10\": 3, \"top - 25\": 4, \"events\": 6, \"cuts made\": 5},\n    \"Row 3\": {\"tournament\": \"the open championship\", \"wins\": 1, \"top - 5\": 2, \"top - 10\": 2, \"top - 25\": 2, \"events\": 3, \"cuts made\": 3},\n    \"Row 4\": {\"tournament\": \"pga championship\", \"wins\": 0, \"top - 5\": 0, \"top - 10\": 1, \"top - 25\": 2, \"events\": 5, \"cuts made\": 4},\n    \"Row 5\": {\"tournament\": \"totals\", \"wins\": 1, \"top - 5\": 5, \"top - 10\": 8, \"top - 25\": 12, \"events\": 18, \"cuts made\": 16}\n}\n\ndef find_not_participated_tournaments(tournament_names):\n    not_participated = []\n    \n    for row_index, row in enumerate(data.values()):\n        if row[\"tournament\"] not in tournament_names:\n            not_participated.append({\"row_index\": row_index, \"column_name\": \"tournament\"})\n            \n    return not_participated\n\ntournaments_to_check = [\"masters tournament\", \"us open\", \"pga championship\", \"the open championship\"]\n\nnot_participated_tournaments = find_not_participated_tournaments(tournaments_to_check)\nif len(not_participated_tournaments) == 0:\n    result = {\"answer\": \"FALSE\"}\nelse:\n    result = {\"answer\": \"TRUE\", \"relevant_cells\": not_participated_tournaments}\n\nprint(json.dumps(result))",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tournament that tony lema won in be pga championship",
+    "predicted_response": 0,
+    "resp": "Based on the given data, we can determine the tournament won by Tony Lema and see if it matches the claim.\n\nTable Data:\n| Row | Tournament | Wins | Top -5 | Top-10 | Top-25 | Events | Cuts Made |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| 1   | Masters     | 0    | 1      | 2       | 4      | 4        | 4         |\n| 2   | US Open     | 0    | 2      | 3       | 4      | 6        | 5         |\n| 3   | The Open    | 1    | 2      | 2       | 2      | 3        | 3         |\n| 4   | PGA Championship| 0 | 0 | 1 | 2 | 5        | 4 |\n| 5   | Total Wins | 1 | 5 | 8 | 12 | 18 | 16 |\n\nClaim: \"tournament that tony lema won in be pga championship\"\n\nBased on the data, the only tournament where Tony Lema is mentioned as a winner is indeed the PGA Championship.\n\nTherefore:\n\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 4, \"column_name\": \"tournament\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "paul emerick do not have the greatest number of tries out of the 9 total player",
+    "predicted_response": 0,
+    "resp": "{\"answer\":\"FALSE\",\"relevant_cells\":[{\"row_index\":2,\"column_name\":\"tries\"},{\"row_index\":4,\"column_name\":\"tries\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "tries"
+      },
+      {
+        "row_index": 4,
+        "column_name": "tries"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema be in the top 5 for the pga championship , the us open , and the open championship",
+    "predicted_response": 0,
+    "resp": "let data = {\n    \"Row 1\": [\"tournament\", \"is\", \"masters\", \"tournament\", \"wins\", \"is\", \"0\", \"top-5\", \"is\", \"1\", \"top-10\", \"is\", \"2\", \"top-25\", \"is\", \"4\", \"events\", \"is\", \"4\", \"cuts\", \"made\", \"is\", \"4\"],\n    \"Row 2\": [\"tournament\", \"is\", \"us open\", \"wins\", \"is\", \"0\", \"top-5\", \"is\", \"2\", \"top-10\", \"is\", \"3\", \"top-25\", \"is\", \"4\", \"events\", \"is\", \"6\", \"cuts\", \"made\", \"is\", \"5\"],\n    \"Row 3\": [\"tournament\", \"is\", \"the open championship\", \"wins\", \"is\", \"1\", \"top-5\", \"is\", \"2\", \"top-10\", \"is\", \"2\", \"top-25\", \"is\", \"2\", \"events\", \"is\", \"3\", \"cuts\", \"made\", \"is\", \"3\"],\n    \"Row 4\": [\"tournament\", \"is\", \"pga championship\", \"wins\", \"is\", \"0\", \"top-5\", \"is\", \"0\", \"top-10\", \"is\", \"1\", \"top-25\", \"is\", \"2\", \"events\", \"is\", \"5\", \"cuts\", \"made\", \"is\", \"4\"],\n    \"Row 5\": [\"tournament\", \"is\", \"totals\", \"wins\", \"is\", \"1\", \"top-5\", \"is\", \"5\", \"top-10\", \"is\", \"8\", \"top-25\", \"is\", \"12\", \"events\", \"is\", \"18\", \"cuts\", \"made\", \"is\", \"16\"]\n}\nfunction evaluateClaim() {\n    let claim = \"tony lema be in the top 5 for the pga championship , the us open , and the open championship\";\n    let relevantCells = [];\n    for (let row of data) {\n        if (row.includes(\"pga championship\") && row.includes(\"us open\")) {\n            relevantCells.push({ row_index: 4, column_name: 'top-5' });\n        } else if (row.includes(\"pga championship\") && row.includes(\"open championship\")) {\n            relevantCells.push({ row_index: 4, column_name: 'top-25' });\n        } else if (row.includes(\"us open\") && row.includes(\"open championship\")) {\n            relevantCells.push({ row_index: 1, column_name: 'top-5' });\n            relevantCells.push({ row_index: 3, column_name: 'top-25' });\n        }\n    }\n    let answer = relevantCells.length > 0 ? \"TRUE\" : \"FALSE\";\n    return JSON.stringify({\n        \"answer\": answer,\n        \"relevant_cells\": relevantCells\n    })\n}\nconsole.log(evaluateClaim());",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema do not win in the pga championship",
+    "predicted_response": 0,
+    "resp": "Based on the data provided, we can infer the following:\n\n- Row 4 has tournament as PGA Championship and wins is 0.\n- Therefore, the claim \"tony lema do not win in the pga championship\" is FALSE.\n\nHere's a valid JSON object:\n\n{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 4, \"column_name\": \"wins\"}, {\"row_index\": 4, \"column_name\": \"tournament\"}]}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "the greatest number of drop from 1 player happen over the span of 8 year",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 6, \"column_name\": \"drop\"},\n    {\"row_index\": 8, \"column_name\": \"drop\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "drop"
+      },
+      {
+        "row_index": 8,
+        "column_name": "drop"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "chris wyles be 1 of the 2 player with drop during their time on the rugby team",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 6, \"column_name\": \"drop\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "drop"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "3 of the 9 player have not yet finish their span of play on the united state national rugby union team",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 3, \"column_name\": \"span\"},\n    {\"row_index\": 5, \"column_name\": \"span\"},\n    {\"row_index\": 6, \"column_name\": \"span\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "span"
+      },
+      {
+        "row_index": 5,
+        "column_name": "span"
+      },
+      {
+        "row_index": 6,
+        "column_name": "span"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "paul emerick do not have fewer tries than any other player",
+    "predicted_response": 0,
+    "resp": "{ \"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 1, \"column_name\": \"tries\"}, {\"row_index\": 2, \"column_name\": \"tries\"}] }",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 1,
+        "column_name": "tries"
+      },
+      {
+        "row_index": 2,
+        "column_name": "tries"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "riann van zyl have the shortest time span on the united state national rugby union team and tie with 3 others for the smallest number of tries",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 9, \"column_name\": \"span\"},\n    {\"row_index\": 4, \"column_name\": \"tries\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 9,
+        "column_name": "span"
+      },
+      {
+        "row_index": 4,
+        "column_name": "tries"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "the greatest number of drop from 1 player happen over the span of only 1 year",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 6, \"column_name\": \"drop\"},\n    {\"row_index\": 8, \"column_name\": \"drop\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "drop"
+      },
+      {
+        "row_index": 8,
+        "column_name": "drop"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "chris wyles be the only player with drop during his time on the rugby team",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 6, \"column_name\": \"drop\"},\n    {\"row_index\": 8, \"column_name\": \"drop\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "drop"
+      },
+      {
+        "row_index": 8,
+        "column_name": "drop"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "riann van zyl have the longest time span on the united state national rugby union team and tie with only 1 other player for the greatest number of tries",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 6, \"column_name\": \"span\"},\n    {\"row_index\": 5, \"column_name\": \"tries\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "span"
+      },
+      {
+        "row_index": 5,
+        "column_name": "tries"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "all of the player have already finish their span of play on the united state national rugby union team",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 3, \"column_name\": \"span\"},\n    {\"row_index\": 5, \"column_name\": \"span\"},\n    {\"row_index\": 6, \"column_name\": \"span\"},\n    {\"row_index\": 7, \"column_name\": \"span\"},\n    {\"row_index\": 8, \"column_name\": \"span\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "span"
+      },
+      {
+        "row_index": 5,
+        "column_name": "span"
+      },
+      {
+        "row_index": 6,
+        "column_name": "span"
+      },
+      {
+        "row_index": 7,
+        "column_name": "span"
+      },
+      {
+        "row_index": 8,
+        "column_name": "span"
+      }
+    ]
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "the sweet dream episode happen later in the series than the witchfinder",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 11, \"column_name\": \"Episode Title\"},\n    {\"row_index\": 7, \"column_name\": \"Original Air Date\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 11,
+        "column_name": "Episode Title"
+      },
+      {
+        "row_index": 7,
+        "column_name": "Original Air Date"
+      }
+    ]
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "david moore direct 3 episode of series 2 of merlin",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"no for series is\"}, {\"row_index\": 4, \"column_name\": \"title is\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "no for series is"
+      },
+      {
+        "row_index": 4,
+        "column_name": "title is"
+      }
+    ]
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "lucy watkins only write 1 episode of series 2",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 10, \"column_name\": \"Episode Writer\"}, {\"row_index\": 2, \"column_name\": \"Episode Writer\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 10,
+        "column_name": "Episode Writer"
+      },
+      {
+        "row_index": 2,
+        "column_name": "Episode Writer"
+      }
+    ]
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "beauty and the beast (part 2) have more uk viewer than beauty and the beast (part 1)",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 6, \"column_name\": \"UK Viewers\"},\n    {\"row_index\": 5, \"column_name\": \"UK Viewers\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "UK Viewers"
+      },
+      {
+        "row_index": 5,
+        "column_name": "UK Viewers"
+      }
+    ]
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "the lady of the lake episode have the most uk viewer",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 9, \"column_name\": \"uk viewers (million)\"},\n    {\"row_index\": 10, \"column_name\": \"uk viewers (million)\"},\n    {\"row_index\": 11, \"column_name\": \"uk viewers (million)\"},\n    {\"row_index\": 12, \"column_name\": \"uk viewers (million)\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 9,
+        "column_name": "uk viewers (million)"
+      },
+      {
+        "row_index": 10,
+        "column_name": "uk viewers (million)"
+      },
+      {
+        "row_index": 11,
+        "column_name": "uk viewers (million)"
+      },
+      {
+        "row_index": 12,
+        "column_name": "uk viewers (million)"
+      }
+    ]
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "the sweet dream episode happen earlier in the series than the witchfinder",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 11, \"column_name\": \"Original Air Date\"},\n    {\"row_index\": 7, \"column_name\": \"Original Air Date\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 11,
+        "column_name": "Original Air Date"
+      },
+      {
+        "row_index": 7,
+        "column_name": "Original Air Date"
+      }
+    ]
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "david moore direct 5 episode of series 2 of merlin",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 2, \"column_name\": \"written by\"},\n    {\"row_index\": 12, \"column_name\": \"written by\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "written by"
+      },
+      {
+        "row_index": 12,
+        "column_name": "written by"
+      }
+    ]
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "the lady of the lake episode have the least uk viewer",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 9, \"column_name\": \"UK Viewers\"},\n    {\"row_index\": 10, \"column_name\": \"UK Viewers\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 9,
+        "column_name": "UK Viewers"
+      },
+      {
+        "row_index": 10,
+        "column_name": "UK Viewers"
+      }
+    ]
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "lucy watkins only write 6 episode of series 2",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 2, \"column_name\": \"Episode Count\"},\n    {\"row_index\": 0, \"column_name\": \"Original Air Date\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "Episode Count"
+      },
+      {
+        "row_index": 0,
+        "column_name": "Original Air Date"
+      }
+    ]
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "beauty and the beast (part 2) have less uk viewer than beauty and the beast (part 1)",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 6, \"column_name\": \"UK Viewers\"},\n    {\"row_index\": 5, \"column_name\": \"UK Viewers\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "UK Viewers"
+      },
+      {
+        "row_index": 5,
+        "column_name": "UK Viewers"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "4 player score 3 goal total , and all 4 be in league 4",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 18, \"column_name\": \"League\"}, {\"row_index\": 19, \"column_name\": \"League\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 18,
+        "column_name": "League"
+      },
+      {
+        "row_index": 19,
+        "column_name": "League"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "of the 4 player who play in the belgian cup , jonathan legear score more goal than the other player combine",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": []}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "jonathan legear score 4 more goal than mat\u00edas su\u00e1rez , the next highest rank player in the belgian first dvision a league who play in the belgian cup",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 5, \"column_name\": \"total\"}, {\"row_index\": 13, \"column_name\": \"total\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "total"
+      },
+      {
+        "row_index": 13,
+        "column_name": "total"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema make it to the top 10 in the us open , but do not continue on",
+    "predicted_response": 0,
+    "resp": "To determine if the claim is true or false, we'll have to parse the provided table and verify the statement for each row.\n\nSince there's only one specific claim about a player named Tony LeMa (likely referring to Tony Lemieux), I will search through each event and find his finishing position in that tournament. \n\nFirstly, let's list the rows of the table:\n\n| Row | Tournament    | Wins  | Top-5   | Top-10   | Top-25   | Events   | Cuts Made |\n| --- |--------------- | ---- | ------- | --------- | -------- | -------- | ---------- |\n| 1   | Masters        | 0    | 1       | 2         | 4         | 4        | 4          |\n| 2   | US Open        | 0    | 2       | 3         | 4         | 6        | 5          |\n| 3   | The Open Championship | 1    | 2      | 2         | 2         | 3        | 3          |\n| 4   | PGA Championship | 0    | 0       | 1         | 2         | 5        | 4          |\n| 5   | Total            | 1    | 5       | 8         | 12        | 18       | 16         |\n\nNext, we'll look up Tony Lemieux's finishing position in each tournament and find if his performance is true according to the claim.\n\nThe statement says that Tony LeMa \"make it to the top 10 in the US Open\". For him to make it to the top 10 in the US Open, he must have finished with a number less than or equal to 10. According to the table, for the US Open event (row 2), the finish position of Tony LeMa is 2. This implies that according to the table, Tony Lemieux did make it to the top 10 in the \"US Open\".\n\nHowever, the claim also says \"but do not continue on.\" According to the data from row 1, for the Masters event, Tony LeMa was ranked at number one (top -5). This implies that according to the table, Tony Lemieux did \"continue on\" after making it to the top-5 in this tournament.\n\nTherefore, we can see that the statement about reaching the top 10 but not continuing is false. We will now create our JSON response.\n\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 1, \"column_name\": \"top - 10\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "though 4 player from belgian first division a be in the top 19 scorer , the top scorer (matias suarez) have 8 fewer goal than mbark boussoufa , who have 11 goal",
+    "predicted_response": 0,
+    "resp": "{ \n  \"answer\": \"FALSE\",  \n  \"relevant_cells\": [\n    {\"row_index\": 5, \"column_name\": \"total\"},\n    {\"row_index\": 16, \"column_name\": \"total\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "total"
+      },
+      {
+        "row_index": 16,
+        "column_name": "total"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "4 player score 3 goal total , and all 4 be in league 5",
+    "predicted_response": 0,
+    "resp": "Given the table and claim, we can conclude:\n\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 4, \"column_name\": \"league\"},\n    {\"row_index\": 5, \"column_name\": \"league\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "jelle van damme score 3 time as much as each of the other 2 player in the uefa champion league tournament",
+    "predicted_response": 0,
+    "resp": "{ \n\"answer\": \"FALSE\", \n\"relevant_cells\": [\n{\"row_index\":14,\"column_name\":\"Score\"}, \n{\"row_index\":0,\"column_name\":\"Score\"}, \n{\"row_index\":5,\"column_name\":\"Score\"}] \n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 14,
+        "column_name": "Score"
+      },
+      {
+        "row_index": 0,
+        "column_name": "Score"
+      },
+      {
+        "row_index": 5,
+        "column_name": "Score"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "though 4 player from belgian first division a be in the top 19 scorer , the top scorer (matias suarez) have 5 fewer goal than bart goor , who have 11 goal",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 13, \"column_name\": \"super cup\"}, {\"row_index\": 18, \"column_name\": \"total\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 13,
+        "column_name": "super cup"
+      },
+      {
+        "row_index": 18,
+        "column_name": "total"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "rafael m\u00e1rquez score 3 goal in his career at international friendly competition",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 4, \"column_name\": \"score\"}, {\"row_index\": 13, \"column_name\": \"score\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "score"
+      },
+      {
+        "row_index": 13,
+        "column_name": "score"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "2000 be the only year rafael m\u00e1rquez score more than 1 goal in international competition",
+    "predicted_response": 0,
+    "resp": "{\"answer\":\"FALSE\",\"relevant_cells\":[{\"row_index\":2,\"column_name\":\"goal\"},{\"row_index\":3,\"column_name\":\"goal\"},{\"row_index\":4,\"column_name\":\"goal\"},{\"row_index\":5,\"column_name\":\"goal\"},{\"row_index\":6,\"column_name\":\"goal\"},{\"row_index\":7,\"column_name\":\"goal\"},{\"row_index\":8,\"column_name\":\"goal\"},{\"row_index\":9,\"column_name\":\"goal\"},{\"row_index\":10,\"column_name\":\"goal\"},{\"row_index\":11,\"column_name\":\"goal\"},{\"row_index\":12,\"column_name\":\"goal\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 3,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 4,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 5,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 6,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 7,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 8,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 9,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 10,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 11,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 12,
+        "column_name": "goal"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "rafael m\u00e1rquez score a goal at both the 2006 and 2010 fifa world cup",
+    "predicted_response": 0,
+    "resp": "{\"answer\":\"FALSE\",\"relevant_cells\":[{\"row_index\":6,\"column_name\":\"goal\"},{\"row_index\":11,\"column_name\":\"goal\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 11,
+        "column_name": "goal"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "mexico only lose 1 time in international competition when rafael m\u00e1rquez score a goal",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 8, \"column_name\": \"Result\"},\n    {\"row_index\": 11, \"column_name\": \"Result\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 8,
+        "column_name": "Result"
+      },
+      {
+        "row_index": 11,
+        "column_name": "Result"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "of the 4 player who play in the belgian cup , lucas biglia score more goal than the other player combine",
+    "predicted_response": 0,
+    "resp": "function analyzeClaim() {\n  var claim = \"of the 4 player who play in the belgian cup , lucas biglia score more goal than the other player combine\";\n  \n  // Convert to lowercase and split into words\n  var words = claim.toLowerCase().split(\" \");\n  \n  // Filter out irrelevant words\n  var relevantWords = [];\n  for (var word of words) {\n    if ((word === \"player\" || word === \"score\") && \n        (words.indexOf(word - 1) !== -1 && words.indexOf(word + 1) !== -1)) {\n      relevantWords.push(word);\n    }\n  }\n\n  // Count the number of players in the Belgian Cup\n  var playerCount = 0;\n  for (var word of words) {\n    if (word === \"in\" && words.indexOf(\"belgian\") !== -1 &&\n        words.indexOf(word + 2) === -1) {\n      playerCount += 1;\n    }\n  }\n\n  // Check if Lucas Biglia scores more goals than the other players\n  var bigliaGoals = 0;\n  for (var word of words) {\n    if (word === \"lucas\" && \n        (words.indexOf(\"biglia\") !== -1 || words.indexOf(\"goal\") !== -1)) {\n      if (word === \"goal\") {\n        bigliaGoals += 1;\n      } else {\n        bigliaGoals = 1;\n      }\n    }\n  }\n\n  // Check the number of players\n  var otherPlayers = playerCount - 1;\n\n  // Return the result as a JSON object\n  return {\n    \"answer\": (bigliaGoals > otherPlayers) ? \"TRUE\" : \"FALSE\",\n    \"relevant_cells\": [\n      {\"row_index\": 0, \"column_name\": \"player\"},\n      {\"row_index\": 5, \"column_name\": \"score\"}\n    ]\n  };\n}\n\nprint(JSON.stringify(analyzeClaim()));",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "rafael m\u00e1rquez score fewer than 3 goal in his career at international friendly competition",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 13, \"column_name\": \"goal\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 13,
+        "column_name": "goal"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "rafael m\u00e1rquez do not score a goal in international competition in 2001 or 2009 or 2012",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 3, \"column_name\": \"goal\"},\n    {\"row_index\": 5, \"column_name\": \"goal\"},\n    {\"row_index\": 6, \"column_name\": \"goal\"},\n    {\"row_index\": 7, \"column_name\": \"goal\"},\n    {\"row_index\": 10, \"column_name\": \"goal\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 5,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 6,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 7,
+        "column_name": "goal"
+      },
+      {
+        "row_index": 10,
+        "column_name": "goal"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "thomas chatelle score 4 more goal than mat\u00edas su\u00e1rez , the next highest rank player in the belgian first dvision a league who play in the belgian cup",
+    "predicted_response": 0,
+    "resp": "Let's break down the claim:\n\n\"thomas chatelle score 4 more goal than mat\u00edas su\u00e1rez , the next highest rank player in the belgian first dvision a league who play in the belgian cup\"\n\nTo verify this claim, we need to find out if Thomas Chatelle has scored 4 more goals than Mat\u00edas Su\u00e1rez and also check that he is the next highest ranked player in the Belgian First Division A league.\n\nWe can start by looking at the data for these players:\n\nRow 7: player is thomas chatelle league is 4 title playoff is 0 super cup is 0 total is 4\nRow 13: player is mat\u00edas su\u00e1rez league is 1 title playoff is 0 super cup is 1 total is 3\n\nThomas Chatelle has scored more goals (4) than Mat\u00edas Su\u00e1rez (3). However, we need to verify that Thomas Chatelle is the next highest ranked player in the Belgian First Division A league.\n\nTo do this, let's check if there are any other players who have a higher total score:\n\nRow 6: player is nicol\u00e1s frutos league is 6 title playoff is 0 super cup is 0 total is 6\nRow 10: player is lucas biglia league is 2 title playoff is 0 super cup is 0 total is 3\nRow 11: player is dmitri bulykin league is 3 title playoff is 0 super cup is 0 total is 3\nRow 12: player is jan pol\u00e1k league is 2 title playoff is 0 super cup is 0 total is 3\nRow 14: player is jelle van damme league is 3 title playoff is 0 super cup is 0 total is 3\n\nThere are several players who have a higher total score than Thomas Chatelle. Therefore, the claim that Thomas Chatelle is the next highest ranked player in the Belgian First Division A league cannot be verified.\n\nHowever, we can verify that Thomas Chatelle has scored more goals than Mat\u00edas Su\u00e1rez.\n\nTherefore, the answer is:\n\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 13, \"column_name\": \"total\"},\n    {\"row_index\": 7, \"column_name\": \"total\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "mexico lose 1 of 2 time in international competition when rafael m\u00e1rquez score a goal",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": []\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "rafael m\u00e1rquez score a goal at the 2006 , but remain scoreless during the 2010 fifa world cup",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 8, \"column_name\": \"result\"},\n    {\"row_index\": 11, \"column_name\": \"result\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 8,
+        "column_name": "result"
+      },
+      {
+        "row_index": 11,
+        "column_name": "result"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "2000 be 1 of 2 year rafael m\u00e1rquez score more than 1 goal in international competition",
+    "predicted_response": 1,
+    "resp": "{\"answer\": \"TRUE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"score\"}, {\"row_index\": 3, \"column_name\": \"score\"}, {\"row_index\": 4, \"column_name\": \"score\"}, {\"row_index\": 5, \"column_name\": \"score\"}, {\"row_index\": 6, \"column_name\": \"score\"}, {\"row_index\": 7, \"column_name\": \"score\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "score"
+      },
+      {
+        "row_index": 3,
+        "column_name": "score"
+      },
+      {
+        "row_index": 4,
+        "column_name": "score"
+      },
+      {
+        "row_index": 5,
+        "column_name": "score"
+      },
+      {
+        "row_index": 6,
+        "column_name": "score"
+      },
+      {
+        "row_index": 7,
+        "column_name": "score"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "guillaume gillet score 3 time as much as each of the other 2 player in the uefa champion league tournament",
+    "predicted_response": 0,
+    "resp": "import json\n\ndef check_claim():\n    data = {\n        \"player\": [\"mbark boussoufa\", \"tom de sutter\", \"guillaume gillet\", \"marcin wasilewski\", \n                  \"jonathan legear\", \"nicol\u00e1s frutos\", \"thomas chatelle\", \"roland juh\u00e1sz\", \n                  \"stanislav vl\u010dek\", \"lucas biglia\", \"dmitri bulykin\", \"jan pol\u00e1k\", \n                  \"mat\u00edas su\u00e1rez\", \"jelle van damme\", \"oleksandr iakovenko\", \"herm\u00e1n losada\", \n                  \"v\u00edctor bern\u00e1rdez\", \"bart goor\", \"nemanja rni\u0107\"],\n        \"league\": [11, 9, 8, 8, 5, 6, 4, 4, 4, 2, 3, 2, 1, 3, 2, 1, 1, 0],\n        \"title\": [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],\n        \"playoff\": [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],\n        \"super_cup\": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],\n        \"total\": [11, 9, 8, 8, 7, 6, 4, 4, 4, 3, 3, 3, 3, 3, 2, 2, 1, 1]\n    }\n\n    guillaume_gillet = data['league'][data['player'].index(\"guillaume gillet\")]\n    \n    scores_of_others = [data['total'][i] for i in range(len(data['player'])) if data['player'][i] not in [\"guillaume gillet\", \"mbark boussoufa\"]]\n\n    average_score_other_players = sum(scores_of_others) / len(scores_of_others)\n\n    guillaume_gillet_times_three = guillaume_gillet * 3\n    \n    return {\n        \"answer\": str(int(guillaume_gillet_times_three >= average_score_other_players)) == 'TRUE',\n        \"relevant_cells\": [\n            {\"row_index\": data['league'].index(guillaume_gillet), \"column_name\": \"league\"},\n            {\"row_index\": data['total'].index(guillaume_gillet_times_three), \"column_name\": \"total\"}\n        ]\n    }\n\nprint(json.dumps(check_claim()))",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "rafael m\u00e1rquez do not remain scoreless in international competition in 2001 or 2009 or 2012",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 5, \"column_name\": \"score\"},\n    {\"row_index\": 8, \"column_name\": \"score\"},\n    {\"row_index\": 11, \"column_name\": \"score\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "score"
+      },
+      {
+        "row_index": 8,
+        "column_name": "score"
+      },
+      {
+        "row_index": 11,
+        "column_name": "score"
+      }
+    ]
+  }
+]

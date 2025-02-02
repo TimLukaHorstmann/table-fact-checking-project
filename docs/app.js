@@ -59,6 +59,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     addLoadButtonListener();
     setupTabSwitching();
     setupLiveCheckEvents();
+
+    // Set up the performance metrics toggle
+    const toggleMetricsEl = document.getElementById("performanceMetricsToggle");
+    const toggleArrow = document.getElementById("toggleArrow");
+    toggleMetricsEl.addEventListener("click", function() {
+      const metricsContent = document.getElementById("metricsContent");
+      if (metricsContent.style.display === "none") {
+        metricsContent.style.display = "block";
+        toggleArrow.textContent = "▼";
+        updateNativeMetrics();
+      } else {
+        metricsContent.style.display = "none";
+        toggleArrow.textContent = "►";
+      }
+    });
+
   } catch (error) {
     console.error("Initialization failed:", error);
     document.getElementById("infoPanel").innerHTML = `<p style="color:red;">Failed to initialize the app: ${error}</p>`;
@@ -153,6 +169,7 @@ async function loadResults() {
     populateTableSelect();
     document.getElementById("tableDropDown").style.display = "block";
     document.getElementById("tableMetaInfo").style.display = "block";
+    document.getElementById("performanceMetrics").style.display = "block";
   } catch (err) {
     console.error(`Failed to load ${resultsFileName}:`, err);
     infoPanel.innerHTML = `<p style="color:red;">Failed to load <strong>${resultsFileName}</strong>: ${err}</p>`;
@@ -326,6 +343,98 @@ async function renderClaimAndTable(resultObj) {
   container.appendChild(tableEl);
 }
 
+
+
+/**
+ * Compute overall performance metrics from allResults and render native plots.
+ * Assumes that each result object contains:
+ *   - predicted_response (0 or 1)
+ *   - true_response (0 or 1)
+ */
+function updateNativeMetrics() {
+  if (!allResults || allResults.length === 0) {
+    console.warn("No results available for metrics calculation.");
+    return;
+  }
+  
+  // Initialize counts.
+  let TP = 0, TN = 0, FP = 0, FN = 0;
+  
+  allResults.forEach(item => {
+    // Skip results where predicted_response is null.
+    if (item.predicted_response === null) return;
+    if (item.true_response === 1 && item.predicted_response === 1) {
+      TP++;
+    } else if (item.true_response === 0 && item.predicted_response === 0) {
+      TN++;
+    } else if (item.true_response === 0 && item.predicted_response === 1) {
+      FP++;
+    } else if (item.true_response === 1 && item.predicted_response === 0) {
+      FN++;
+    }
+  });
+  
+  // Create a confusion matrix: rows = actual, columns = predicted.
+  const matrix = [
+    [TN, FP],
+    [FN, TP]
+  ];
+  
+  // Render confusion matrix as a heatmap using Plotly.
+  const heatmapData = [{
+      z: matrix,
+      x: ['Pred. Neg.', 'Pred. Pos.'],
+      y: ['Act. Neg.', 'Act. Pos.'],
+      type: 'heatmap',
+      colorscale: 'Inferno',  // Alternative options: 'Cividis', 'Inferno', 'YlGnBu'
+      showscale: false
+  }];
+  
+  const heatmapLayout = {
+    title: 'Confusion Matrix',
+    annotations: [],
+    xaxis: { title: 'Predicted' },
+    yaxis: { title: 'Actual' }
+  };
+  
+  // Add annotations (text labels) for each cell.
+  for (let i = 0; i < matrix.length; i++) {
+    for (let j = 0; j < matrix[i].length; j++) {
+      heatmapLayout.annotations.push({
+        x: heatmapData[0].x[j],
+        y: heatmapData[0].y[i],
+        text: String(matrix[i][j]),
+        showarrow: false,
+        font: {
+          color: 'white'
+        }
+      });
+    }
+  }
+  
+  Plotly.newPlot('confusionMatrixPlot', heatmapData, heatmapLayout);
+  
+  // Calculate summary statistics.
+  const precision = (TP + FP) > 0 ? TP / (TP + FP) : 0;
+  const recall    = (TP + FN) > 0 ? TP / (TP + FN) : 0;
+  const accuracy  = (TP + TN) / (TP + TN + FP + FN);
+  const f1        = (precision + recall) > 0 ? (2 * precision * recall) / (precision + recall) : 0;
+  
+  // Render summary statistics as a bar chart.
+  const summaryData = [{
+    x: ['Accuracy', 'Precision', 'Recall', 'F1 Score'],
+    y: [accuracy, precision, recall, f1],
+    type: 'bar',
+    //marker: {color: ['#1976d2', '#4caf50', '#ff9800', '#9c27b0']}
+  }];
+  
+  const summaryLayout = {
+    title: 'Performance Summary',
+    yaxis: { range: [0, 1], title: 'Score' }
+  };
+  
+  Plotly.newPlot('performanceSummaryPlot', summaryData, summaryLayout);
+}
 
 
 function updateResultsChart(tableId) {
