@@ -335,6 +335,7 @@ async function renderClaimAndTable(resultObj) {
   const dataRows = tableData.slice(1);
   
   const tableEl = document.createElement("table");
+  tableEl.classList.add("styled-table")
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
   columns.forEach(col => {
@@ -1076,6 +1077,7 @@ function renderLivePreviewTable(csvText, relevantCells) {
   const columns = tableData[0];
   const dataRows = tableData.slice(1);
   const tableEl = document.createElement("table");
+  tableEl.classList.add("styled-table")
   const thead = document.createElement("thead");
   const headerRow = document.createElement("tr");
   columns.forEach(col => {
