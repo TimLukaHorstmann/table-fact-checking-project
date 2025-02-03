@@ -1,0 +1,131 @@
+[
+  {
+    "table_id": "2-15349635-1.html.csv",
+    "claim": "2 of the team hold the first 2 position with an equal number of point",
+    "predicted_response": 0,
+    "resp": "For the claim to be TRUE, we can see that there are two teams - Flamengo and Fluminense - who both have a position of 2 with an equal number of points. These cells are:\n\n{\n    \"answer\": \"TRUE\",\n    \"relevant_cells\": [\n      {\"row_index\": 1, \"column_name\": \"points\"},\n      {\"row_index\": 2, \"column_name\": \"points\"}\n    ]\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15349635-1.html.csv",
+    "claim": "4 of the team have a minus goal difference while only 4 have score more goal than those against them",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 5, \"column_name\": \"difference\"}, {\"row_index\": 6, \"column_name\": \"difference\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "difference"
+      },
+      {
+        "row_index": 6,
+        "column_name": "difference"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15349635-1.html.csv",
+    "claim": "2 of the team have the same number of goal score against them",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 5, \"column_name\": \"difference\"}, {\"row_index\": 6, \"column_name\": \"difference\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "difference"
+      },
+      {
+        "row_index": 6,
+        "column_name": "difference"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15349635-1.html.csv",
+    "claim": "3 team tie on point but be separate by goal difference",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": []\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15349635-1.html.csv",
+    "claim": "the top 2 team have the same number of point but separate by a goal difference",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\nimport json\n\n# Load the table data into a DataFrame\ntable_data = {\n    'position': [1, 2, 3, 4, 5, 6, 7, 8, 9],\n    'team': ['flamengo', 'fluminense', 'corinthians', 'palestra it\u00e1lia', 'portuguesa', 'botafogo', 'vasco da gama', 'am\u00e9rica', 's\u00e3o paulo'],\n    'points': [13, 13, 9, 8, 7, 6, 6, 6, 4],\n    'played': [8, 8, 8, 8, 8, 8, 8, 8, 8],\n    'against': [12, 15, 15, 19, 23, 25, 19, 25, 24],\n    'difference': [8, 10, 4, 3, -10, 0, -2, -10, -13]\n}\ndf = pd.DataFrame(table_data)\n\n# Get the top 2 teams with the same number of points\ntop_2_teams = df.nlargest(2, 'points')\n\nif len(top_2_teams) > 0:\n    top_team1_points = top_2_teams.iloc[0]['points']\n    top_team2_points = top_2_teams.iloc[1]['points']\n\n    # Check if the difference between points is 0\n    if (top_team1_points == top_team2_points and \n        top_team1_points - top_team2_points == 0):\n        answer = \"TRUE\"\n    else:\n        answer = \"FALSE\"\n\n    relevant_cells = [\n        {\"row_index\": df.loc[df['team'] == top_2_teams.iloc[0]['team'], 'points'].values[0], \"column_name\": 'points'},\n        {\"row_index\": df.loc[df['team'] == top_2_teams.iloc[1]['team'], 'points'].values[0], \"column_name\": 'points'}\n    ]\n\nelse:\n    answer = \"FALSE\"\n    relevant_cells = []\n\n# Convert to JSON\noutput = json.dumps({\"answer\": answer, \"relevant_cells\": relevant_cells})\nprint(output)",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15349635-1.html.csv",
+    "claim": "the team in the first 2 position hold a different amount of point with the 2nd fall behind by 2",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": []\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15349635-1.html.csv",
+    "claim": "the second team have less point than the first and be separate by a 2 goal difference",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"points\"}, {\"row_index\": 5, \"column_name\": \"difference\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "points"
+      },
+      {
+        "row_index": 5,
+        "column_name": "difference"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15349635-1.html.csv",
+    "claim": "less than 3 team hold a minus goal difference , while more than 5 have score more goal against them",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 4, \"column_name\": \"difference\"}, {\"row_index\": 5, \"column_name\": \"difference\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "difference"
+      },
+      {
+        "row_index": 5,
+        "column_name": "difference"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15349635-1.html.csv",
+    "claim": "none team tie on point , but most be separate by more than 1 goal difference",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 4, \"column_name\": \"difference\"}, {\"row_index\": 5, \"column_name\": \"difference\"}, {\"row_index\": 6, \"column_name\": \"difference\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "difference"
+      },
+      {
+        "row_index": 5,
+        "column_name": "difference"
+      },
+      {
+        "row_index": 6,
+        "column_name": "difference"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15349635-1.html.csv",
+    "claim": "over 3 team have the same number of goal score against them",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\nimport json\n\n# Load the table data into a Pandas DataFrame\ndata = {\n    \"position\": [1, 2, 3, 4, 5, 6, 7, 8, 9],\n    \"team\": [\"flamengo\", \"fluminense\", \"corinthians\", \"palestra it\u00e1lia\", \"portuguesa\", \"botafogo\", \"vasco da gama\", \"am\u00e9rica\", \"s\u00e3o paulo\"],\n    \"points\": [13, 13, 9, 8, 7, 6, 6, 6, 4],\n    \"played\": [8, 8, 8, 8, 8, 8, 8, 8, 8],\n    \"against\": [12, 15, 15, 19, 23, 25, 19, 25, 24],\n    \"difference\": [8, 10, 4, 3, -10, 0, -2, -10, -13]\n}\ndf = pd.DataFrame(data)\n\n# Check if there are more than 3 teams with the same number of goals scored against them\nunique_against_values = df['against'].value_counts()\nteams_with_same_against_value = unique_against_values[unique_against_values > 1].index\n\nif len(teams_with_same_against_value) > 2:\n    answer = \"FALSE\"\nelse:\n    answer = \"TRUE\"\n\nrelevant_cells = []\nfor index, row in df.iterrows():\n    if row['against'] in teams_with_same_against_value:\n        relevant_cells.append({\"row_index\": index, \"column_name\": \"against\"})\n    \nif answer == \"TRUE\":\n    result = {\"answer\": answer}\nelse:\n    result = {\"answer\": answer.lower()}\n    \nfor cell in relevant_cells:\n    result[\"relevant_cells\"].append(cell)\n\nprint(json.dumps(result))",
+    "true_response": 0,
+    "relevant_cells": []
+  }
+]

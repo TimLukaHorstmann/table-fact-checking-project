@@ -118,17 +118,42 @@ def format_table_to_markdown(table: pd.DataFrame) -> str:
     """Convert a pandas DataFrame to a Markdown-formatted string."""
     return table.to_markdown(index=False)
 
+
 def naturalize_table(df: pd.DataFrame) -> str:
     """
-    Convert a pandas DataFrame to a naturalized text format.
+    Convert a pandas DataFrame to a natural language description.
+    Each row is described in a sentence.
     """
     rows = []
-    for row_idx, row in df.iterrows():
-        row_description = [f"Row {row_idx + 1} is:"]
-        for col_name, cell_value in row.items():
-            row_description.append(f"{col_name} is {cell_value}")
-        rows.append(" ".join(row_description) + ".")
+    for i, row in df.iterrows():
+        # Create a list of "Column: Value" pairs.
+        descriptions = [f"{col}: {row[col]}" for col in df.columns]
+        row_text = f"Row {i + 1}: " + ", ".join(descriptions) + "."
+        rows.append(row_text)
+    # Join all rows into one natural language text.
     return " ".join(rows)
+
+
+def format_table_to_json(table: pd.DataFrame) -> str:
+    """
+    Convert a pandas DataFrame to a JSON-formatted string.
+    The JSON will have two keys: "columns" and "data".
+    """
+    table_dict = {
+        "columns": list(table.columns),
+        "data": table.values.tolist()
+    }
+    return json.dumps(table_dict, indent=2)
+
+
+def format_table_to_html(table: pd.DataFrame) -> str:
+    """
+    Convert a pandas DataFrame to an HTML-formatted table.
+    The resulting HTML includes a simple border and a CSS class for further styling.
+    """
+    # You can customize the HTML (e.g. add Bootstrap classes) if desired.
+    return table.to_html(index=False, border=1, classes="table table-striped")
+
 
 ################################################################################
 #                         RESPONSE EXTRACTION
@@ -200,12 +225,24 @@ class BaseFactChecker:
 
     def format_table(self, table: pd.DataFrame) -> str:
         """
-        Format the table using the specified format (markdown or naturalized).
+        Format the table using the specified format.
+        Supported values for self.format_type are:
+        - "markdown": Markdown-formatted table.
+        - "naturalized": Natural language description.
+        - "json": JSON-formatted string.
+        - "html": HTML-formatted table.
         """
         if self.format_type == "markdown":
             return format_table_to_markdown(table)
-        else:
+        elif self.format_type == "naturalized":
             return naturalize_table(table)
+        elif self.format_type == "json":
+            return format_table_to_json(table)
+        elif self.format_type == "html":
+            return format_table_to_html(table)
+        else:
+            raise ValueError(f"Unsupported format type: {self.format_type}")
+
 
     def invoke_llm(self, prompt: str) -> str:
         """
@@ -277,35 +314,45 @@ def test_model_on_claims(
     full_cleaned_data: Dict[str, Any],
     test_all: bool = False,
     N: int = 10,
-    checkpoint_file: Optional[str] = None,
+    checkpoint_folder: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     """
-    Test the fact-checking model on the provided dataset.
+    Process tables sequentially. For each table, if a checkpoint exists in
+    checkpoint_folder, load its results; otherwise, process the table and then
+    write a checkpoint file.
     """
     results = []
-    completed_keys = set()
-    if checkpoint_file and os.path.exists(checkpoint_file):
-        logging.info(f"Loading checkpoint from {checkpoint_file}")
-        with open(checkpoint_file, "r") as f:
-            results = json.load(f)
-        for row in results:
-            completed_keys.add((row["table_id"], row["claim"]))
-    keys = list(full_cleaned_data.keys())
-    limit = len(keys) if test_all else min(N, len(keys))
-    logging.info(f"Testing {limit} tables out of {len(keys)}.")
-    for i in tqdm(range(limit), desc=f"{fact_checker.model_name} - Processing tables"):
-        table_id = keys[i]
+    # Load any existing checkpoint files.
+    loaded_checkpoints = {}
+    if checkpoint_folder and os.path.exists(checkpoint_folder):
+        for fname in os.listdir(checkpoint_folder):
+            if fname.endswith(".json"):
+                table_id = fname[:-5]  # Remove ".json"
+                with open(os.path.join(checkpoint_folder, fname), "r") as f:
+                    loaded_checkpoints[table_id] = json.load(f)
+        for table_id, table_results in loaded_checkpoints.items():
+            results.extend(table_results)
+
+    # Determine which tables still need processing.
+    all_table_ids = list(full_cleaned_data.keys())
+    tables_to_process = [tid for tid in all_table_ids if tid not in loaded_checkpoints]
+    limit = len(tables_to_process) if test_all else min(N, len(tables_to_process))
+    logging.info(f"Processing {limit} tables (skipping {len(loaded_checkpoints)} already checkpointed) out of {len(tables_to_process)} remaining.")
+
+    for table_id in tqdm(tables_to_process[:limit], desc=f"[{os.uname().nodename}] {fact_checker.model_name} - Processing tables"):
         claims = full_cleaned_data[table_id][0]
         labels = full_cleaned_data[table_id][1]
+        table_results = []
         for idx, claim in enumerate(claims):
-            if (table_id, claim) in completed_keys:
-                continue
             result = fact_checker.process_claim(table_id, claim, labels[idx])
-            results.append(result)
-            completed_keys.add((table_id, claim))
-            if checkpoint_file:
-                with open(checkpoint_file, "w") as f:
-                    json.dump(results, f, indent=2)
+            table_results.append(result)
+        results.extend(table_results)
+        # Write a checkpoint file for this table.
+        if checkpoint_folder:
+            os.makedirs(checkpoint_folder, exist_ok=True)
+            checkpoint_path = os.path.join(checkpoint_folder, f"{table_id}.json")
+            with open(checkpoint_path, "w") as f:
+                json.dump(table_results, f, indent=2)
     return results
 
 def process_claim_worker(
@@ -342,7 +389,7 @@ def process_claim_worker(
         }
 
 def test_model_on_claims_parallel(
-    fact_checker_class,  # The class (subclass of BaseFactChecker)
+    fact_checker_class,
     model_name: str,
     full_cleaned_data: Dict[str, Any],
     all_csv_folder: str,
@@ -352,20 +399,32 @@ def test_model_on_claims_parallel(
     test_all: bool = False,
     N: int = 10,
     max_workers: int = 4,
+    checkpoint_folder: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     """
-    Test the fact-checking model in parallel across multiple processes.
+    Process tables in parallel. For each table, if a checkpoint file already exists,
+    skip processing it. Otherwise, submit tasks for each claim in that table, then
+    write a checkpoint file with the table’s results.
     """
     results = []
-    keys = list(full_cleaned_data.keys())
-    limit = len(keys) if test_all else min(N, len(keys))
-    logging.info(f"Testing {limit} tables out of {len(keys)} in parallel.")
-    tasks = []
+    # Load checkpointed table IDs.
+    checkpointed = set()
+    if checkpoint_folder and os.path.exists(checkpoint_folder):
+        for fname in os.listdir(checkpoint_folder):
+            if fname.endswith(".json"):
+                checkpointed.add(fname[:-5])
+    # Only process tables not yet checkpointed.
+    all_table_ids = list(full_cleaned_data.keys())
+    tables_to_process = [tid for tid in all_table_ids if tid not in checkpointed]
+    limit = len(tables_to_process) if test_all else min(N, len(tables_to_process))
+    logging.info(f"Processing {limit} tables in parallel (skipping {len(checkpointed)} already checkpointed) out of {len(tables_to_process)} remaining.")
+
+    tasks_by_table = {}
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        for i in range(limit):
-            table_id = keys[i]
+        for table_id in tables_to_process[:limit]:
             claims = full_cleaned_data[table_id][0]
             labels = full_cleaned_data[table_id][1]
+            tasks = []
             for idx, claim in enumerate(claims):
                 tasks.append(executor.submit(
                     process_claim_worker,
@@ -379,13 +438,31 @@ def test_model_on_claims_parallel(
                     format_type,
                     approach
                 ))
-        for future in tqdm(as_completed(tasks), total=len(tasks), desc=f"Machine {os.uname().nodename} -> {model_name} - Processing claims"):
-            try:
-                result = future.result()
-                results.append(result)
-            except Exception as e:
-                logging.error(f"Error in parallel processing: {e}")
+            tasks_by_table[table_id] = tasks
+
+        # Wait for each table’s tasks to complete and checkpoint the results.
+        for table_id, tasks in tasks_by_table.items():
+            table_results = []
+            for future in tqdm(as_completed(tasks), total=len(tasks), desc=f"[{os.uname().nodename}] {model_name} - Processing table {table_id}"):
+                try:
+                    result = future.result()
+                    table_results.append(result)
+                except Exception as e:
+                    logging.error(f"Error processing claim for table {table_id}: {e}")
+            results.extend(table_results)
+            if checkpoint_folder:
+                os.makedirs(checkpoint_folder, exist_ok=True)
+                with open(os.path.join(checkpoint_folder, f"{table_id}.json"), "w") as f:
+                    json.dump(table_results, f, indent=2)
+
+    # Load any checkpointed results (if any) and add them.
+    if checkpoint_folder and os.path.exists(checkpoint_folder):
+        for fname in os.listdir(checkpoint_folder):
+            if fname.endswith(".json"):
+                with open(os.path.join(checkpoint_folder, fname), "r") as f:
+                    results.extend(json.load(f))
     return results
+
 
 ################################################################################
 #                           METRICS PLOTTING

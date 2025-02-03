@@ -1,0 +1,134 @@
+[
+  {
+    "table_id": "2-18496100-2.html.csv",
+    "claim": "the result be count in bhind district 5 time and 3 time in datia",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 4, \"column_name\": \"number of electorates (2009)\"},\n    {\"row_index\": 5, \"column_name\": \"number of electorates (2009)\"},\n    {\"row_index\": 6, \"column_name\": \"number of electorates (2009)\"},\n    {\"row_index\": 7, \"column_name\": \"number of electorates (2009)\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "number of electorates (2009)"
+      },
+      {
+        "row_index": 5,
+        "column_name": "number of electorates (2009)"
+      },
+      {
+        "row_index": 6,
+        "column_name": "number of electorates (2009)"
+      },
+      {
+        "row_index": 7,
+        "column_name": "number of electorates (2009)"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18496100-2.html.csv",
+    "claim": "mehgaon have the highest number of electorate in 2009",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 12, \"column_name\": \"number of electorates (2009)\"},\n    {\"row_index\": 22, \"column_name\": \"number of electorates (2009)\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 12,
+        "column_name": "number of electorates (2009)"
+      },
+      {
+        "row_index": 22,
+        "column_name": "number of electorates (2009)"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18496100-2.html.csv",
+    "claim": "gohad have 36732 more electorate in 2009 than bhander",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\nimport json\n\n# Load the table into a DataFrame\ndf = pd.read_html('table_data')[0]\n\n# Calculate the difference in electorates between gohad and bhander\ndiff = df.loc[df['name'] == 'gohad', 'number of electorates (2009)'].values[0] - df.loc[df['name'] == 'bhander', 'number of electorates (2009)'].values[0]\n\n# Check if the claim is supported by the data\nif diff == 36732:\n    answer = \"TRUE\"\nelse:\n    answer = \"FALSE\"\n\n# Find the relevant cells in the table that contain the electorate counts for gohad and bhander\nrelevant_cells = [{\"row_index\": i, \"column_name\": col} for i, row in enumerate(df.values) if df.columns[i] == 'number of electorates (2009)' and df.loc[i, 'name'] in ['gohad', 'bhander']]\n\n# Create the JSON object\njson_obj = {\"answer\": answer, \"relevant_cells\": relevant_cells}\n\nprint(json.dumps(json_obj))",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18496100-2.html.csv",
+    "claim": "sewda have the lowest number of electorate in 2009",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 5, \"column_name\": \"number of electorates (2009)\"}, {\"row_index\": 0, \"column_name\": \"name\"}, {\"row_index\": 4, \"column_name\": \"number of electorates (2009)\"}, {\"row_index\": 3, \"column_name\": \"district\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "number of electorates (2009)"
+      },
+      {
+        "row_index": 0,
+        "column_name": "name"
+      },
+      {
+        "row_index": 4,
+        "column_name": "number of electorates (2009)"
+      },
+      {
+        "row_index": 3,
+        "column_name": "district"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18496100-2.html.csv",
+    "claim": "datia 's constituency number be higher than gohad 's by 9",
+    "predicted_response": 0,
+    "resp": "function checkClaim() {\n  var table = document.querySelector('table');\n  var constituencyNumberCol = table.rows[0].cells[0];\n  var nameCol = table.rows[0].cells[1];\n  var reservedForCol = table.rows[0].cells[2];\n  var districtCol = table.rows[0].cells[3];\n\n  // Find the row for datia\n  var datiaRow = table.rows.find(function(row) {\n    return row.cells[1].textContent === 'datia';\n  });\n\n  if (datiaRow) {\n\n    // Find the row for gohad\n    var gohadRow = table.rows.find(function(row) {\n      return row.cells[0].textContent === '13' && row.cells[2].textContent === 'sc';\n    });\n\n    if (gohadRow) {\n      var constituencyNumberDatiaCell = datiaRow.cells[0];\n      var constituencyNumberGohadCell = gohadRow.cells[0];\n\n      if (+constituencyNumberDatiaCell.textContent > +constituencyNumberGohadCell.textContent && +constituencyNumberDatiaCell.textContent - +constituencyNumberGohadCell.textContent === 9) {\n        return JSON.stringify({\n          answer: 'TRUE',\n          relevant_cells: [\n            { row_index: datiaRow.rowIndex, column_name: 'constituency number' },\n            { row_index: gohadRow.rowIndex, column_name: 'constituency number' }\n          ]\n        });\n      } else {\n        return JSON.stringify({\n          answer: 'FALSE',\n          relevant_cells: [\n            { row_index: datiaRow.rowIndex, column_name: 'constituency number' },\n            { row_index: gohadRow.rowIndex, column_name: 'constituency number' }\n          ]\n        });\n      }\n    } else {\n      return JSON.stringify({\n        answer: 'FALSE',\n        relevant_cells: [\n          { row_index: datiaRow.rowIndex, column_name: 'constituency number' },\n          { row_index: 0, column_name: 'reserved for ( sc / st / none)' },\n          { row_index: 3, column_name: 'district' }\n        ]\n      });\n    }\n  } else {\n    return JSON.stringify({\n      answer: 'FALSE',\n      relevant_cells: [\n        { row_index: 0, column_name: 'constituency number' },\n        { row_index: 1, column_name: 'name' },\n        { row_index: 2, column_name: 'reserved for ( sc / st / none)' },\n        { row_index: 3, column_name: 'district' }\n      ]\n    });\n  }\n}\n\nconsole.log(checkClaim());",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18496100-2.html.csv",
+    "claim": "the result be count in bhind district 3 time and 5 time in datia",
+    "predicted_response": 0,
+    "resp": "Given the table data provided:\n\n```\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 3, \"column_name\": \"reserved for ( sc / st / none)\"},\n    {\"row_index\": 7, \"column_name\": \"number of electorates (2009)\"},\n    {\"row_index\": 4, \"column_name\": \"district\"},\n    {\"row_index\": 2, \"column_name\": \"reserved for ( sc / st / none)\"},\n    {\"row_index\": 8, \"column_name\": \"number of electorates (2009)\"},\n    {\"row_index\": 5, \"column_name\": \"reserved for ( sc / st / none)\"},\n    {\"row_index\": 3, \"column_name\": \"district\"},\n    {\"row_index\": 6, \"column_name\": \"number of electorates (2009)\"},\n    {\"row_index\": 7, \"column_name\": \"reserved for ( sc / st / none)\"},\n    {\"row_index\": 8, \"column_name\": \"number of electorates (2009)\"}\n  ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18496100-2.html.csv",
+    "claim": "gohad have 16732 more electorate in 2009 than bhander",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 13, \"column_name\": \"number of electorates (2009)\"},\n    {\"row_index\": 21, \"column_name\": \"number of electorates (2009)\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 13,
+        "column_name": "number of electorates (2009)"
+      },
+      {
+        "row_index": 21,
+        "column_name": "number of electorates (2009)"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18496100-2.html.csv",
+    "claim": "mehgaon tie with datia to have the highest number of electorate in 2009",
+    "predicted_response": 0,
+    "resp": "import json\nimport pandas as pd\n\ntable = \"\"\"\n<table border=\"1\" class=\"dataframe table table-striped\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th>constituency number</th>\n      <th>name</th>\n      <th>reserved for ( sc / st / none)</th>\n      <th>district</th>\n      <th>number of electorates (2009)</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>9</td>\n      <td>ater</td>\n      <td>none</td>\n      <td>bhind</td>\n      <td>177334</td>\n    </tr>\n    <tr>\n      <td>10</td>\n      <td>bhind</td>\n      <td>none</td>\n      <td>bhind</td>\n      <td>197183</td>\n    </tr>\n    <tr>\n      <td>11</td>\n      <td>lahar</td>\n      <td>none</td>\n      <td>bhind</td>\n      <td>205839</td>\n    </tr>\n    <tr>\n      <td>12</td>\n      <td>mehgaon</td>\n      <td>none</td>\n      <td>bhind</td>\n      <td>210649</td>\n    </tr>\n    <tr>\n      <td>13</td>\n      <td>gohad</td>\n      <td>sc</td>\n      <td>bhind</td>\n      <td>166893</td>\n    </tr>\n    <tr>\n      <td>20</td>\n      <td>sewda</td>\n      <td>none</td>\n      <td>datia</td>\n      <td>130161</td>\n    </tr>\n    <tr>\n      <td>21</td>\n      <td>bhander</td>\n      <td>sc</td>\n      <td>datia</td>\n      <td>139600</td>\n    </tr>\n    <tr>\n      <td>22</td>\n      <td>datia</td>\n      <td>none</td>\n      <td>datia</td>\n      <td>143593</td>\n    </tr>\n    <tr>\n      <td>total :</td>\n      <td>total :</td>\n      <td>total :</td>\n      <td>total :</td>\n      <td>1371252</td>\n    </tr>\n  </tbody>\n</table>\n\"\"\"\n\n# Parse the table as HTML\nfrom bs4 import BeautifulSoup\nsoup = BeautifulSoup(table, 'html.parser')\n\n# Extract the relevant data into a pandas DataFrame\ndf = pd.read_html(soup.find('table').text)[0]\n\n# Get the row index and column name of the cell containing the highest number of electorates for each constituency\nrelevant_cells = []\nfor i in range(len(df)):\n    if df.iloc[i]['number of electorates (2009)'] == df['number of electorates (2009)'].max():\n        relevant_cells.append({'row_index': i, 'column_name': 'number of electorates (2009)'})\n\n# Check if any constituency has the highest number of electorates\nif len(relevant_cells) > 0:\n    print('{\"answer\": \"TRUE\", \"relevant_cells\": [{\"row_index\":', relevant_cells[0]['row_index'], ', \"column_name\": \"' + relevant_cells[0]['column_name'] + '\"}]}')\nelse:\n    print('{\"answer\": \"FALSE\", \"relevant_cells\": []}')",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18496100-2.html.csv",
+    "claim": "sewda have the second lowest number of electorate in 2009",
+    "predicted_response": 0,
+    "resp": "Let's analyze the claim.\n\nThe table has the number of electorates (2009) in the fifth column. We need to find out if 'sewda' have the second lowest number of electorate in 2009.\n\nWe can sort the table based on the number of electorates for each constituency:\n\n| Constituency # | Name      | Reserved For    | District     | Number of Electorate (2009) |\n|---------------|-----------|-----------------|--------------|-------------------------------|\n|            20 | sewda     | none             | datia        |         130161                 |\n|            21 | bhander   | sc               | datia        |         139600                 |\n|            13 | gohad     | sc               | bhind        |         166893                 |\n|            22 | datia     | none             | datia        |         143593                 |\n|            9    | ater      | none             | bhind        |         177334                 |\n\nNow we need to find the number of electorates for 'sewda' and then compare with other constituencies.\n\n'sewda' have 130161 number of electorate in 2009. Comparing with other constituencies, we can see that:\n\n- bhander have more than sewda (139600)\n- datia have more than sewda (143593)\n- gohad have less than sewda (166893)\n\nNow comparing all the numbers, it is clear that 'sewda' do not have the second lowest number of electorate in 2009. However, bhander and datia both are more than sewda.\n\n'sewda' has third lowest number of electorates in 2009.\n\nSo, the answer to the claim \"sewda have the second lowest number of electorate in 2009\" is FALSE.\n\nHere is the JSON response:\n\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"name\"},\n    {\"row_index\": 1, \"column_name\": \"reserved for\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18496100-2.html.csv",
+    "claim": "datia 's constituency number be lower than gohad 's by 10",
+    "predicted_response": 0,
+    "resp": "let table = [\n  [\"constituency number\", \"name\", \"reserved for ( sc / st / none)\", \"district\", \"number of electorates (2009)\"],\n  [9, \"ater\", \"none\", \"bhind\", 177334],\n  [10, \"bhind\", \"none\", \"bhind\", 197183],\n  [11, \"lahar\", \"none\", \"bhind\", 205839],\n  [12, \"mehgaon\", \"none\", \"bhind\", 210649],\n  [13, \"gohad\", \"sc\", \"bhind\", 166893],\n  [20, \"sewda\", \"none\", \"datia\", 130161],\n  [21, \"bhander\", \"sc\", \"datia\", 139600],\n  [22, \"datia\", \"none\", \"datia\", 143593],\n  [\"total :\", \"total :\", \"total :\", \"total :\", 1371252]\n];\n\nlet claim = \"datia 's constituency number be lower than gohad 's by 10\";\n\nfunction evaluateClaim(claim) {\n  const constituencyNumbers = table[1].slice(0, -1).map(row => row[0]);\n  const constituencyNumberData = constituencyNumbers.map((constituencyNumber, index) => {\n    return { constituencyNumber: parseInt(constituencyNumber), data: table[index + 1][0] };\n  });\n  \n  if (claim.includes(\"'s\")) {\n    claim = claim.replace(\"'s\", \" constituent number's \");\n  }\n  \n  const [constituencyNumber1, constituencyNumber2] = claim.match(/(\\d+)/g);\n  let result = false;\n  \n  constituencyNumberData.forEach(datum => {\n    if (datum.constituencyNumber === parseInt(constituencyNumber1)) {\n      result = constituencyNumber1 > constituencyNumber2;\n    } else if (datum.constituencyNumber === parseInt(constituencyNumber2)) {\n      result = constituencyNumber1 < constituencyNumber2;\n    }\n  });\n  \n  return result ? \"TRUE\" : \"FALSE\";\n}\n\nfunction getRelevantCells(answer) {\n  let result = [];\n  const constituencyNumbers = table[1].slice(0, -1).map(row => row[0]);\n  for (let i = 0; i < constituencyNumbers.length; i++) {\n    if (answer === \"TRUE\") {\n      if (parseInt(constituencyNumbers[i]) === parseInt(constituencyNumbers[i + 1])) {\n        result.push({row_index: i, column_name: 'constituency number'});\n      }\n    } else if (answer === \"FALSE\") {\n      if (parseInt(constituencyNumbers[i]) !== parseInt(constituencyNumbers[i + 1])) {\n        result.push({row_index: i, column_name: 'constituency number'});\n      }\n    }\n  }\n  return result;\n}\n\nfunction evaluateClaimAndGetRelevantCells(claim) {\n  const answer = evaluateClaim(claim);\n  return { answer, relevant_cells: getRelevantCells(answer) };\n}\n\nconsole.log(JSON.stringify(evaluateClaimAndGetRelevantCells(claim)));",
+    "true_response": 0,
+    "relevant_cells": []
+  }
+]

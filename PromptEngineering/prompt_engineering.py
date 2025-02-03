@@ -262,6 +262,10 @@ def run_pipeline_for_model(model_name: str, dataset: str, learning_type: str, fo
     csv_folder = os.path.join(repo_folder, args.csv_folder)
     dataset_file = os.path.join(repo_folder, dataset)
     dataset_data = load_json_file(dataset_file)
+
+    # Define a checkpoint folder specific to this configuration.
+    config_str = f"{os.path.basename(dataset).replace('.json','')}_{learning_type}_{format_type}_{model_name}"
+    checkpoint_folder = os.path.join("checkpoints", config_str)
     
     # Initialize LLM model.
     try:
@@ -294,7 +298,8 @@ def run_pipeline_for_model(model_name: str, dataset: str, learning_type: str, fo
             approach="prompt_engineering",
             test_all=False,
             N=args.N,
-            max_workers=args.max_workers
+            max_workers=args.max_workers,
+            checkpoint_folder=checkpoint_folder
         )
     else:
         results = test_model_on_claims(
@@ -302,7 +307,7 @@ def run_pipeline_for_model(model_name: str, dataset: str, learning_type: str, fo
             full_cleaned_data=dataset_data,
             test_all=False,
             N=args.N,
-            checkpoint_file=None
+            checkpoint_folder=checkpoint_folder
         )
     
     # Create output folder names that incorporate the combination.
@@ -344,7 +349,7 @@ def main():
     # Accept comma-separated lists for dataset, learning type, and format type.
     parser.add_argument("--dataset", type=str, default="tokenized_data/test_examples.json", help="Comma-separated list of dataset JSON files")
     parser.add_argument("--learning_type", type=str, default="zero_shot", help="Comma-separated list of learning types (e.g. zero_shot,one_shot,few_shot)")
-    parser.add_argument("--format_type", type=str, default="naturalized", help="Comma-separated list of format types (e.g. markdown,naturalized)")
+    parser.add_argument("--format_type", type=str, default="naturalized", help="Comma-separated list of format types (e.g. markdown,naturalized, json, html)")
     parser.add_argument("--models", type=str, default="mistral", help="Comma-separated list of model names")
     parser.add_argument("--parallel_models", action="store_true", help="Run different combinations in parallel")
     parser.add_argument("--batch_prompts", action="store_true", help="Process claims in parallel for each combination")

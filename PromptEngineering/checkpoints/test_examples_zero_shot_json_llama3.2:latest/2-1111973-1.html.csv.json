@@ -1,0 +1,109 @@
+[
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "vclc 32t (35.3tons) have the same vcrt but vclc 160 mm (6.3in) or 350 mm (13.8in) rocket have a vcrt of 7.62 mm (0.3in) fn mag 60 - 20 machine gun",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 3, \"column_name\": \"vcrt\"},\n    {\"row_index\": 4, \"column_name\": \"vcrt\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "vcrt"
+      },
+      {
+        "row_index": 4,
+        "column_name": "vcrt"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "the vctp 20 mm (79in) rh - 202 autocannon do not have 75 km / h (47 mph) as the vcrt",
+    "predicted_response": 0,
+    "resp": "const data = {\n  \"columns\": [\n    \"vctp\",\n    \"vca 155\",\n    \"vctm\",\n    \"vcpc\",\n    \"vclc\",\n    \"vcrt\"\n  ],\n  \"data\": [\n    [\n      \"28.2 t (31.1 tons )\",\n      \"40t (44.1tons)\",\n      \"26t (28.7tons)\",\n      \"25t (27.6tons)\",\n      \"32t (35.3tons)\",\n      \"32t (35.3tons)\"\n    ],\n    [\n      \"20 mm (79in) rh - 202 autocannon\",\n      \"155 mm (6.1in) l / 41 howitzer\",\n      \"120 mm (4.72in) mortar\",\n      \"7.62 mm (0.3in) fn mag 60 - 20 machine gun\",\n      \"160 mm (6.3in) or 350 mm (13.8in) rockets\",\n      \"7.62 mm (0.3in) fn mag 60 - 20 machine gun\"\n    ],\n    [\n      \"km (mi)\",\n      \"-\",\n      \"km (mi)\",\n      \"-\",\n      \"km (mi)\",\n      \"km (mi)\"\n    ],\n    [\n      \"24hp / t (23hp / ton)\",\n      \"18hp / t ( 16.5hp / ton)\",\n      \"28.8hp / t (25.1hp / ton)\",\n      \"28.8hp / t (25.1hp / ton)\",\n      \"22.5hp / t (20.4hp / ton)\",\n      \"22.5hp / t (20.4hp / ton)\"\n    ],\n    [\n      \"75 km / h (47 mph)\",\n      \"55 km / h (34 mph)\",\n      \"75 km / h (47 mph)\",\n      \"75 km / h (47 mph)\",\n      \"75 km / h (47 mph)\",\n      \"75 km / h (47 mph)\"\n    ]\n  ],\n}\n\nconst claim = {\n  answer: data.data[1][3] === '75 km / h (47 mph') ? 'FALSE' : 'TRUE',\n  relevant_cells: [\n    { row_index: 2, column_name: 'vcrt' },\n    { row_index: 4, column_name: 'vcrt' }\n  ]\n};\n\nconsole.log(JSON.stringify(claim));",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "vctp 24hp / t (23hp / ton) have a vca 155 of 18hp / t ( 16.5hp / ton) , and not 55 km / h (34 mph)",
+    "predicted_response": 0,
+    "resp": "const data = {\n    \"columns\": [\"vctp\", \"vca 155\", \"vctm\", \"vcpc\", \"vclc\", \"vcrt\"],\n    \"data\": [\n      [\"28.2 t (31.1 tons )\", \"40t (44.1tons)\", \"26t (28.7tons)\", \"25t (27.6tons)\", \"32t (35.3tons)\", \"32t (35.3tons)\"],\n      [\"20 mm (79in) rh - 202 autocannon\", \"155 mm (6.1in) l / 41 howitzer\", \"120 mm (4.72in) mortar\", \"7.62 mm (0.3in) fn mag 60 - 20 machine gun\", \"160 mm (6.3in) or 350 mm (13.8in) rockets\", \"7.62 mm (0.3in) fn mag 60 - 20 machine gun\"],\n      [\"km (mi)\", \"-\", \"km (mi)\", \"-\", \"km (mi)\", \"km (mi)\"],\n      [\"24hp / t (23hp / ton)\", \"18hp / t (16.5hp / ton)\", \"28.8hp / t (25.1hp / ton)\", \"28.8hp / t (25.1hp / ton)\", \"22.5hp / t (20.4hp / ton)\", \"22.5hp / t (20.4hp / ton)\"],\n      [\"75 km / h (47 mph)\", \"55 km / h (34 mph)\", \"75 km / h (47 mph)\", \"75 km / h (47 mph)\", \"75 km / h (47 mph)\", \"75 km / h (47 mph)\"]\n    ]\n}\n\nfunction isTrue(claim) {\n  const [first, second] = claim.split(' and ');\n  if (!first || !second)\n    return false;\n  let vca155 = data['data'][0][2];\n  if (vca155 === \"155 mm (6.1in) l / 41 howitzer\")\n    vca155 = 18; // 18 hp / t\n  else\n    vca155 = null;\n\n  return first.includes('24hp / t (23hp / ton)') &&\n         second.includes(`vca 155 of ${vca155} `) &&\n         !second.includes('55 km / h (34 mph)');\n}\n\nconst answer = isTrue(\"vctp 24hp / t (23hp / ton) have a vca 155 of 18hp / t ( 16.5hp / ton) , and not 55 km / h (34 mph)\") ? 'TRUE' : 'FALSE';\n\nconst relevantCells = data.columns\n  .map((column, index) => {\n    if (data['data'][0][index] === 'vca 155 of')\n      return { row_index: 1, column_name: column };\n    if (answer === 'TRUE') {\n      const valueIndex = data.columns.indexOf(column);\n      return { row_index: 0, column_name: column };\n    }\n  })\n  .filter(cell => cell);\n\nconst jsonAnswer = {\n  \"answer\": answer,\n  \"relevant_cells\": relevantCells\n};\n\nconsole.log(JSON.stringify(jsonAnswer));",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "vca 40t (44.1tons) and 155 mm (6.1in) l / 41 howitzer have a vctm of 26t (28.7tons) and 120 mm (4.72in) mortar respectively",
+    "predicted_response": 0,
+    "resp": "import json\nfrom typing import List, Dict\n\ndef evaluate_claim(table: Dict) -> Dict:\n    answer = \"FALSE\"\n    relevant_cells = []\n\n    for i, row in enumerate(table[\"data\"]):\n        if len(row) != 6:\n            continue\n\n        if row[1] == \"40t (44.1tons)\" and row[3] == \"26t (28.7tons)\":\n            answer = \"TRUE\"\n            relevant_cells.append({\"row_index\": i, \"column_name\": \"vca 155\"})\n            break\n        elif row[2] == \"120 mm (4.72in mortar)\" and row[4] == \"26t (28.7tons)\":\n            answer = \"TRUE\"\n            relevant_cells.append({\"row_index\": i, \"column_name\": \"vctm\"})\n            break\n\n    if answer == \"FALSE\":\n        for i, row in enumerate(table[\"data\"]):\n            if len(row) != 6:\n                continue\n\n            if row[1] == \"40t (44.1tons)\" and row[2] == \"155 mm (6.1in) l / 41 howitzer\" and row[4] == \"26t (28.7tons)\":\n                answer = \"TRUE\"\n                relevant_cells.append({\"row_index\": i, \"column_name\": \"vca 40t\"})\n                break\n            elif row[2] == \"120 mm (4.72in mortar)\" and row[5] == \"155 mm (6.1in) l / 41 howitzer\" and row[3] == \"26t (28.7tons)\":\n                answer = \"TRUE\"\n                relevant_cells.append({\"row_index\": i, \"column_name\": \"vctm\"})\n                break\n\n    return {\"answer\": answer.upper(), \"relevant_cells\": relevant_cells}\n\n# Example usage:\ntable = {\n  \"columns\": [\n    \"vctp\",\n    \"vca 155\",\n    \"vctm\",\n    \"vcpc\",\n    \"vclc\",\n    \"vcrt\"\n  ],\n  \"data\": [\n    [\n      \"28.2 t (31.1 tons )\",\n      \"40t (44.1tons)\",\n      \"26t (28.7tons)\",\n      \"25t (27.6tons)\",\n      \"32t (35.3tons)\",\n      \"32t (35.3tons)\"\n    ],\n    [\n      \"20 mm (79in) rh - 202 autocannon\",\n      \"155 mm (6.1in) l / 41 howitzer\",\n      \"120 mm (4.72in) mortar\",\n      \"7.62 mm (0.3in) fn mag 60 - 20 machine gun\",\n      \"160 mm (6.3in) or 350 mm (13.8in) rockets\",\n      \"7.62 mm (0.3in) fn mag 60 - 20 machine gun\"\n    ],\n    [\n      \"km (mi)\",\n      \"-\",\n      \"km (mi)\",\n      \"-\",\n      \"km (mi)\",\n      \"km (mi)\"\n    ],\n    [\n      \"24hp / t (23hp / ton)\",\n      \"18hp / t ( 16.5hp / ton)\",\n      \"28.8hp / t (25.1hp / ton)\",\n      \"28.8hp / t (25.1hp / ton)\",\n      \"22.5hp / t (20.4hp / ton)\",\n      \"22.5hp / t (20.4hp / ton)\"\n    ],\n    [\n      \"75 km / h (47 mph)\",\n      \"55 km / h (34 mph)\",\n      \"75 km / h (47 mph)\",\n      \"75 km / h (47 mph)\",\n      \"75 km / h (47 mph)\",\n      \"75 km / h (47 mph)\"\n    ]\n  ]\n}\n\nprint(json.dumps(evaluate_claim(table), indent=4))",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "the vctp 20 mm (79in) rh - 202 autocannon do not have 7.62 mm (0.3in) fn mag 60 - 20 machine gun as the vcrt",
+    "predicted_response": 0,
+    "resp": "let claim = {\n  \"answer\": \"FALSE\",\n  \"relevant_cells\":\n   [\n     {\"row_index\": 2, \"column_name\": \"Vca 155\"},\n     {\"row_index\": 1, \"column_name\":\"Vctp\"}\n    ]\n};",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "vca 40t (44.1tons) and 155 mm (6.1in) l / 41 howitzer have a vctm of 28.8hp / t (25.1hp / ton) and 120 mm (4.72in) mortar respectively",
+    "predicted_response": 0,
+    "resp": "```json\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 1, \"column_name\": \"vca 155\"},\n    {\"row_index\": 3, \"column_name\": \"vctm\"}\n  ],\n  {\"row_index\": 2, \"column_name\": \"155 mm (6.1in) l / 41 howitzer\"},\n  {\"row_index\": 4, \"column_name\": \"120 mm (4.72in) mortar\"}\n  ]\n}\n```\n\nHowever the code should be as follows:\n```json\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 1, \"column_name\": \"vca 155\"},\n    {\"row_index\": 3, \"column_name\": \"vctm\"}\n  ]\n}\n```\n\nThe JSON response will be as follows:\n```json\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 1, \"column_name\": \"vca 155\"},\n    {\"row_index\": 3, \"column_name\": \"vctm\"}\n  ]\n}\n```\nThe JSON object has the answer and relevant cells.",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "the vcpc and vcrt of 7.62 mm (0.3in) fn mag 60 - 20 machine gun be the same for vctp 20 mm (79in) rh - 202 autocannon , and so be the vcpc and vcrt of 75 km / h (47 mph) for vctp 75 km / h (47 mph)",
+    "predicted_response": 0,
+    "resp": "import json\n\ndef evaluate_claim(table):\n    answer = False\n    relevant_cells = []\n    \n    for row in table['data']:\n        # check if the vcpc and vcrt of 7.62 mm (0.3in) fn mag 60 - 20 machine gun are the same for vctp 20 mm (79in) rh - 202 autocannon\n        if row[2] == row[1]:\n            answer = True\n            relevant_cells.append({\"row_index\": table['data'].index(row), \"column_name\": \"vcpc\"})\n            relevant_cells.append({\"row_index\": table['data'].index(row), \"column_name\": \"vcrt\"})\n\n        # check if the vcpc and vcrt of 75 km / h (47 mph) are the same for vctp 75 km / h (47 mph)\n        if row[3] == row[4]:\n            answer = True\n            relevant_cells.append({\"row_index\": table['data'].index(row), \"column_name\": \"vcpc\"})\n            relevant_cells.append({\"row_index\": table['data'].index(row), \"column_name\": \"vcrt\"})\n\n    return json.dumps({\"answer\": answer.upper(), \"relevant_cells\": relevant_cells})\n\ntable = {\n  \"columns\": [\n    \"vctp\",\n    \"vca 155\",\n    \"vctm\",\n    \"vcpc\",\n    \"vclc\",\n    \"vcrt\"\n  ],\n  \"data\": [\n    [\n      \"28.2 t (31.1 tons )\",\n      \"40t (44.1tons)\",\n      \"26t (28.7tons)\",\n      \"25t (27.6tons)\",\n      \"32t (35.3tons)\",\n      \"32t (35.3tons)\"\n    ],\n    [\n      \"20 mm (79in) rh - 202 autocannon\",\n      \"155 mm (6.1in) l / 41 howitzer\",\n      \"120 mm (4.72in) mortar\",\n      \"7.62 mm (0.3in) fn mag 60 - 20 machine gun\",\n      \"160 mm (6.3in) or 350 mm (13.8in) rockets\",\n      \"7.62 mm (0.3in) fn mag 60 - 20 machine gun\"\n    ],\n    [\n      \"km (mi)\",\n      \"-\",\n      \"km (mi)\",\n      \"-\",\n      \"km (mi)\",\n      \"km (mi)\"\n    ],\n    [\n      \"24hp / t (23hp / ton)\",\n      \"18hp / t ( 16.5hp / ton)\",\n      \"28.8hp / t (25.1hp / ton)\",\n      \"28.8hp / t (25.1hp / ton)\",\n      \"22.5hp / t (20.4hp / ton)\",\n      \"22.5hp / t (20.4hp / ton)\"\n    ],\n    [\n      \"75 km / h (47 mph)\",\n      \"55 km / h (34 mph)\",\n      \"75 km / h (47 mph)\",\n      \"75 km / h (47 mph)\",\n      \"75 km / h (47 mph)\",\n      \"75 km / h (47 mph)\"\n    ]\n  ]\n}\n\nprint(evaluate_claim(table))",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "vctp 24hp / t (23hp / ton) have a vca 155 of 155 mm (6.1in) l / 41 howitzer , and not 55 km / h (34 mph)",
+    "predicted_response": 1,
+    "resp": "Here is the Python code that determines whether a claim about the provided table is TRUE or FALSE:\n\n```json\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"vctp\"},\n    {\"row_index\": 1, \"column_name\": \"vca 155\"}\n  ]\n}\n```\n\nExplanation: The claim that \"vctp 24hp / t (23hp / ton) have a vca 155 of 155 mm (6.1in) l / 41 howitzer , and not 55 km / h (34 mph)\" is supported by the data, because there are two cells in the table with this claim:\n\n- `vctp` has value `24hp / t (23hp / ton)`\n- `vca 155` has value `155 mm (6.1in) l / 41 howitzer`\n\nHowever, another column says that these values have a speed of 55 km/h (34 mph). Therefore, there seems to be an inconsistency between the claim and the data.\n\nHowever, this is not true in the table provided. There are two different cells with `vca 155` but only one has \"25t (27.6tons)\" - whereas the other value for vctp has a different unit: `24hp / t (23hp / ton)`",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "vctp"
+      },
+      {
+        "row_index": 1,
+        "column_name": "vca 155"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "vclc 32t (35.3tons) have the same vcpc but vclc 160 mm (6.3in) or 350 mm (13.8in) rocket have a vcrt of 7.62 mm (0.3in) fn mag 60 - 20 machine gun",
+    "predicted_response": 0,
+    "resp": "```json\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 3, \"column_name\": \"vclc\"},\n    {\"row_index\": 2, \"column_name\": \"vcrt\"}\n  ]\n}\n```\n\nExplanation:\nTo determine if the claim is true or false, we need to compare the value in column 'vcpc' for row with \"32t (35.3tons)\" under column 'vclc' and the value in column 'vcrt' for row with \"160 mm (6.3in) or 350 mm (13.8in) rockets\" under column 'vclc'. We found that they do not have the same values.",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "vclc"
+      },
+      {
+        "row_index": 2,
+        "column_name": "vcrt"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "the vcpc and vctp of 7.62 mm (0.3in) fn mag 60 - 20 machine gun be the same for vcrt 20 mm (79in) rh - 202 autocannon , and so be the vcpc and vcrt of 75 km / h (47 mph) for vctp 75 km / h (47 mph)",
+    "predicted_response": 0,
+    "resp": "var table = {\n    \"columns\": [\"vctp\",\"vca 155\", \"vctm\",\"vcpc\",\"vclc\",\"vcrt\"],\n    \"data\": [\n        [\"28.2 t (31.1 tons )\", \"40t (44.1tons)\", \"26t (28.7tons)\", \"25t (27.6tons)\", \"32t (35.3tons)\", \"32t (35.3tons)\"],\n        [\"20 mm (79in) rh - 202 autocannon\", \"155 mm (6.1in) l / 41 howitzer\", \"120 mm (4.72in) mortar\",\"7.62 mm (0.3in) fn mag 60 - 20 machine gun\",\"160 mm (6.3in) or 350 mm (13.8in) rockets\",\"7.62 mm (0.3in) fn mag 60 - 20 machine gun\"],\n        [\"km (mi)\", \"-\", \"km (mi)\", \"-\", \"km (mi)\", \"km (mi)\"],\n        [\"24hp / t (23hp / ton)\", \"18hp / t ( 16.5hp / ton)\",\"28.8hp / t (25.1hp / ton)\",\"28.8hp / t (25.1hp / ton)\",\"22.5hp / t (20.4hp / ton)\",\"22.5hp / t (20.4hp / ton)\"],\n        [\"75 km / h (47 mph)\", \"55 km / h (34 mph)\", \"75 km / h (47 mph)\",\"75 km / h (47 mph)\",\"75 km / h (47 mph)\",\"75 km / h (47 mph)\"]\n    ]\n};\n\nvar claim = 'the vcpc and vctp of 7.62 mm (0.3in) fn mag 60 - 20 machine gun be the same for vcrt 20 mm (79in) rh - 202 autocannon , and so be the vcpc and vcrt of 75 km / h (47 mph) for vctp 75 km / h (47 mph)\";\nvar answer = 'FALSE';\n\nvar relevantCells = [];\n\nvar columns = table.columns;\nvar data = table.data;\n\nfor(var i=0;i<data.length;i++){\n    for(var j=0;j<columns.length;j++){\n        if(columns[j] === \"vcpc\" && data[i][j].includes(\"7.62 mm (0.3in) fn mag 60 - 20 machine gun\")){\n\n            var indexVcrt = columns.indexOf('vcrt');\n            if(indexVcrt !== -1 && data[i][indexVcrt] === \"20 mm (79in) rh - 202 autocannon\"){\n                if(columns[j-1] === 'vctp'){\n                    relevantCells.push({\"row_index\": i, \"column_name\": columns[j]});\n                }\n                else{\n                    answer = 'TRUE';\n                }\n\n            }\n        }\n    }\n}\n\nconsole.log(JSON.stringify({answer:answer,\"relevant_cells\":relevantCells}));",
+    "true_response": 1,
+    "relevant_cells": []
+  }
+]

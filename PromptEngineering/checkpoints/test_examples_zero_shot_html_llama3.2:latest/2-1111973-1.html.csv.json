@@ -1,0 +1,141 @@
+[
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "the vctp 20 mm (79in) rh - 202 autocannon do not have 75 km / h (47 mph) as the vcrt",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"vcrt\"}, {\"row_index\": 3, \"column_name\": \"vcrt\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "vcrt"
+      },
+      {
+        "row_index": 3,
+        "column_name": "vcrt"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "vca 40t (44.1tons) and 155 mm (6.1in) l / 41 howitzer have a vctm of 26t (28.7tons) and 120 mm (4.72in) mortar respectively",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"vca 40t (44.1tons)\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "vca 40t (44.1tons)"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "vctp 24hp / t (23hp / ton) have a vca 155 of 18hp / t ( 16.5hp / ton) , and not 55 km / h (34 mph)",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"vca 155\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "vca 155"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "vclc 32t (35.3tons) have the same vcrt but vclc 160 mm (6.3in) or 350 mm (13.8in) rocket have a vcrt of 7.62 mm (0.3in) fn mag 60 - 20 machine gun",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 3, \"column_name\": \"vcrt\"},\n    {\"row_index\": 5, \"column_name\": \"vcrt\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "vcrt"
+      },
+      {
+        "row_index": 5,
+        "column_name": "vcrt"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "the vcpc and vcrt of 7.62 mm (0.3in) fn mag 60 - 20 machine gun be the same for vctp 20 mm (79in) rh - 202 autocannon , and so be the vcpc and vcrt of 75 km / h (47 mph) for vctp 75 km / h (47 mph)",
+    "predicted_response": 0,
+    "resp": "Let's analyze the claim by looking at relevant cells.\n\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 3, \"column_name\": \"vcpc\"},\n    {\"row_index\": 4, \"column_name\": \"vcrt\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "vca 40t (44.1tons) and 155 mm (6.1in) l / 41 howitzer have a vctm of 28.8hp / t (25.1hp / ton) and 120 mm (4.72in) mortar respectively",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": []\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "the vctp 20 mm (79in) rh - 202 autocannon do not have 7.62 mm (0.3in) fn mag 60 - 20 machine gun as the vcrt",
+    "predicted_response": 0,
+    "resp": "Let's write the Python code to solve this task:\n\n```python\nimport json\nfrom collections import defaultdict\n\n\n# Reading data from table into dictionary\ndef read_table():\n    # Dictionary representation of the given table.\n    data = {\n        \"vctp\": [\"28.2 t (31.1 tons )\", \"20 mm (79in) rh - 202 autocannon\", \"km (mi)\", \"24hp / t (23hp / ton)\", \"75 km / h (47 mph)\"],\n        \"vca 155\": [40t (44.1tons), 155 mm (6.1in) l / 41 howitzer, \"-\", \"18hp / t ( 16.5hp / ton)\", \"55 km / h (34 mph)\"],\n        \"vctm\": [26t (28.7tons), 120 mm (4.72in) mortar, \"km (mi)\", \"28.8hp / t (25.1hp / ton)\", \"75 km / h (47 mph)\"],\n        \"vcpc\": [25t (27.6tons), \"-\", \"-\", \"-\", \"-\"],\n        \"vclc\": [32t (35.3tons), 160 mm (6.3in) or 350 mm (13.8in) rockets, \"km (mi)\", \"22.5hp / t (20.4hp / ton)\", \"75 km / h (47 mph)\"],\n        \"vcrt\": [32t (35.3tons), 7.62 mm (0.3in) fn mag 60 - 20 machine gun, \"km (mi)\", \"22.5hp / t (20.4hp / ton)\", \"75 km / h (47 mph)\"],\n    }\n\n    return data\n\n\n# Checking if the claim is supported by the table\ndef check_claim(data):\n    column = 'vcrt'\n    value_to_check = '7.62 mm (0.3in) fn mag 60 - 20 machine gun'\n\n    # Get index of vctp that contains the autocannon, and index of vcrt column in data dictionary.\n    for index, row in enumerate(data['vctp']):\n        if \"rh - 202\" in row:\n            break\n\n    value_to_check_index = data['vcrt'].index(value_to_check)\n    \n    # If autocannon column matches the claim, check if there's a match in vcrt\n    return str(0 not in [value_to_check_index] + list(range(index +1)))\n\n# Generate JSON object with answer and relevant cells.\ndef generate_json(data):\n    # Extracting columns for answer and relevant_cells\n    column = data['vctp'][2]\n    value_to_check = \"7.62 mm (0.3in) fn mag 60 - 20 machine gun\"\n    \n    answer = check_claim(data)\n\n    if answer == 'TRUE':\n        cells = [\n            {\"row_index\": 2, \"column_name\": column},\n            {\"row_index\": index + 1, \"column_name\": data['vcrt'][value_to_check_index]},\n        ]\n    else:\n        cells = []\n\n    return {\n        \"answer\": answer.upper(),\n        \"relevant_cells\": cells\n    }\n\ndata = read_table()\nresult = generate_json(data)\nprint(json.dumps(result, indent=4))\n```\n\nThis Python script reads the given table and converts it into a dictionary representation. It then checks if the claim is supported by the data by looking for the match in 'vcrt' column after finding the index of the row containing the autocannon. The result is then converted to JSON format and returned.",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "vctp 24hp / t (23hp / ton) have a vca 155 of 155 mm (6.1in) l / 41 howitzer , and not 55 km / h (34 mph)",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 1, \"column_name\": \"vca 155\"},\n    {\"row_index\": 0, \"column_name\": \"vctp\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 1,
+        "column_name": "vca 155"
+      },
+      {
+        "row_index": 0,
+        "column_name": "vctp"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "vclc 32t (35.3tons) have the same vcpc but vclc 160 mm (6.3in) or 350 mm (13.8in) rocket have a vcrt of 7.62 mm (0.3in) fn mag 60 - 20 machine gun",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 4, \"column_name\": \"vcpc\"}, {\"row_index\": 5, \"column_name\": \"vcrt\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "vcpc"
+      },
+      {
+        "row_index": 5,
+        "column_name": "vcrt"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1111973-1.html.csv",
+    "claim": "the vcpc and vctp of 7.62 mm (0.3in) fn mag 60 - 20 machine gun be the same for vcrt 20 mm (79in) rh - 202 autocannon , and so be the vcpc and vcrt of 75 km / h (47 mph) for vctp 75 km / h (47 mph)",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 4, \"column_name\": \"vcrt\"}, {\"row_index\": 5, \"column_name\": \"vcrt\"}, {\"row_index\": 0, \"column_name\": \"vcpc\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "vcrt"
+      },
+      {
+        "row_index": 5,
+        "column_name": "vcrt"
+      },
+      {
+        "row_index": 0,
+        "column_name": "vcpc"
+      }
+    ]
+  }
+]

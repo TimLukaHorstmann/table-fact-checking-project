@@ -1,0 +1,140 @@
+[
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "there be 3 translator in frequency mhz in the 100 's and 3 translator in the frequency mhz in the 90 's",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"frequency mhz\"}, {\"row_index\": 0, \"column_name\": \"call sign\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "frequency mhz"
+      },
+      {
+        "row_index": 0,
+        "column_name": "call sign"
+      }
+    ]
+  },
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "all of the translator be class d",
+    "predicted_response": 0,
+    "resp": "import json\nimport pandas as pd\n\n# Load the table into a Pandas DataFrame\ndf = pd.read_html('https://data.fcc.gov/api/v3/station?api_key=your_api_key&format=json&field_key=%5B%22call+sign%22%2C+%22class%22%2C+%22fcc+info%22%5D')\n\n# Convert the DataFrame to a table\ndf = pd.DataFrame(df[0])\n\n# Filter the DataFrame for Class D stations\nd_stations = df[df['class'] == 'd']\n\n# Check if all stations are Class D\nif len(d_stations) == len(df):\n    answer = \"TRUE\"\nelse:\n    answer = \"FALSE\"\n\n# Get relevant columns\nrelevant_cells = [{\"row_index\": i, \"column_name\": col} for i, col in enumerate(['call sign', 'class', 'fcc info']) if col in ['call sign', 'class', 'fcc info']]\n\n# Convert to JSON object\njson_object = json.dumps({\"answer\": answer, \"relevant_cells\": relevant_cells})\n\nprint(json_object)",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "all of the call sign for each translator include 3 digit number that begin with the number 2",
+    "predicted_response": 0,
+    "resp": "```json\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"call sign\"},\n    {\"row_index\": 1, \"column_name\": \"call sign\"}\n  ]\n}\n```\n\nThe claim is supported by the data only if each translator's call sign includes a 3-digit number that starts with the digit '2'. However, there are cases where this is not true (e.g., w221by and w223au both have the same issue, but the first has two digits while the second also does).",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "call sign"
+      },
+      {
+        "row_index": 1,
+        "column_name": "call sign"
+      }
+    ]
+  },
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "w293al have the highest erp w , whereas w264bf have the lowest erp w",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"ERP W\"}, {\"row_index\": 3, \"column_name\": \"ERP W\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "ERP W"
+      },
+      {
+        "row_index": 3,
+        "column_name": "ERP W"
+      }
+    ]
+  },
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "there be a 5 mhz frequency change range",
+    "predicted_response": 0,
+    "resp": "Let's parse the table to find out if there are frequency changes of at least 5 mhz in any of the columns.\n\n```json\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": []\n}\n```\n\nThere aren't enough data points to provide a definitive answer that there is or isn't a 5mhz range.",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "illinois and indiana each have 3 translator",
+    "predicted_response": 0,
+    "resp": "Here is the code to determine whether a claim about the table is TRUE or FALSE.\n\n```json\n{\n  \"answer\" : \"FALSE\",\n  \"relevant_cells\" : [\n    {\"row_index\" : 1, \"column_name\" : \"city of license\"},\n    {\"row_index\" : 4, \"column_name\" : \"class\"},\n    {\"row_index\" : 5, \"column_name\" : \"fcc info\"}\n  ]\n}\n```\n\nThe code works by iterating through each cell in the table and checking if the claim is supported. If it finds a column that does not match the expected number of rows for either Illinois or Indiana (i.e., 2 vs 3), it adds a relevant_cells object to the output array with the row_index and column_name of that cell.\n\nIf no such cells are found, the answer is set to FALSE.\n\nNote that this code assumes that the input table is valid and does not contain any missing data. If the input may be incomplete or invalid, you should add error checking code to handle these cases.",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 1,
+        "column_name": "city of license"
+      },
+      {
+        "row_index": 4,
+        "column_name": "class"
+      },
+      {
+        "row_index": 5,
+        "column_name": "fcc info"
+      }
+    ]
+  },
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "the translator be class d and c",
+    "predicted_response": 0,
+    "resp": "import json\nfrom pandas import read_html\n\ndata = read_html('https://en.wikipedia.org/wiki/List_of_FCC_l licensee_translator_stations#Table_2')[0]\n\nclass_d = data[data['class'] == 'D']\n\nif not class_d.empty:\n    answer = \"TRUE\"\nelse:\n    answer = \"FALSE\"\n\nrelevant_cells = [{\"row_index\": i, \"column_name\": col} for i, row in enumerate(data.iterrows()) for col in [\"call sign\", \"frequency mhz\", \"city of license\", \"erp w\", \"class\", \"fcc info\"]]\n\nresult = {\n  \"answer\": answer,\n  \"relevant_cells\": relevant_cells\n}\n\nprint(json.dumps(result))",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "the number 2 be the only erp w",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"erp w\"}, {\"row_index\": 3, \"column_name\": \"erp w\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "erp w"
+      },
+      {
+        "row_index": 3,
+        "column_name": "erp w"
+      }
+    ]
+  },
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "w293al and w264bf share the same erp w",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 3, \"column_name\": \"erp w\"}, {\"row_index\": 5, \"column_name\": \"erp w\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "erp w"
+      },
+      {
+        "row_index": 5,
+        "column_name": "erp w"
+      }
+    ]
+  },
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "englewood , illinois have 2 translator",
+    "predicted_response": 0,
+    "resp": "Based on the provided table, we can check if the claim about Englewood, Illinois having 2 translators is supported by the data.\n\nFrom the table, we can see that there are multiple rows with a translator ( FCC info column contains \"fcc\"). \n\nWe need to identify which row corresponds to \"Englewood , illinois\".\n\nLet's examine each row:\n\n1. Row 1: call sign - w264bf, city of license - englewood , illinois\n2. Row 3: call sign - w240bj, city of license - crown point , indiana (not relevant)\n3. Row 4: call sign - w276bm, city of license - park forest , illinois (not relevant)\n4. Row 5: call sign - w293al, city of license - rochester , indiana (not relevant)\n5. Row 6: call sign - w223au, city of license - south bend , indiana (not relevant)\n\nOnly row 1 corresponds to \"Englewood , illinois\".\n\nWe can also see that the ERP W value is listed as 2.\n\nSo, the claim about Englewood, Illinois having a translator with an ERP value of 2 is supported by the data. Therefore, the answer should be:\n\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 1, \"column_name\": \"city of license\"},\n    {\"row_index\": 1, \"column_name\": \"erp w\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  }
+]

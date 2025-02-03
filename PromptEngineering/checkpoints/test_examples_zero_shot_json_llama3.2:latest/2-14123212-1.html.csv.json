@@ -1,0 +1,100 @@
+[
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "all of the translator be class d",
+    "predicted_response": 0,
+    "resp": "Based on the provided table data, I can determine that all of the translator cells in class D have an ERP W value less than 100.\n\nHere is a valid JSON object with the relevant information:\n\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"ERP W\"},\n    {\"row_index\": 1, \"column_name\": \"Class\"},\n    {\"row_index\": 2, \"column_name\": \"ERP W\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "there be 3 translator in frequency mhz in the 100 's and 3 translator in the frequency mhz in the 90 's",
+    "predicted_response": 1,
+    "resp": "Here is the Python code to evaluate the claim:\n\n```json\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"frequency mhz\"},\n    {\"row_index\": 1, \"column_name\": \"frequency mhz\"}\n  ]\n}\n```\n\nThis is because the data contains three translators in frequency mhz in the 100's and three translators in the frequency mhz in the 90's",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "frequency mhz"
+      },
+      {
+        "row_index": 1,
+        "column_name": "frequency mhz"
+      }
+    ]
+  },
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "all of the call sign for each translator include 3 digit number that begin with the number 2",
+    "predicted_response": 0,
+    "resp": "const data = {\n  columns: [\n      \"call sign\",\n      \"frequency mhz\",\n      \"city of license\",\n      \"erp w\",\n      \"class\",\n      \"fcc info\"\n    ],\n  data: [\n    [\n      \"w221by\",\n      92.1,\n      \"elgin , illinois\",\n      38,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w264bf\",\n      100.7,\n      \"englewood , illinois\",\n      2,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w240bj\",\n      95.9,\n      \"crown point , indiana\",\n      10,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w276bm\",\n      103.1,\n      \"park forest , illinois\",\n      19,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w293al\",\n      106.5,\n      \"rochester , indiana\",\n      80,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w223au\",\n      92.5,\n      \"south bend , indiana\",\n      10,\n      \"d\",\n      \"fcc\"\n    ]\n  ]\n};\n\nfunction isTrue() {\n    const answer = 'FALSE';\n    for (const row of data.data) {\n        if ((row[1].toString().length === 3 && parseInt(row[1]) >=200) && row[0].includes(\"2\")) {\n            answer = \"TRUE\";\n            break;\n        }\n    }\n    return {answer: answer, relevant_cells: []};\n}\n\nconsole.log(isTrue());",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "w293al have the highest erp w , whereas w264bf have the lowest erp w",
+    "predicted_response": 0,
+    "resp": "var table = {\n  \"columns\": [\n    \"call sign\",\n    \"frequency mhz\",\n    \"city of license\",\n    \"erp w\",\n    \"class\",\n    \"fcc info\"\n  ],\n  \"data\": [\n    [\n      \"w221by\",\n      92.1,\n      \"elgin , illinois\",\n      38,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w264bf\",\n      100.7,\n      \"englewood , illinois\",\n      2,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w240bj\",\n      95.9,\n      \"crown point , indiana\",\n      10,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w276bm\",\n      103.1,\n      \"park forest , illinois\",\n      19,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w293al\",\n      106.5,\n      \"rochester , indiana\",\n      80,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w223au\",\n      92.5,\n      \"south bend , indiana\",\n      10,\n      \"d\",\n      \"fcc\"\n    ]\n  ]\n};\n\nvar answer = table.data[3][4] > table.data[0][4] && table.data[3][4] > table.data[1][4];\n\nvar relevantCells = [\n  {row_index: 3, column_name: 'ERP W'},\n  {row_index: 0, column_name: 'ERP W'},\n  {row_index: 1, column_name: 'ERP W'}\n]\n\nif (answer) {\n  console.log(JSON.stringify({answer: \"TRUE\", relevant_cells: relevantCells}))\n} else {\n  console.log(JSON.stringify({answer: \"FALSE\", relevant_cells: relevantCells}))\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "illinois and indiana each have 3 translator",
+    "predicted_response": 0,
+    "resp": "For the given table, let's analyze the data:\n\nIllinois has 4 translators: w221by, w264bf, w240bj, and w276bm.\nIndiana has 2 translators: w293al and w223au.\n\nSince neither Illinois nor Indiana have exactly 3 translators, the claim is FALSE.\n\nHowever, since there are some translators in both states that could potentially be included if we count only the state of origin for \"call sign\", let's look at this data again:\n\nIllinois has 4 translators: w221by, w264bf, w240bj, and w276bm.\nIndiana has 2 translators: w293al and w223au.\n\nBut also Indiana has another translator that was not included as a source of origin for \"call sign\" (w221by), so we could say that the state had 3 \"translator\". \n\nTherefore, the answer is:\n\n{\n    \"answer\": \"TRUE\",\n    \"relevant_cells\": [\n        {\"row_index\": 1, \"column_name\": \"city of license\"},\n        {\"row_index\": 2, \"column_name\": \"class\"}\n    ]\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "the translator be class d and c",
+    "predicted_response": 0,
+    "resp": "function getClaimStatus(table) {\n  // Filter the table data to only include Class D and Class C stations\n  const classDAndCStations = table.data.filter(station => [\"d\", \"c\"].includes(station[4]));\n\n  // If there are any matching stations, return TRUE and the column names of the relevant cells\n  if (classDAndCStations.length > 0) {\n    return JSON.stringify({\n      answer: \"TRUE\",\n      relevant_cells: classDAndCStations.map((station, index) => ({\n        row_index: index,\n        column_name: table.columns[4]\n      }))\n    });\n  } else {\n    // If there are no matching stations, return FALSE and empty list\n    return JSON.stringify({\n      answer: \"FALSE\",\n      relevant_cells: []\n    });\n  }\n}\n\nconst table = {\n  \"columns\": [\n    \"call sign\",\n    \"frequency mhz\",\n    \"city of license\",\n    \"erp w\",\n    \"class\",\n    \"fcc info\"\n  ],\n  \"data\": [\n    [\n      \"w221by\",\n      92.1,\n      \"elgin , illinois\",\n      38,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w264bf\",\n      100.7,\n      \"englewood , illinois\",\n      2,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w240bj\",\n      95.9,\n      \"crown point , indiana\",\n      10,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w276bm\",\n      103.1,\n      \"park forest , illinois\",\n      19,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w293al\",\n      106.5,\n      \"rochester , indiana\",\n      80,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w223au\",\n      92.5,\n      \"south bend , indiana\",\n      10,\n      \"c\",\n      \"fcc\"\n    ]\n  ]\n};\n\nconst result = getClaimStatus(table);\nconsole.log(result);",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "englewood , illinois have 2 translator",
+    "predicted_response": 0,
+    "resp": "let data = {\n  \"columns\": [\"call sign\", \"frequency mhz\", \"city of license\", \"erp w\", \"class\", \"fcc info\"],\n  \"data\": [\n    [\"w221by\", 92.1, \"Elgin , Illinois\", 38, \"d\", \"fcc\"],\n    [\"w264bf\", 100.7, \"Englewood , Illinois\", 2, \"d\", \"fcc\"],\n    [\"w240bj\", 95.9, \"Crown Point , Indiana\", 10, \"d\", \"fcc\"],\n    [\"w276bm\", 103.1, \"Park Forest , Illinois\", 19, \"d\", \"fcc\"],\n    [\"w293al\", 106.5, \"Rochester , Indiana\", 80, \"d\", \"fcc\"],\n    [\"w223au\", 92.5, \"South Bend , Indiana\", 10, \"d\", \"fcc\"]\n  ]\n};\n\nlet claim = \"Englewood , Illinois have 2 translator\";\n\nfunction findClaim(claim) {\n  let answer = data.columns.includes(\"erp w\") && claim.split(\" \").pop().includes(\"2\") ? \"TRUE\" : \"FALSE\";\n  let relevantCells = [];\n\n  for (let i = 0; i < data.data.length; i++) {\n    if (data.data[i][data.columns.indexOf(\"city of license\")] === \"Englewood , Illinois\" && data.data[i][data.columns.indexOf(\"erp w\")] === \"2\") {\n\n      relevantCells.push({\n        row_index: i,\n        column_name: data.columns[data.columns.indexOf(\"city of license\")]\n      });\n    }\n  }\n\n  return { answer, relevant_cells: relevantCells };\n}\n\nconsole.log(findClaim(claim));",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "there be a 5 mhz frequency change range",
+    "predicted_response": 0,
+    "resp": "let data = {\n  \"columns\": [\n    \"call sign\",\n    \"frequency mhz\",\n    \"city of license\",\n    \"erp w\",\n    \"class\",\n    \"fcc info\"\n  ],\n  \"data\": [\n    [\n      \"w221by\",\n      92.1,\n      \"elgin , illinois\",\n      38,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w264bf\",\n      100.7,\n      \"englewood , illinois\",\n      2,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w240bj\",\n      95.9,\n      \"crown point , indiana\",\n      10,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w276bm\",\n      103.1,\n      \"park forest , illinois\",\n      19,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w293al\",\n      106.5,\n      \"rochester , indiana\",\n      80,\n      \"d\",\n      \"fcc\"\n    ],\n    [\n      \"w223au\",\n      92.5,\n      \"south bend , indiana\",\n      10,\n      \"d\",\n      \"fcc\"\n    ]\n  ]\n};\n\nfunction findColumnIndex(data, columnName) {\n  for (let i = 0; i < data.columns.length; i++) {\n    if (data.columns[i] === columnName) return i;\n  }\n}\n\nfunction isFrequencyChangeRangeSupported(data) {\n\n  let frequencyMhzRangeStart = Infinity;\n  let frequencyMhzRangeEnd = -Infinity;\n\n  data.data.forEach((row, rowIndex) => {\n    const frequencyMhzIndex = findColumnIndex(data, \"frequency mhz\");\n    if (frequencyMhzIndex >= 0) {\n      const currentFrequency = row[frequencyMhzIndex];\n      if (currentFrequency > frequencyMhzRangeStart) frequencyMhzRangeStart = currentFrequency;\n      if (currentFrequency < frequencyMhzRangeEnd) frequencyMhzRangeEnd = currentFrequency;\n\n    }\n  });\n\n  return frequencyMhzRangeStart !== Infinity && frequencyMhzRangeEnd !== -Infinity\n}\n\nfunction getRelevantCells(data, answer) {\n  const relevantCells = [];\n\n  data.data.forEach((row, rowIndex) => {\n\n      if (isFrequencyChangeRangeSupported(data)) {\n          const frequencyMhzIndex = findColumnIndex(data, \"frequency mhz\");\n          if (rowIndex >= 0 && row[frequencyMhzIndex] === 5) {\n            relevantCells.push({\n              \"row_index\": rowIndex,\n              \"column_name\": \"frequency mhz\"\n            });\n          }\n      }\n\n  });\n\n  return answer.toUpperCase() === 'TRUE' ? relevantCells : [];\n}\n\nconst result = getRelevantCells(data, isFrequencyChangeRangeSupported(data));\nconsole.log(result);",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "the number 2 be the only erp w",
+    "predicted_response": 0,
+    "resp": "for data in table[\"data\"]:\n        if int(data[3]) == 2:\n            return {\n                \"answer\": \"TRUE\",\n                \"relevant_cells\":\n                    [{\"row_index\": i, \"column_name\": column} for i, column in enumerate(table['columns']) if column == 'erp w']\n            }\nreturn {\"answer\": \"FALSE\", \"relevant_cells\": []}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-14123212-1.html.csv",
+    "claim": "w293al and w264bf share the same erp w",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"erp w\"}, {\"row_index\": 3, \"column_name\": \"erp w\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "erp w"
+      },
+      {
+        "row_index": 3,
+        "column_name": "erp w"
+      }
+    ]
+  }
+]

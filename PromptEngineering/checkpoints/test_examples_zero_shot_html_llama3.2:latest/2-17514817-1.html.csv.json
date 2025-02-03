@@ -1,0 +1,101 @@
+[
+  {
+    "table_id": "2-17514817-1.html.csv",
+    "claim": "west berkshire brewery 's good old boy beer have 5 award between 1995 and 2009",
+    "predicted_response": 0,
+    "resp": "This claim is supported by the data. There are five rows in the table where 'Good Old Boy' appears as beer name:\n- Row index: 0\n- Column name: 'beer name'\n- Column value: good old boy\n- Year: 1995, 2002 (twice)\n- Award category: overall winner, best bitter, runner-up to best local beer \n\nHere is the relevant information in JSON format:\n\n{\n    \"answer\": \"TRUE\",\n    \"relevant_cells\": [\n        {\"row_index\": 0, \"column_name\": \"year\"},\n        {\"row_index\": 1, \"column_name\": \"beer name\"},\n        {\"row_index\": 2, \"column_name\": \"category\"}\n    ]\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17514817-1.html.csv",
+    "claim": "west berkshire brewery 's dr hexter healer beer win 3 gold medal between 1995 and 2009",
+    "predicted_response": 0,
+    "resp": "import json\nfrom pandas import DataFrame\n\n# Define the table data\ntable_data = {\n    \"year\": [1995, 1997, 2002, 2002, 2002, 2002, 2003, 2003, 2004, 2005, 2005, 2005, 2006, 2006, 2006, 2007, 2007, 2007, 2008, 2008, 2008, 2009, 2009, 2009],\n    \"West Berkshire Brewery 's Dr Hexter Healer Beer\": [0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]\n}\n\n# Convert the table data to a pandas DataFrame\ndf = DataFrame(table_data)\n\n# Filter rows where \"West Berkshire Brewery 's Dr Hexter Healer Beer\" is greater than or equal to 3 and count of such values is exactly 3\nrelevant_rows = df[df[\"West Berkshire Brewery 's Dr Hexter Healer Beer\"] >= 3].count(axis=1) == 3\n\n# Get the row index where relevant rows exist\nrow_index = list(relevant_rows[re relevant_rows].index)[0]\n\n# Extract the column name of the relevant cell\ncolumn_name = \"West Berkshire Brewery 's Dr Hexter Healer Beer\"\n\n# Construct the JSON object\njson_object = {\n    \"answer\": \"TRUE\" if row_index is not None else \"FALSE\",\n    \"relevant_cells\": [\n        {\"row_index\": row_index, \"column_name\": column_name}\n    ]\n}\n\n# Print the JSON object\nprint(json.dumps(json_object))",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17514817-1.html.csv",
+    "claim": "west berkshire brewery 's maggs magnificent mild be its most decorate beer between 1995 and 2009",
+    "predicted_response": 0,
+    "resp": "For the given claim, we need to determine if 'Maggs Magnificent Mild' from West Berkshire Brewery is indeed the most decorated beer between 1995 and 2009.\n\nTo verify this, let's look at all the years where 'Maggs Magnificent Mild' won medals:\n\n- In 2002: Gold Medal for Best Bitter\n- In 2006: Silver Medal for Mild\n- In 2007: Bronze Medal for Standard Bitter\n\nNow, let's consider 'Maggs Magnificent Mild' in other categories and years where it won medals:\n- 2008: Silver Medal for \"In Category\"\n- 2009: Gold Medal for Best Local Beer and Gold Medal for \"In Category\"\n\nFor the years 1995 to 2009, we can conclude that the most decorated 'Maggs Magnificent Mild' from West Berkshire Brewery is indeed 'Maggs Magnificent Mild' between these two time frames. \n\nHence, the answer will be TRUE.\n\nHere is the required JSON object:\n```\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"Year\"},\n    {\"row_index\": 2, \"column_name\": \"Medal\"}\n  ]\n}\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17514817-1.html.csv",
+    "claim": "3 of west berkshire brewery 's beer each win a single award between 1995 and 2009",
+    "predicted_response": 0,
+    "resp": "function claim() {\n  var table = document.querySelector('table');\n  var data = table.rows.map(function(row) {\n      return row.cells\n        .map(function(cell) {\n            return cell.textContent;\n          });\n    });\n\n  var awards = new Set();\n\n  for (var year of Array(1995, 2002, 2003, 2004, 2006, 2007, 2008, 2009)) {\n    for (var i = 0; i < data[year].length; i++) {\n      var award = data[year][i];\n      if (award) {\n        awards.add(award);\n      }\n    }\n  }\n\n  if (awards.size === 3 * 2) return { \"answer\": \"FALSE\", \"relevant_cells\": [] };\n\n  var relevantCells = [];\n  for (var i = 0; i < data.length; i++) {\n    for (var j = 0; j < data[i].length; j++) {\n      if (data[i][j]) {\n        relevantCells.push({ \"row_index\": i, \"column_name\": table.rows[i].cells[j].textContent });\n      }\n    }\n  }\n\n  return { \"answer\": \"TRUE\", \"relevant_cells\": relevantCells };\n}\n\nconsole.log(JSON.stringify(claim()));",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17514817-1.html.csv",
+    "claim": "west berkshire brewery 's maggs magnificent mild 2 time win an award at the siba national beer competition between 1995 and 2009",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 3, \"column_name\": \"year\"}, {\"row_index\": 4, \"column_name\": \"competition\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "year"
+      },
+      {
+        "row_index": 4,
+        "column_name": "competition"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17514817-1.html.csv",
+    "claim": "west berkshire brewery 's good old boy beer do not win a single award between 1995 and 2009",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 5, \"column_name\": \"Runner Up\"}, {\"row_index\": 9, \"column_name\": \"Best Bitter\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "Runner Up"
+      },
+      {
+        "row_index": 9,
+        "column_name": "Best Bitter"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17514817-1.html.csv",
+    "claim": "west berkshire brewery 's dr hexter healer beer have only receive a silver medal between 1995 and 2009",
+    "predicted_response": 1,
+    "resp": "To check the claim about West Berkshire Brewery's Dr Hexter Healer beer receiving only a silver medal between 1995 and 2009, we will iterate through each relevant row in the table.\n\n```json\n{\n    \"answer\": \"TRUE\",\n    \"relevant_cells\": [\n        {\"row_index\": 0, \"column_name\": \"beer\"},\n        {\"row_index\": 1, \"column_name\": \"year\"}\n    ]\n}\n```\n\nNote that the column names are based on the actual data provided in the table. The \"beer\" column corresponds to the beer name and the \"year\" column corresponds to the year.",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "beer"
+      },
+      {
+        "row_index": 1,
+        "column_name": "year"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17514817-1.html.csv",
+    "claim": "west berkshire brewery 's maggs magnificent mild 2 time receive a bronze award at the siba national beer competition between 1995 and 2005",
+    "predicted_response": 0,
+    "resp": "for the first claim, west berkshire brewery 's maggs magnificent mild 2 time receive a bronze award at the siba national beer competition between 1995 and 2005\" \n\"TRUE\"\n[\n    {\"row_index\": 0, \"column_name\": \"year\"},\n    {\"row_index\": 3, \"column_name\": \"bronze medal\"}\n]",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17514817-1.html.csv",
+    "claim": "west berkshire brewery 's maggs magnificent mild have win a gold medal every single instance in which it win a prize between 1995 and 2009",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\nimport json\n\n# Load the table data\ntable = \"\"\"\n<table border=\"1\" class=\"dataframe table table-striped\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th>year</th>\n      <th>beer name</th>\n      <th>prize</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr><td>1995</td><td>Maggs Magnificent Mild</td><td></td></tr>\n    <tr><td>1996</td><td>Maggs Magnificent Mild</td><td></td></tr>\n    <tr><td>1997</td><td>Maggs Magnificent Mild</td><td></td></tr>\n    <tr><td>1998</td><td>Maggs Magnificent Mild</td><td></td></tr>\n    <tr><td>1999</td><td>Maggs Magnificent Mild</td><td></td></tr>\n    <tr><td>2000</td><td>Maggs Magnificent Mild</td><td></td></tr>\n    <tr><td>2001</td><td>Maggs Magnificent Mild</td><td></td></tr>\n    <tr><td>2002</td><td>Maggs Magnificent Mild</td><td></td></tr>\n    <tr><td>2003</td><td>Maggs Magnificent Mild</td><td></td></tr>\n    <tr><td>2004</td><td>Maggs Magnificent Mild</td><td></td></tr>\n    <tr><td>2005</td><td>Maggs Magnificent Mild</td><td></td></tr>\n    <tr><td>2006</td><td>Maggs Magnificent Mild</td><td></td></tr>\n    <tr><td>2007</td><td>Maggs Magnificent Mild</td><td></td></tr>\n    <tr><td>2008</td><td>Maggs Magnificent Mild</td><td></td></tr>\n    <tr><td>2009</td><td>Maggs Magnificent Mild</td><td></td></tr>\n  </tbody>\n</table>\n\ndata = []\nfor row in table.split('\\n')[3:-1]:\n    year, beer_name, prize = row.split('\\t')\n    data.append([int(year), beer_name, prize])\n\ndf = pd.DataFrame(data, columns=['year', 'beer name', 'prize'])\n\n# Find the rows where Maggs Magnificent Mild wins a gold medal\ngold_medal_winners = df[(df['beer name'] == 'Maggs Magnificent Mild') & (df['prize'].str.contains('Gold'))]\n\n# Check if every instance of winning a prize between 1995 and 2009 won a gold medal\nif len(gold_medal_winners) == len(df[df['year'] >= 1995] & df['beer name'] == 'Maggs Magnificent Mild']):\n    answer = \"TRUE\"\nelse:\n    answer = \"FALSE\"\n\nrelevant_cells = [{\"row_index\": index, \"column_name\": column} for index, row in gold_medal_winners.iterrows() for column in ['year', 'beer name']]\nif not relevant_cells:\n    relevant_cells = [{\"row_index\": index, \"column_name\": column} for index, row in df[df['beer name'] == 'Maggs Magnificent Mild'].iterrows() for column in ['year', 'prize']]\n\nprint(json.dumps({\"answer\": answer, \"relevant_cells\": relevant_cells}))",
+    "true_response": 0,
+    "relevant_cells": []
+  }
+]

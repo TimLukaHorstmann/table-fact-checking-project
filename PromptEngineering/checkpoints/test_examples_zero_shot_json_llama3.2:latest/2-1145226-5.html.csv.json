@@ -1,0 +1,139 @@
+[
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "paul emerick do not have the greatest number of tries out of the 9 total player",
+    "predicted_response": 0,
+    "resp": "import json\nfrom collections import Counter\ndef evaluate_claim(data):\n    # Get the total number of tries from all players\n    total_tries = sum(row[2] for row in data['data'])\n    \n    # Count the number of times each player took a try\n    tries_counted = Counter([row[2] for row in data['data']])\n    \n    # Find the player with the most tries\n    most_tried_player = max(tries_counted, key=tries_counted.get)\n    \n    # Check if Paul Emerick is not the player with the greatest number of tries\n    answer = 'FALSE' if most_tried_player == \"paul emerick\" else 'TRUE'\n    \n    # Find all relevant cells\n    relevant_cells = [{\"row_index\": i, \"column_name\": col} for i, row in enumerate(data['data']) for col in data['columns'] if row[col] == max([tries_counted.get(player, 0) for player in tries_counted])]\n    \n    return json.dumps({\"answer\": answer, \"relevant_cells\": relevant_cells})\n\n# Test the function\ndata = {\n  \"columns\": [\n    \"player\",\n    \"span\",\n    \"start\",\n    \"tries\",\n    \"conv\",\n    \"pens\",\n    \"drop\"\n  ],\n  \"data\": [\n    [\n      \"vaea anitoni\",\n      \"1992 - 2000\",\n      44,\n      26,\n      0,\n      0,\n      0\n    ],\n    [\n      \"paul emerick\",\n      \"2003 - 2012\",\n      49,\n      17,\n      0,\n      0,\n      0\n    ],\n    [\n      \"todd clever\",\n      \"2003 -\",\n      51,\n      11,\n      0,\n      0,\n      0\n    ],\n    [\n      \"philip eloff\",\n      \"2000 - 2007\",\n      34,\n      10,\n      0,\n      0,\n      0\n    ],\n    [\n      \"takudzwa ngwenya\",\n      \"2007 -\",\n      27,\n      10,\n      0,\n      0,\n      0\n    ],\n    [\n      \"chris wyles\",\n      \"2007 -\",\n      35,\n      10,\n      14,\n      22,\n      1\n    ],\n    [\n      \"david fee\",\n      \"2002 - 2005\",\n      28,\n      9,\n      0,\n      0,\n      0\n    ],\n    [\n      \"mike hercus\",\n      \"2002 - 2009\",\n      45,\n      9,\n      90,\n      76,\n      4\n    ],\n    [\n      \"riaan van zyl\",\n      \"2003 - 2004\",\n      12,\n      9,\n      0,\n      0,\n      0\n    ]\n  ]\n}\nprint(evaluate_claim(data))",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "the greatest number of drop from 1 player happen over the span of 8 year",
+    "predicted_response": 0,
+    "resp": "Let's determine the answer.\n\nTo find out if the greatest number of drop occurs over a span of 8 years, we need to group players by their start year and calculate the sum of drops for each player. Then, we'll check if any of these sums occur within an 8-year window.\n\nHere is the relevant data:\n\n```json\n{\n  \"columns\": [\n    \"player\",\n    \"span\",\n    \"start\",\n    \"tries\",\n    \"conv\",\n    \"pens\",\n    \"drop\"\n  ],\n  \"data\": [\n    [\n      \"vaea anitoni\",\n      \"1992 - 2000\",\n      44,\n      26,\n      0,\n      0,\n      0\n    ],\n    [\n      \"paul emerick\",\n      \"2003 - 2012\",\n      49,\n      17,\n      0,\n      0,\n      0\n    ],\n    [\n      \"todd clever\",\n      \"2003 -\",\n      51,\n      11,\n      0,\n      0,\n      0\n    ],\n    [\n      \"philip eloff\",\n      \"2000 - 2007\",\n      34,\n      10,\n      0,\n      0,\n      0\n    ],\n    [\n      \"takudzwa ngwenya\",\n      \"2007 -\",\n      27,\n      10,\n      0,\n      0,\n      0\n    ],\n    [\n      \"chris wyles\",\n      \"2007 -\",\n      35,\n      10,\n      14,\n      22,\n      1\n    ],\n    [\n      \"david fee\",\n      \"2002 - 2005\",\n      28,\n      9,\n      0,\n      0,\n      0\n    ],\n    [\n      \"mike hercus\",\n      \"2002 - 2009\",\n      45,\n      9,\n      90,\n      76,\n      4\n    ],\n    [\n      \"riaan van zyl\",\n      \"2003 - 2004\",\n      12,\n      9,\n      0,\n      0,\n      0\n    ]\n  ]\n}\n```\n\nTo calculate the greatest number of drop that occurs over a span of 8 years, we need to count the number of drops for each player within an 8-year window.\n\nHere is the relevant data after applying filtering:\n\n```json\n[\n  {\n    \"player\": \"mike hercus\",\n    \"span\": \"2002 - 2009\",\n    \"start\": 28,\n    \"tries\": 9,\n    \"conv\": 90,\n    \"pens\": 76,\n    \"drop\": 4\n  },\n  {\n    \"player\": \"david fee\",\n    \"span\": \"2002 - 2005\",\n    \"start\": 28,\n    \"tries\": 9,\n    \"conv\": 0,\n    \"pens\": 0,\n    \"drop\": 0\n  }\n]\n```\n\nThe sum of drops for each player is 4 and 0 respectively.\n\nThe greatest number of drop that occurs over an 8-year window is 4. Therefore, the claim is supported by the data.\n\nHere is the answer:\n\n```json\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 6, \"column_name\": \"drop\"},\n    {\"row_index\": 7, \"column_name\": \"drop\"}\n  ]\n}\n```\n\nNote that I'm assuming the start year of each player is the same as the value in the \"start\" column. This may not be accurate for all players, as their actual start year may differ from the data provided.",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "chris wyles be 1 of the 2 player with drop during their time on the rugby team",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 3, \"column_name\": \"drop\"}, {\"row_index\": 6, \"column_name\": \"drop\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "drop"
+      },
+      {
+        "row_index": 6,
+        "column_name": "drop"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "riann van zyl have the shortest time span on the united state national rugby union team and tie with 3 others for the smallest number of tries",
+    "predicted_response": 0,
+    "resp": "{\"answer\":\"FALSE\",\"relevant_cells\":[{\"row_index\":7,\"column_name\":\"start\"},{\"row_index\":3,\"column_name\":\"player\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 7,
+        "column_name": "start"
+      },
+      {
+        "row_index": 3,
+        "column_name": "player"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "3 of the 9 player have not yet finish their span of play on the united state national rugby union team",
+    "predicted_response": 0,
+    "resp": "function determineClaimTruth(claimText) {\n  // Table data\n  let tableData = [\n    [\"vaea anitoni\", \"1992 - 2000\", 44, 26, 0, 0, 0],\n    [\"paul emerick\", \"2003 - 2012\", 49, 17, 0, 0, 0],\n    [\"todd clever\", \"2003 -\", 51, 11, 0, 0, 0],\n    [\"philip eloff\", \"2000 - 2007\", 34, 10, 0, 0, 0],\n    [\"takudzwa ngwenya\", \"2007 -\", 27, 10, 0, 0, 0],\n    [\"chris wyles\", \"2007 -\", 35, 10, 14, 22, 1],\n    [\"david fee\", \"2002 - 2005\", 28, 9, 0, 0, 0],\n    [\"mike hercus\", \"2002 - 2009\", 45, 9, 90, 76, 4],\n    [\"riaan van zyl\", \"2003 - 2004\", 12, 9, 0, 0, 0]\n  ];\n\n  // Find rows where span not yet finished\n  let incompleteSpans = tableData.filter((row, index) => {\n    if (index === 0 || index === 8) return false;\n    if (row[2] < row[1].split('-')[1]) {\n      console.log(\"Not done: \", row);\n      return true;\n    }\n    return false;\n  });\n\n  // Check claim\n  let answer = incompleteSpans.length >= 3;\n\n  // Print result\n  let relevantCells = [];\n  if (answer) {\n    for (let i = 0; i < tableData.length; i++) {\n      if (i === 0 || i === 8) continue;\n      if (!incompleteSpans.find((row) => row[0] === tableData[i][0])) {\n        relevantCells.push({ \"row_index\": i, \"column_name\": \"player\" });\n      }\n    }\n  }\n\n  return { answer: answer ? 'TRUE' : 'FALSE', relevant_cells: relevantCells };\n}\n\n// Example usage:\nlet claimText = `\"3 of the 9 player have not yet finish their span of play on the united state national rugby union team\"`;\nconsole.log(determineClaimTruth(claimText));",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "paul emerick do not have fewer tries than any other player",
+    "predicted_response": 0,
+    "resp": "function checkClaim() {\n    var data = [\n      [\"vaea anitoni\", \"1992 - 2000\", 44, 26, 0, 0, 0],\n      [\"paul emerick\", \"2003 - 2012\", 49, 17, 0, 0, 0],\n      [\"todd clever\", \"2003 -\", 51, 11, 0, 0, 0],\n      [\"philip eloff\", \"2000 - 2007\", 34, 10, 0, 0, 0],\n      [\"takudzwa ngwenya\", \"2007 -\", 27, 10, 0, 0, 0],\n      [\"chris wyles\", \"2007 -\", 35, 10, 14, 22, 1],\n      [\"david fee\", \"2002 - 2005\", 28, 9, 0, 0, 0],\n      [\"mike hercus\", \"2002 - 2009\", 45, 9, 90, 76, 4],\n      [\"riaan van zyl\", \"2003 - 2004\", 12, 9, 0, 0, 0]\n    ];\n\n    var emerickTries = data[1][2];\n\n    for (var i = 2; i < data.length; i++) {\n        if (data[i][2] < emerickTries) {\n            return JSON.stringify({\n                answer: \"FALSE\",\n                relevant_cells: [\n                    {\"row_index\": i, \"column_name\": \"tries\"}\n                ]\n            });\n        }\n    }\n\n    return JSON.stringify({\n        answer: \"TRUE\",\n        relevant_cells: []\n    });\n\n}\n\nprint(checkClaim());",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "the greatest number of drop from 1 player happen over the span of only 1 year",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 3, \"column_name\": \"drop\"},\n    {\"row_index\": 0, \"column_name\": \"span\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "drop"
+      },
+      {
+        "row_index": 0,
+        "column_name": "span"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "all of the player have already finish their span of play on the united state national rugby union team",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 2, \"column_name\": \"span\"},\n    {\"row_index\": 3, \"column_name\": \"span\"},\n    {\"row_index\": 4, \"column_name\": \"span\"},\n    {\"row_index\": 5, \"column_name\": \"span\"},\n    {\"row_index\": 6, \"column_name\": \"span\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "span"
+      },
+      {
+        "row_index": 3,
+        "column_name": "span"
+      },
+      {
+        "row_index": 4,
+        "column_name": "span"
+      },
+      {
+        "row_index": 5,
+        "column_name": "span"
+      },
+      {
+        "row_index": 6,
+        "column_name": "span"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "chris wyles be the only player with drop during his time on the rugby team",
+    "predicted_response": 0,
+    "resp": "var claim = {\n  \"answer\": false,\n  \"relevant_cells\": [\n      {\"row_index\":5,\"column_name\":\"drop\"}\n    ]\n};",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "riann van zyl have the longest time span on the united state national rugby union team and tie with only 1 other player for the greatest number of tries",
+    "predicted_response": 0,
+    "resp": "{ \"answer\": \"FALSE\", \"relevant_cells\": [{ \"row_index\": 3, \"column_name\": \"start\" }, { \"row_index\": 5, \"column_name\": \"tries\" }] }",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "start"
+      },
+      {
+        "row_index": 5,
+        "column_name": "tries"
+      }
+    ]
+  }
+]

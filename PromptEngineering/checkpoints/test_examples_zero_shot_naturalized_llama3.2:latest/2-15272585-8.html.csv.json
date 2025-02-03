@@ -1,0 +1,122 @@
+[
+  {
+    "table_id": "2-15272585-8.html.csv",
+    "claim": "galina voskoboeva play a total of 3 game on a hard tennis court",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 4, \"column_name\": \"Score\"},\n    {\"row_index\": 0, \"column_name\": \"Score\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "Score"
+      },
+      {
+        "row_index": 0,
+        "column_name": "Score"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15272585-8.html.csv",
+    "claim": "galina voskoboeva have an equal winrate between both clay and hard court",
+    "predicted_response": 0,
+    "resp": "const claim = {\n    \"answer\": \"FALSE\",\n    \"relevant_cells\": [\n        { row_index: 0, column_name: \"Outcome\" },\n        { row_index: 1, column_name: \"Surface\" },\n        { row_index: 2, column_name: \"Surface\" },\n        { row_index: 3, column_name: \"Surface\" },\n        { row_index: 4, column_name: \"Surface\" }\n    ]\n};",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15272585-8.html.csv",
+    "claim": "galina voskoboeva play 20% of her game on a clay top tennis court",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\nimport json\n\n# Define the data from the table\ndata = {\n    'outcome': ['runner - up', 'winner', 'runner - up', 'runner - up', 'winner'],\n    'date': ['28 january 2003', '29 june 2003', '3 october 2003', '8 november 2005', '6 june 2006'],\n    'tournament': ['tipton', 'mont - de - marsan', 'latina', 'pittsburgh', 'cuneo , italy'],\n    'surface': ['hard (i)', 'hard (i)', 'clay', 'hard', 'clay'],\n    'opponent': ['matea mezak', 'oleksandra kravets', 'roberta vinci', 'lilia osterloh', 'alice canepa'],\n    'score': [[6, 4, 4], [6, 4, 2], [3, 6, 6], [6, 7, 4], [6, 1, 2]]\n}\n\n# Convert the data to a DataFrame\ndf = pd.DataFrame(data)\n\n# Filter the data for clay courts\nclay_data = df[df['surface'].str.contains('clay')]\n\n# Calculate the percentage of games played on clay courts\ntotal_games = sum(sum(row) for row in df['score'])\nclay_games = sum(sum(row[:2]) for row in clay_data['score'])\npercentage = (clay_games / total_games) * 100\n\n# Check if the claim is supported by the data\nif percentage >= 20:\n    answer = \"TRUE\"\nelse:\n    answer = \"FALSE\"\n\n# Create a list of relevant cells\nrelevant_cells = [{\"row_index\": i, \"column_name\": col} for i, row in enumerate(df['score'], start=1) for col in ['opponent', 'surface']]\n\n# Format the output as JSON\noutput = json.dumps({\n    \"answer\": answer,\n    \"relevant_cells\": relevant_cells\n})",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15272585-8.html.csv",
+    "claim": "galina voskoboeva never play the same opponent more than 1 time",
+    "predicted_response": 0,
+    "resp": "let data = {\n\"Row 1\":\n{\n  outcome: \"runner - up\",\n  date: \"28 January 2003\",\n  tournament: \"Tipton\",\n  surface: \"Hard (I)\",\n  opponent: \"Matea Mezak\",\n  score: \"6 - 4 , 4 - 6 , 4 - 6\"\n},\n\"Row 2\":\n{\n  outcome: \"Winner\",\n  date: \"29 June 2003\",\n  tournament: \"Mont-de-Marsan\",\n  surface: \"Hard (I)\",\n  opponent: \"Oleksandra Kravets\",\n  score: \"6 - 4 , 6 - 2\"\n},\n\"Row 3\":\n{\n  outcome: \"Runner - up\",\n  date: \"3 October 2003\",\n  tournament: \"Latina\",\n  surface: \"Clay\",\n  opponent: \"Roberta Vinci\",\n  score: \"3 - 6 , 4 - 6\"\n},\n\"Row 4\":\n{\n  outcome: \"Runner - up\",\n  date: \"8 November 2005\",\n  tournament: \"Pittsburgh\",\n  surface: \"Hard\",\n  opponent: \"Lilia Osterloh\",\n  score: \"6 - 7 , 4 - 6\"\n},\n\"Row 5\":\n{\n  outcome: \"Winner\",\n  date: \"6 June 2006\",\n  tournament: \"Cuneo (Italy)\",\n  surface: \"Clay\",\n  opponent: \"Alice Canepa\",\n  score: \"6 - 1 , 6 - 2\"\n}\n\n};\n\nfor(row in data) {\n    const row_data = data[row];\n    for (col in row_data) {\n        if (row_data[col].opponent !== row_data[col+1].opponent && row_data[col+1].opponent !== row_data[col-1].opponent) { // Corrected col to account for index zero\n            console.log(\"FALSE\");\n            return;\n        }\n    }\n}\n\nconsole.log(\"TRUE\");",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15272585-8.html.csv",
+    "claim": "galina voskoboeva play a total of 3 game on a hard tennis court , and 1 on clay",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": []\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15272585-8.html.csv",
+    "claim": "on average , galina voskoboeva lose with only 4 point",
+    "predicted_response": 0,
+    "resp": "import json\n\ndef evaluate_claim(table_data):\n    losses = []\n    for row in table_data:\n        if row['outcome'] == 'runner - up':\n            for column, value in row.items():\n                if not isinstance(value, int) or value <= 4:\n                    continue\n                losses.append((row['date'], column))\n    total_losses_count = len(losses)\n    total_matches_count = len(table_data)\n    \n    # Calculate the average number of points lost per match\n    average_points_lost = sum([5 * loss[1] for loss in losses]) / total_matches_count if total_matches_count > 0 else 0\n\n    return \"TRUE\" if average_points_lost <= 4 else \"FALSE\", \\\n        [{\"row_index\": i, \"column_name\": column} for i, row in enumerate(table_data) for column, value in row.items() if value == '6 - 4' or value == '6 - 2']\n\ntable_data = [\n    {\"outcome\": \"runner - up\", \"date\": \"28 january 2003\", \"tournament\": \"tipton\", \"surface\": \"hard (i)\", \"opponent\": \"matea mezak\", \"score\": \"6 - 4 , 4 - 6 , 4 - 6\"},\n    {\"outcome\": \"winner\", \"date\": \"29 june 2003\", \"tournament\": \"mont - de - marsan\", \"surface\": \"hard (i)\", \"opponent\": \"oleksandra kravets\", \"score\": \"6 - 4 , 6 - 2\"},\n    {\"outcome\": \"runner - up\", \"date\": \"3 october 2003\", \"tournament\": \"latina\", \"surface\": \"clay\", \"opponent\": \"roberta vinci\", \"score\": \"3 - 6 , 4 - 6\"},\n    {\"outcome\": \"runner - up\", \"date\": \"8 november 2005\", \"tournament\": \"pittsburgh\", \"surface\": \"hard\", \"opponent\": \"lilia osterloh\", \"score\": \"6 - 7 , 4 - 6\"},\n    {\"outcome\": \"winner\", \"date\": \"6 june 2006\", \"tournament\": \"cuneo\", \"surface\": \"clay\", \"opponent\": \"alice canepa\", \"score\": \"6 - 1 , 6 - 2\"}\n]\n\nresult = evaluate_claim(table_data)\nprint(json.dumps(result))",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15272585-8.html.csv",
+    "claim": "galina voskoboeva play 20% of her game on a clay top tennis court and 1% on hard",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 3, \"column_name\": \"opponent\"}, {\"row_index\": 4, \"column_name\": \"surface\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "opponent"
+      },
+      {
+        "row_index": 4,
+        "column_name": "surface"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15272585-8.html.csv",
+    "claim": "galina voskoboeva have an equal winrate between both clay and hard court but she never win",
+    "predicted_response": 0,
+    "resp": "Let's analyze the data:\n\n- Total wins on clay: 2\n- Total wins on hard: 4\n- Winrate on clay: 2/3 = 0.6667 (not equal to 1)\n- Winrate on hard: 4/8 = 0.5 (not equal to 1)\n\nThe claim is FALSE, because Galina Voskoboeva's win rate is not equal between both clay and hard courts, and she has won some matches.\n\n{\n\"answer\": \"FALSE\",\n\"relevant_cells\": [\n{\"row_index\": 3, \"column_name\": \"score\"},\n{\"row_index\": 4, \"column_name\": \"score\"}\n]",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15272585-8.html.csv",
+    "claim": "galina voskoboeva never play the same opponent more than 1 time except in 6 june 2006",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 5, \"column_name\": \"opponent\"},\n    {\"row_index\": 2, \"column_name\": \"opponent\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "opponent"
+      },
+      {
+        "row_index": 2,
+        "column_name": "opponent"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15272585-8.html.csv",
+    "claim": "on average , galina voskoboeva lose with only 4 point against oleksandra kravets and alice canepa",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"score\"}, {\"row_index\": 3, \"column_name\": \"score\"}, {\"row_index\": 4, \"column_name\": \"score\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "score"
+      },
+      {
+        "row_index": 3,
+        "column_name": "score"
+      },
+      {
+        "row_index": 4,
+        "column_name": "score"
+      }
+    ]
+  }
+]

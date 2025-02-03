@@ -1,0 +1,144 @@
+[
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "the agricultural panel and labour panel both have 11 total member",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"labour panel\"}, {\"row_index\": 4, \"column_name\": \"agricultural panel\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "labour panel"
+      },
+      {
+        "row_index": 4,
+        "column_name": "agricultural panel"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "the party with 21 total member have 18 more member than the party with the fewest total member",
+    "predicted_response": 0,
+    "resp": "Let's analyze the table:\n\nThe party with 21 total members is Fianna F\u00e1il.\n\nThe party with the fewest total members is Clann na Talmhan.\n\nFianna F\u00e1il has 18 more members than Clann na Talmhan (21 - 3 = 18).\n\nTherefore, the claim is supported by the data.",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "university of dublin be the only group of origin make up entirely of member from 1 party",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"labour panel\"}, {\"row_index\": 3, \"column_name\": \"labour panel\"}, {\"row_index\": 5, \"column_name\": \"labour panel\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "labour panel"
+      },
+      {
+        "row_index": 3,
+        "column_name": "labour panel"
+      },
+      {
+        "row_index": 5,
+        "column_name": "labour panel"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "nominate by the taoiseach have the most member from 1 party",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 2, \"column_name\": \"nominated by the taoiseach\"},\n    {\"row_index\": 4, \"column_name\": \"total\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "nominated by the taoiseach"
+      },
+      {
+        "row_index": 4,
+        "column_name": "total"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "the agricultural panel have 2 member and the labour panel have 5 member",
+    "predicted_response": 1,
+    "resp": "{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 2, \"column_name\": \"agricultural panel\"},\n    {\"row_index\": 3, \"column_name\": \"labour panel\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "agricultural panel"
+      },
+      {
+        "row_index": 3,
+        "column_name": "labour panel"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "industrial and commercial panel have 4 more member than cultural and educational panel",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\nimport json\n\n# Load the data from the table\ndata = {\n    \"party\": [\"Fianna F\u00e1il\", \"Fine Gael\", \"Labour Party\", \"Clann na Talmhan\", \"Independent\", \"Total\"],\n    \"administrative panel\": [4, 1, 0, 0, 0, 7],\n    \"agricultural panel\": [4, 3, 0, 2, 1, 11],\n    \"cultural and educational panel\": [2, 2, 0, 0, 0, 5],\n    \"industrial and commercial panel\": [3, 2, 1, 0, 1, 9],\n    \"labour panel\": [0, 0, 5, 1, 0, 11],\n    \"national university of ireland\": [1, 1, 0, 0, 1, 3],\n    \"university of dublin\": [0, 0, 0, 0, 3, 3],\n    \"nominated by the taoiseach\": [7, 0, 2, 0, 3, 11],\n    \"total\": [21, 9, 8, 3, 9, 60]\n}\n\ndf = pd.DataFrame(data)\n\n# Extract relevant cells\nrelevant_cells = [\n    {\"row_index\": i, \"column_name\": col} \n    for i, row in df.iterrows() \n    for col in [\"industrial and commercial panel\", \"cultural and educational panel\"] \n    if str(row[col]) == '4'\n]\n\nprint(json.dumps({\"answer\": \"TRUE\" if int(df.loc[\"industrial and commercial panel\"][0]) - int(df.loc[\"cultural and educational panel\"][0]) == 4 else \"FALSE\", \n                 \"relevant_cells\": relevant_cells}))",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "the party with 21 total member have 9 more member than the party with the second most member",
+    "predicted_response": 0,
+    "resp": "Given the data in the table provided, we can determine whether the claim is TRUE or FALSE.\n\nTo analyze this, let's find the party with the most members (21) and then look for the second most represented party in the table.\nFor the party \"Fianna F\u00e1il\", there are 7 total members. \nFor the party \"Fine Gael\", there are 9 total members. \n\nSince Fianna F\u00e1il has fewer members than Fine Gael, we can conclude that the claim is FALSE.\n\nHere's a valid JSON response:\n```\n{\n    \"answer\": \"FALSE\",\n    \"relevant_cells\": [\n        {\"row_index\": 0, \"column_name\": \"total\"},\n        {\"row_index\": 1, \"column_name\": \"total\"}\n    ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "agricultural panel have the most member from 1 party",
+    "predicted_response": 0,
+    "resp": "For the given table, we need to determine whether the agricultural panel has the most members from one party.\n\nLet's analyze each row:\n\n* Fianna F\u00e1il: 4 members in the agricultural panel\n* Fine Gael: 3 members in the agricultural panel\n* Labour Party: 0 members in the agricultural panel\n* Clann na Talmhan: 2 members in the agricultural panel\n* Independent: 1 member in the agricultural panel\n\nWe can see that Fianna F\u00e1il has the most members in the agricultural panel with a total of 4.\n\nTherefore, the answer is:\n\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"agricultural panel\"},\n    {\"row_index\": 0, \"column_name\": \"party\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "administrative panel have 4 more member than national university of ireland",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 4, \"column_name\": \"administrative panel\"}, {\"row_index\": 8, \"column_name\": \"national university of ireland\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "administrative panel"
+      },
+      {
+        "row_index": 8,
+        "column_name": "national university of ireland"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "national university of ireland be the only group of origin make up mostly of member from 2 party",
+    "predicted_response": 0,
+    "resp": "For the claim to be supported by the data, we need to find a row where the value in the 'party' column is 'independent', and there are more members from this party than any other party.\n\nWe can do this by iterating over each row and calculating the number of members for each party. We will also keep track of the party with the most members.\n\nHere's how we could implement it:\n\n```json\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": null},\n    {\"row_index\": 1, \"column_name\": \"party\"},\n    {\"row_index\": 2, \"column_name\": \"Labour Party\"}\n  ]\n}\n```\n\nIn the code that generates this json response:\n\n```python\nimport pandas as pd\n\n# Load the data from the table\ndata = {\n    \"party\": [\"Fianna F\u00e1il\", \"Fine Gael\", \"Labour Party\", \"Clann na Talmhan\", \"Independent\"],\n    \"administrative panel\": [4, 1, 0, 0, 0],\n    \"agricultural panel\": [4, 3, 0, 2, 1],\n    \"cultural and educational panel\": [2, 2, 0, 0, 0],\n    \"industrial and commercial panel\": [3, 2, 1, 0, 1],\n    \"labour panel\": [0, 0, 5, 1, 0],\n    \"national university of ireland\": [1, 1, 0, 0, 1],\n    \"university of dublin\": [0, 0, 0, 0, 3],\n    \"nominated by the taoiseach\": [7, 0, 2, 0, 3],\n    \"total\": [21, 9, 8, 3, 9]\n}\ndf = pd.DataFrame(data)\n\n# Initialize variables\nparty_with_most_members = None\nmax_members = 0\n\n# Find the row with the most members from a single party\nfor index, row in df.iterrows():\n    party = row['party']\n    if (party != \"Independent\" and row['labour panel'] == 0) or max_members <= row[\"total\"]:\n        continue\n    total_members_for_party = len(row[[\"administrative panel\", \"agricultural panel\", \"cultural and educational panel\", \"industrial and commercial panel\"]]) + row[\"labour panel\"]\n    if total_members_for_party > max_members:\n        party_with_most_members = party\n        max_members = total_members_for_party\n\nif (party_with_most_members == None):\n  # This is the case where there are two parties with more members than any other, and one of those parties' members make up mostly from 2 parties\n    party_with_most_members = None\n    for index, row in df.iterrows():\n        if row['labour panel'] > max_members:\n            party_with_most_members = row[\"party\"]\n            break\n\n# Check the claim\nif (party_with_most_members == \"Independent\"):\n  # check that all members of this party are from 2 parties \n  members_from_2_parties = df.loc[df['party'] == party_with_most_members, 'administrative panel'].sum()\n  \n  if members_from_2_parties > max_members - members_from_2_parties:\n    print('This is the case where there are two parties with more members than any other, and one of those parties\\' members make up mostly from 2 parties')\nelse:\n  # check that all members of this party are from 2 parties \n  members_from_2_parties = df.loc[df['party'] == party_with_most_members, 'administrative panel'].sum()\n  \n  if (members_from_2_parties > max_members - members_from_2_parties):\n    print('This is the case where there are two parties with more members than any other')\n    \nif (party_with_most_members == None):\n  # This is the case where there are two parties with more members than any other\n    answer = \"FALSE\"\nelse:\n  # Check that the total of all rows in the 'administrative panel' column equals the total number of party members.\n  assert((df.loc[:, \"administrative panel\"].sum()) == max_members)\n  \n  # Check that there are no other parties with more members than this one\n  for index, row in df.iterrows():\n    if (row['party'] != party_with_most_members) and row[\"total\"] > max_members:\n      answer = \"FALSE\"\n      break\n\nelse:\n  answer = \"FALSE\"\n\n# Generate the JSON response\nprint('{\"answer\": \"{}\", \"relevant_cells\": [{\"row_index\": 0, \"column_name\": null}, {\"row_index\": 1, \"column_name\": \"party\"}, {\"row_index\": 2, \"column_name\": \"Labour Party\"}]}')\n```",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": null
+      },
+      {
+        "row_index": 1,
+        "column_name": "party"
+      },
+      {
+        "row_index": 2,
+        "column_name": "Labour Party"
+      }
+    ]
+  }
+]

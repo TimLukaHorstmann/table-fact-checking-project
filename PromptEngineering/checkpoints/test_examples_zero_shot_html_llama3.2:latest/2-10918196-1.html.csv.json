@@ -1,0 +1,82 @@
+[
+  {
+    "table_id": "2-10918196-1.html.csv",
+    "claim": "during the 1993 new york jet season , the new york jet play 8 game at the game site name the meadowlands",
+    "predicted_response": 0,
+    "resp": "For the claim to be TRUE it must state exactly which game site was used during the 1993 New York Jet season. The relevant cells are:\n\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"game site\"},\n    {\"row_index\": 5, \"column_name\": \"game site\"},\n    {\"row_index\": 9, \"column_name\": \"game site\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-10918196-1.html.csv",
+    "claim": "6 game have an attendance of over 7000 during the 1993 new york jet season",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\nimport json\n\n# Load the table into a DataFrame\ndf = pd.read_html('table.html')[0]\n\n# Convert 'attendance' to integer if it is already in integer format\ndf['attendance'] = df['attendance'].astype(str)\nfor i, row in enumerate(df.iterrows()):\n    cell = row[1]\n    if cell != cell:\n        continue\n    df.at[i,'attendance']= int(cell)\n\n# Check the attendance value in each row against the threshold of 7000\ncells_to_check = [row for index, row in df.iterrows() if row['attendance'] > 7000]\n\nresult = {\n    \"answer\": \"TRUE\" if len(cells_to_check) > 0 else \"FALSE\",\n    \"relevant_cells\": [{\"row_index\": i, \"column_name\": col} for i, row in enumerate(df.iterrows()) for col, cell in row.items() if (cell in cells_to_check)]\n}\n\nprint(json.dumps(result))",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-10918196-1.html.csv",
+    "claim": "the new york jet take the same amount of win as loss during the 1993 season",
+    "predicted_response": 0,
+    "resp": "Given the provided table and claim, here is the requested JSON response:\n\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 9, \"column_name\": \"result\"},\n    {\"row_index\": 11, \"column_name\": \"result\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-10918196-1.html.csv",
+    "claim": "the new york jet have 992 more crowd attendance in their second game against the miami dolphins then from their first game play against them during the 1993 season",
+    "predicted_response": 0,
+    "resp": "const relevantData = tableData.filter(row => row.opponent === 'Miami Dolphins' && row.game_site === 'The Meadowlands')\n\nif (relevantData[1].attendance - relevantData[0].attendance > 992) {\n  console.log({\n    \"answer\": \"TRUE\",\n    \"relevant_cells\": [\n      {row_index: 0, column_name: \"attendance\"},\n      {row_index: 1, column_name: \"attendance\"}\n    ]\n  })\n} else {\n  console.log({\n    \"answer\": \"FALSE\",\n    \"relevant_cells\": []\n  })\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-10918196-1.html.csv",
+    "claim": "during the 1993 new york jet season , the new york jet play 8 game at the game site name the robert f kennedy memorial stadium",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": []}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-10918196-1.html.csv",
+    "claim": "the new york jet play the denver bronco before the miami dolphins during the 1993 season",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\n\n# Load the table into a DataFrame\ndata = {\n    \"week\": [1, 2, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],\n    \"date\": [\"1993 - 09 - 05\", \"1993 - 09 - 12\", \"1993 - 09 - 26\", \"1993 - 10 - 03\", \"1993 - 10 - 10\", \"1993 - 10 - 24\", \"1993 - 10 - 31\", \"1993 - 11 - 07\", \"1993 - 11 - 14\", \"1993 - 11 - 21\", \"1993 - 11 - 28\", \"1993 - 12 - 05\", \"1993 - 12 - 11\", \"1993 - 12 - 18\", \"1993 - 12 - 26\", \"1994 - 01 - 02\"],\n    \"opponent\": [\"denver broncos\", \"miami dolphins\", \"new england patriots\", \"philadelphia eagles\", \"los angeles raiders\", \"buffalo bills\", \"new york giants\", \"miami dolphins\", \"indianapolis colts\", \"cincinnati bengals\", \"new england patriots\", \"indianapolis colts\", \"washington redskins\", \"dallas cowboys\", \"buffalo bills\", \"houston oilers\"],\n    \"result\": [\"l 26 - 20\", \"w 24 - 14\", \"w 45 - 7\", \"l 35 - 30\", \"l 24 - 20\", \"l 19 - 10\", \"w 10 - 6\", \"w 27 - 10\", \"w 31 - 17\", \"w 17 - 12\", \"w 6 - 0\", \"l 9 - 6\", \"w 3 - 0\", \"l 28 - 7\", \"l 16 - 14\", \"l 24 - 0\"],\n    \"game site\": [\"the meadowlands\", \"joe robbie stadium\", \"the meadowlands\", \"the meadowlands\", \"los angeles memorial coliseum\", \"the meadowlands\", \"giants stadium\", \"the meadowlands\", \"rca dome\", \"the meadowlands\", \"foxboro stadium\", \"the meadowlands\", \"robert f kennedy memorial stadium\", \"the meadowlands\", \"rich stadium\", \"houston astrodome\"],\n    \"column_name\": [\"opponent\", \"date\", \"result\", \"game site\"]\n}\n\ndf = pd.DataFrame(data)\n\n# Find the relevant cells\nrelevant_cells = []\nfor index, row in df.iterrows():\n    if row[\"opponent\"] == \"new york jet\" and row[\"opponent\"] == \"denver bronco\":\n        relevant_cells.append({\"row_index\": index, \"column_name\": \"date\"})\n    elif row[\"opponent\"] == \"miami dolphins\" and row[\"opponent\"] == \"denver bronco\":\n        relevant_cells.append({\"row_index\": index, \"column_name\": \"date\"})\n    elif row[\"opponent\"] == \"new york jet\" and row[\"opponent\"] == \"denver bronco\":\n        relevant_cells.append({\"row_index\": index, \"column_name\": \"result\"})",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-10918196-1.html.csv",
+    "claim": "8 game have an attendance of over 70000 during the 1993 new york jet season",
+    "predicted_response": 0,
+    "resp": "var df = {\n  \"week\": [1, 2, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],\n  \"date\": [\"1993 - 09 - 05\", \"1993 - 09 - 12\", \"1993 - 09 - 26\", \"1993 - 10 - 03\", \"1993 - 10 - 10\", \"1993 - 10 - 24\", \"1993 - 10 - 31\", \"1993 - 11 - 07\", \"1993 - 11 - 14\", \"1993 - 11 - 21\", \"1993 - 11 - 28\", \"1993 - 12 - 05\", \"1993 - 12 - 11\", \"1993 - 12 - 18\", \"1993 - 12 - 26\", \"1994 - 01 - 02\"],\n  \"opponent\": [\"denver broncos\", \"miami dolphins\", \"new england patriots\", \"philadelphia eagles\", \"los angeles raiders\", \"buffalo bills\", \"new york giants\", \"miami dolphins\", \"indianapolis colts\", \"cincinnati bengals\", \"new england patriots\", \"indianapolis colts\", \"washington redskins\", \"dallas cowboys\", \"buffalo bills\", \"houston oilers\"],\n  \"result\": [\"l 26 - 20\", \"w 24 - 14\", \"w 45 - 7\", \"l 35 - 30\", \"l 24 - 20\", \"l 19 - 10\", \"w 10 - 6\", \"w 27 - 10\", \"w 31 - 17\", \"w 17 - 12\", \"w 6 - 0\", \"l 9 - 6\", \"w 3 - 0\", \"l 28 - 7\", \"l 16 - 14\", \"l 24 - 0\"],\n  \"game site\": [\"the meadowlands\", \"joe robbie stadium\", \"the meadowlands\", \"the meadowlands\", \"los angeles memorial coliseum\", \"the meadowlands\", \"giants stadium\", \"the meadowlands\", \"rca dome\", \"the meadowlands\", \"foxboro stadium\", \"the meadowlands\", \"robert f kennedy memorial stadium\", \"the meadowlands\", \"rich stadium\", \"houston astrodome\"],\n  \"attendance\": [72832, 24651, 57395, 32610, 23650, 17143, 10611, 70219, 31183, 10144, 47970, 70694, 61040]\n};\n\nvar claimSupported = df.attendance.some((cell, index) => {\n  return cell > 70000 && index >= 7;\n});\n\nif (claimSupported) {\n  var relevantCells = df.attendance.filter(cell => cell > 70000).map((cell, index) => ({ row_index: index + 1, column_name: \"attendance\" }));\n  console.log(JSON.stringify({\n    answer: \"TRUE\",\n    relevant_cells: relevantCells\n  }));\n} else {\n  console.log(JSON.stringify({\n    answer: \"FALSE\"\n  }));\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-10918196-1.html.csv",
+    "claim": "the new york jet take 3 more win over loss during the 1993 season",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\nimport json\n\n# Create DataFrame from table\ntable = {\n    \"week\": [1, 2, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],\n    \"date\": [\"1993 - 09 - 05\", \"1993 - 09 - 12\", \"1993 - 09 - 26\", \"1993 - 10 - 03\", \"1993 - 10 - 10\", \"1993 - 10 - 24\", \"1993 - 10 - 31\", \"1993 - 11 - 07\", \"1993 - 11 - 14\", \"1993 - 11 - 21\", \"1993 - 11 - 28\", \"1993 - 12 - 05\", \"1993 - 12 - 11\", \"1993 - 12 - 18\", \"1993 - 12 - 26\"],\n    \"opponent\": [\"denver broncos\", \"miami dolphins\", \"new england patriots\", \"philadelphia eagles\", \"los angeles raiders\", \"buffalo bills\", \"new york giants\", \"miami dolphins\", \"indianapolis colts\", \"cincinnati bengals\", \"new england patriots\", \"indianapolis colts\", \"washington redskins\", \"dallas cowboys\", \"buffalo bills\"],\n    \"result\": [\"l 26 - 20\", \"w 24 - 14\", \"w 45 - 7\", \"l 35 - 30\", \"l 24 - 20\", \"l 19 - 10\", \"w 10 - 6\", \"w 27 - 10\", \"w 31 - 17\", \"w 17 - 12\", \"w 6 - 0\", \"l 9 - 6\", \"w 3 - 0\", \"l 28 - 7\", \"l 16 - 14\"],\n    \"game site\": [\"the meadowlands\", \"joe robbie stadium\", \"the meadowlands\", \"the meadowlands\", \"los angeles memorial coliseum\", \"the meadowlands\", \"giants stadium\", \"the meadowlands\", \"rca dome\", \"the meadowlands\", \"foxboro stadium\", \"the meadowlands\", \"robert f kennedy memorial stadium\", \"the meadowlands\", \"rich stadium\"],\n    \"attendance\": [68130, 70314, 64836, 69113, 57623, 69731, 70119, 71059, 73193, 72235, 70583, 70669, 60180, 74647, 72053]\n}\n\ndf = pd.DataFrame(table)\n\n# Filter to only rows where the result is 'w'\nwin_rows = df[df[\"result\"].str.startswith(\"w\")]\n\n# Calculate total wins and losses\ntotal_wins = len(win_rows)\ntotal_losses = len(df) - total_wins\n\n# Check if there are 3 more wins than losses during the season\nif total_wins >= total_losses + 3:\n    answer = \"TRUE\"\nelse:\n    answer = \"FALSE\"\n\n# Find relevant cells that support the claim\nrelevant_cells = [{\"row_index\": i, \"column_name\": col} for i, row in enumerate(df.loc[win_rows.index]) for col in win_rows.columns if df.loc[row.name, col] == 'w']\n\njson_output = {\n    \"answer\": answer,\n    \"relevant_cells\": relevant_cells\n}\n\nprint(json.dumps(json_output))",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-10918196-1.html.csv",
+    "claim": "the new york jet play the miami dolphins before denver bronco during the 1993 season",
+    "predicted_response": 0,
+    "resp": "var data = {\n  \"week\": [1, 2, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],\n  \"date\": [\"1993 - 09 - 05\",\"1993 - 09 - 12\",\"1993 - 09 - 26\",\"1993 - 10 - 03\",\"1993 - 10 - 10\",\"1993 - 10 - 24\",\"1993 - 10 - 31\",\"1993 - 11 - 07\",\"1993 - 11 - 14\",\"1993 - 11 - 21\",\"1993 - 11 - 28\",\"1993 - 12 - 05\",\"1993 - 12 - 11\",\"1993 - 12 - 18\",\"1993 - 12 - 26\",\"1994 - 01 - 02\"],\n  \"opponent\": [\"denver broncos\",\"miami dolphins\",\"new england patriots\",\"philadelphia eagles\",\"los angeles raiders\",\"buffalo bills\",\"new york giants\",\"miami dolphins\",\"indianapolis colts\",\"cincinnati bengals\",\"new england patriots\",\"indianapolis colts\",\"washington redskins\",\"dallas cowboys\",\"buffalo bills\",\"houston oilers\"],\n  \"result\": [\"l 26 - 20\",\"w 24 - 14\",\"w 45 - 7\",\"l 35 - 30\",\"l 24 - 20\",\"l 19 - 10\",\"w 10 - 6\",\"w 27 - 10\",\"w 31 - 17\",\"w 17 - 12\",\"w 6 - 0\",\"l 9 - 6\",\"w 3 - 0\",\"l 28 - 7\",\"l 16 - 14\",\"l 24 - 0\"],\n  \"game site\": [\"the meadowlands\",\"joe robbie stadium\",\"the meadowlands\",\"the meadowlands\",\"los angeles memorial coliseum\",\"the meadowlands\",\"giants stadium\",\"the meadowlands\",\"rca dome\",\"the meadowlands\",\"foxboro stadium\",\"the meadowlands\",\"robert f kennedy memorial stadium\",\"the meadowlands\",\"rich stadium\",\"houston astrodome\"],\n  \"attendance\": [68130,70314,64836,72593,41627,71541,71659,71306,47351,64264,42810,45799,47970,73233,70817,61040]\n};\n\nvar newYorkJets = data.opponent[data.opponent.indexOf(\"new york giants\")];\nvar miamiDolphins = data.opponent[data.opponent.indexOf(\"miami dolphins\")];\n\nif (data[\"date\"].indexOf(data[\"date\"][data.opponent.indexOf(\"new york giants\")] ) < \n  data[\"date\"].indexOf(data[\"date\"][data.opponent.indexOf(\"miami dolphins\")] ) &&\n  data[\"date\"].indexOf(data[\"date\"][data.opponent.indexOf(\"denver broncos\")]) > \n   data[\"date\"].indexOf(data[\"date\"][data.opponent.indexOf(\"new york giants\")])) {\n  return {\"answer\": \"TRUE\", \"relevant_cells\": [\n    {\"row_index\":0,\"column_name\":\"opponent\"},\n    {\"row_index\":2,\"column_name\":\"opponent\"},\n    {\"row_index\":16,\"column_name\":\"opponent\"}\n  ]};\n} else {\n  return {\"answer\": \"FALSE\"};\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-10918196-1.html.csv",
+    "claim": "the new york jet have 992 more crowd attendance in their second game against the new england patriot then from their first game play against them during the 1993 season",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\nimport json\n\n# Create a DataFrame from the table\ndata = {\n    'week': [1, 2, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],\n    'date': ['1993 - 09 - 05', '1993 - 09 - 12', '1993 - 09 - 26', '1993 - 10 - 03', '1993 - 10 - 10', '1993 - 10 - 24', '1993 - 10 - 31', '1993 - 11 - 07', '1993 - 11 - 14', '1993 - 11 - 21', '1993 - 11 - 28', '1993 - 12 - 05', '1993 - 12 - 11', '1993 - 12 - 18', '1993 - 12 - 26', '1994 - 01 - 02'],\n    'opponent': ['denver broncos', 'miami dolphins', 'new england patriots', 'philadelphia eagles', 'los angeles raiders', 'buffalo bills', 'new york giants', 'miami dolphins', 'indianapolis colts', 'cincinnati bengals', 'new england patriots', 'indianapolis colts', 'washington redskins', 'dallas cowboys', 'buffalo bills', 'houston oilers'],\n    'result': ['l 26 - 20', 'w 24 - 14', 'w 45 - 7', 'l 35 - 30', 'l 24 - 20', 'l 19 - 10', 'w 10 - 6', 'w 27 - 10', 'w 31 - 17', 'w 17 - 12', 'w 6 - 0', 'l 9 - 6', 'w 3 - 0', 'l 28 - 7', 'l 16 - 14', 'l 24 - 0'],\n    'game site': ['the meadowlands', 'joe robbie stadium', 'the meadowlands', 'the meadowlands', 'los angeles memorial coliseum', 'the meadowlands', 'giants stadium', 'the meadowlands', 'rca dome', 'the meadowlands', 'foxborough stadium', 'rich stadium', 'robert f kennedy memorial stadium', 'the meadowlands', 'rich stadium', 'houston astrodome'],\n    'attendance': [78440, 23232, 44675, 35424, 28226, 30434, 33838, 34847, 34343, 33325, 37116, 34565, 34250, 37369, 31451, 30935]\n}\ndf = pd.DataFrame(data)\n\n# Filter the DataFrame for games between New England Patriots and New York Jets\nnew_england_patriots_games = df[df['opponent'] == 'new england patriots']\nnew_york_jets_games = new_england_patriots_games[new_england_patriots_games['result'].str.contains('w')]\n\n# Calculate the attendance difference between second game and first game against New England Patriots\nattendance_diff = new_york_jets_games.iloc[1]['attendance'] - new_york_jets_games.iloc[0]['attendance']\n\nif attendance_diff > 992:\n    answer = \"TRUE\"\nelse:\n    answer = \"FALSE\"\n\n# Create the list of relevant cells\nrelevant_cells = [{\"row_index\": i, \"column_name\": 'Attendance'} for i in range(len(new_york_jets_games))]\n\n# Print the JSON object\nprint(json.dumps({\"answer\": answer, \"relevant_cells\": relevant_cells}))",
+    "true_response": 0,
+    "relevant_cells": []
+  }
+]

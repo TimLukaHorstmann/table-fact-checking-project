@@ -1,0 +1,140 @@
+[
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "the majority of the athlete with the longest mark be from the united state",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 4, \"column_name\": \"nationality\"}, {\"row_index\": 5, \"column_name\": \"athlete\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "nationality"
+      },
+      {
+        "row_index": 5,
+        "column_name": "athlete"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "erick walder and bob beamon have the same wind",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 4, \"column_name\": \"wind\"}, {\"row_index\": 3, \"column_name\": \"wind\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "wind"
+      },
+      {
+        "row_index": 3,
+        "column_name": "wind"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "only 4 of the athlete have a mark greater than 29 foot",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 3, \"column_name\": \"mark\"}, {\"row_index\": 4, \"column_name\": \"mark\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "mark"
+      },
+      {
+        "row_index": 4,
+        "column_name": "mark"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "bob beamon be the athlete who set his long jump record the longest time ago",
+    "predicted_response": 0,
+    "resp": "The athlete who set the long jump record the longest time ago is Bob Beam on October 18 , 1968",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "the most recent long jump record be set by dwight phillips",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 3, \"column_name\": \"athlete\"}, {\"row_index\": 7, \"column_name\": \"athlete\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "athlete"
+      },
+      {
+        "row_index": 7,
+        "column_name": "athlete"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "all athlete have the same wind except eric walder and bob beamon",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 4, \"column_name\": \"wind\"},\n    {\"row_index\": 3, \"column_name\": \"athlete\"},\n    {\"row_index\": 1, \"column_name\": \"athlete\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "wind"
+      },
+      {
+        "row_index": 3,
+        "column_name": "athlete"
+      },
+      {
+        "row_index": 1,
+        "column_name": "athlete"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "few athlete from the united state have the longest mark",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\nimport json\n\n# Load the table into a DataFrame\ndf = pd.read_html('table')[0]\n\n# Filter the data for athletes from the United States\nus_athletes = df[(df['nationality'] == 'united states') | (df['athlete'].str.contains('\\bUnited States\\b'))]\n\n# Count the number of athletes with the longest mark\nlongest_mark_count = len(us_athletes[us_athletes['mark'] == us_athletes['mark'].max()])\n\n# Check if few athletes from the United States have the longest mark\nif len(df[df['nationality'] == 'united states']) > longest_mark_count:\n    answer = \"FALSE\"\nelse:\n    answer = \"TRUE\"\n\n# Extract relevant cells\nrelevant_cells = []\nfor row_index, row in us_athletes.iterrows():\n    relevant_cells.append({\"row_index\": row_index, \"column_name\": col for col in df.columns if col != 'nationality' and col != 'athlete'})\n\n\nprint(json.dumps({\"answer\": answer, \"relevant_cells\": relevant_cells}))",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "bob beamon have recently set his long jump record",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 1, \"column_name\": \"mark\"},\n    {\"row_index\": 0, \"column_name\": \"athlete\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 1,
+        "column_name": "mark"
+      },
+      {
+        "row_index": 0,
+        "column_name": "athlete"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "4 athlete have a mark of 28 foot",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\nimport json\n\n# Load the table into a pandas DataFrame\ndf = pd.read_html('table')[0]\n\n# Convert 'mark' column to float for comparison with '28ft'\ndf['mark'] = df['mark'].str.extract(r'^(\\d+\\.\\d+)(m|in)$', expand=False).astype(float)\ndf.loc[df['mark'] < 28, 'mark'] *= 3.28084\n\n# Check if any athlete has a mark of 28 foot\nif (df['mark'] == 28).any():\n    answer = \"TRUE\"\nelse:\n    answer = \"FALSE\"\n\n# Extract relevant cells for the claim\nrelevant_cells = [{\"row_index\": i, \"column_name\": col} for i, row in df.iterrows() for col, value in row.items() if str(value) == '28ft']\n\nprint(json.dumps({\"answer\": answer, \"relevant_cells\": relevant_cells}))",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "dwight phillips be the first person to set a long jump record",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\nimport json\n\n# Load the table data\ndf = pd.read_html('table.html')[0]\n\n# Find rows where there is only one athlete\nrows_to_check = df[df.duplicated(['athlete'], keep=False)]\n\nif len(rows_to_check) > 0:\n    first_row = rows_to_check.iloc[0]\n    relevant_cells = [\n        {\"row_index\": i, \"column_name\": col} \n            for i, row in enumerate(first_row.values) \n                for col, value in zip(row, row) \n                    if str(value).split()[1] == 'm' and col != 'athlete'\n    ]\nelse:\n    relevant_cells = []\n\ndata = {\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": relevant_cells\n}\n\nprint(json.dumps(data))",
+    "true_response": 0,
+    "relevant_cells": []
+  }
+]

@@ -1,0 +1,158 @@
+[
+  {
+    "table_id": "2-12472200-7.html.csv",
+    "claim": "olga govortsova have never reach the final in a grand slam tournament",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 2, \"column_name\": \"Grand Slam Tournaments\"},\n    {\"row_index\": 3, \"column_name\": \"Australian Open\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "Grand Slam Tournaments"
+      },
+      {
+        "row_index": 3,
+        "column_name": "Australian Open"
+      }
+    ]
+  },
+  {
+    "table_id": "2-12472200-7.html.csv",
+    "claim": "olga govortsova have win at least 1 grand slam tournament match in any give year from 2007 - 2011",
+    "predicted_response": 0,
+    "resp": "{\n    \"answer\": \"FALSE\",\n    \"relevant_cells\":\n        [\n            {\"row_index\": 22, \"column_name\": \"year - end championship\"},\n            {\"row_index\": 16, \"column_name\": \"wta premier 5 tournaments\"}\n        ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 22,
+        "column_name": "year - end championship"
+      },
+      {
+        "row_index": 16,
+        "column_name": "wta premier 5 tournaments"
+      }
+    ]
+  },
+  {
+    "table_id": "2-12472200-7.html.csv",
+    "claim": "the furthest olga govortsova have ever advance in a grand slam tournament be the third round",
+    "predicted_response": 0,
+    "resp": "function determineClaim() {\n    var claim = \"the furthest olga govortsova have ever advance in a grand slam tournament be the third round\";\n    var tableData = [\n      [\"tournament\", \"2007\", \"2008\", \"2009\", \"2010\", \"2011\"],\n      [\"grand slam tournaments\", \"grand slam tournaments\", \"grand slam tournaments\", \"grand slam tournaments\", \"grand slam tournaments\", \"grand slam tournaments\"],\n      [\"australian open\", \"a\", \"1r\", \"1r\", \"1r\", \"1r\"],\n      [\"french open\", \"a\", \"3r\", \"3r\", \"2r\", \"2r\"],\n      [\"wimbledon\", \"2r\", \"1r\", \"2r\", \"1r\", \"1r\"],\n      [\"us open\", \"2r\", \"2r\", \"1r\", \"1r\", \"1r\"],\n      [\"win - loss\", \"2 - 2\", \"3 - 4\", \"3 - 4\", \"1 - 4\", \"1 - 4\"],\n      [\"olympic games\", \"olympic games\", \"olympic games\", \"olympic games\", \"olympic games\", \"olympic games\"],\n      [\"summer olympics\", \"nh\", \"1r\", \"not held\", \"not held\", \"not held\"],\n      [\"year - end championship\", \"year - end championship\", \"year - end championship\", \"year - end championship\", \"year - end championship\", \"year - end championship\"],\n      [\"wta tour championships\", \"a\", \"a\", \"a\", \"a\", \"a\"],\n      [\"wta premier mandatory tournaments\", \"wta premier mandatory tournaments\", \"wta premier mandatory tournaments\", \"wta premier mandatory tournaments\", \"wta premier mandatory tournaments\", \"wta premier mandatory tournaments\"],\n      [\"indian wells\", \"a\", \"a\", \"2r\", \"2r\", \"1r\"],\n      [\"miami\", \"a\", \"1r\", \"1r\", \"1r\", \"1r\"],\n      [\"madrid\", \"not held\", \"not held\", \"lq\", \"2r\", \"a\"],\n      [\"beijing\", \"1r\", \"lq\", \"1r\", \"2r\", \"lq\"],\n      [\"wta premier 5 tournaments\", \"wta premier 5 tournaments\", \"wta premier 5 tournaments\", \"wta premier 5 tournaments\", \"wta premier 5 tournaments\", \"wta premier 5 tournaments\"],\n      [\"dubai\", \"not tieri\", \"not tieri\", \"1r\", \"3r\", \"a\"],\n      [\"rome\", \"a\", \"2r\", \"a\", \"1r\", \"lq\"],\n      [\"cincinnati\", \"qf\", \"a\", \"2r\", \"2r\", \"lq\"],\n      [\"montr\u00e9al / toronto\", \"a\", \"a\", \"a\", \"1r\", \"lq\"],\n      [\"tokyo\", \"a\", \"a\", \"a\", \"2r\", \"a\"],\n      [\"year end ranking\", \"49\", \"49\", \"52\", \"74\", \"114\"]\n    ];\n  \n    var grandSlamTournaments = [];\n    tableData[1].forEach(function (tournamentName, index) {\n      if (tournamentName == 'grand slam tournaments') return;\n      grandSlamTournaments.push({\n        row_index: index + 2,\n        column_name: tournamentName\n      });\n    });\n\n    var olgaGovortsovaRankings = [];\n    tableData[22].forEach(function (ranking, index) {\n      if (Number(ranking) != Number(49) && Number(ranking) != Number(52) && Number(ranking) != Number(74) && Number(ranking) != Number(114)) return;\n      olgaGovortsovaRankings.push({\n        row_index: index + 2,\n        column_name: 'year end ranking'\n      });\n    });\n\n    var furthestOlgaAdvancement = -1;\n    grandSlamTournaments.forEach(function (tournament) {\n      var olgaAdvance = olgaGovortsovaRankings.find(function (ranking) {\n        return ranking.row_index == tournament.row_index && Number(ranking.column_name) == 114\n      });\n      if (olgaAdvance && olgaAdvance.row_index < furthestOlgaAdvancement) {\n        furthestOlgaAdvancement = olgaAdvance.row_index;\n      }\n    });\n\n    var answer = furthestOlgaAdvancement > 0 ? \"FALSE\" : \"TRUE\";\n    return JSON.stringify({\n      answer: answer,\n      relevant_cells: grandSlamTournaments\n    });\n}\n\nprint(determineClaim());",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-12472200-7.html.csv",
+    "claim": "from 2007 - 2011 , olga govortsova 's wta year - end ranking have never go up",
+    "predicted_response": 0,
+    "resp": "{\n    \"answer\": \"FALSE\",\n    \"relevant_cells\": [\n        {\"row_index\": 22, \"column_name\": \"year - end championship\"},\n        {\"row_index\": 22, \"column_name\": \"wta tour championships\"}\n    ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 22,
+        "column_name": "year - end championship"
+      },
+      {
+        "row_index": 22,
+        "column_name": "wta tour championships"
+      }
+    ]
+  },
+  {
+    "table_id": "2-12472200-7.html.csv",
+    "claim": "olga govortsova advance to the third round in the french open 2 year in a row",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 3, \"column_name\": \"French Open\"},\n    {\"row_index\": 4, \"column_name\": \"French Open\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "French Open"
+      },
+      {
+        "row_index": 4,
+        "column_name": "French Open"
+      }
+    ]
+  },
+  {
+    "table_id": "2-12472200-7.html.csv",
+    "claim": "olga govortsova reach the final in a grand slam tournament",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 22, \"column_name\": \"tournament: year - end championship\"}, {\"row_index\": 16, \"column_name\": \"tournament: wta premier 5 tournaments\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 22,
+        "column_name": "tournament: year - end championship"
+      },
+      {
+        "row_index": 16,
+        "column_name": "tournament: wta premier 5 tournaments"
+      }
+    ]
+  },
+  {
+    "table_id": "2-12472200-7.html.csv",
+    "claim": "the furthest olga govortsova have ever advance in a grand slam tournament be the second round",
+    "predicted_response": 0,
+    "resp": "{ \n  \"answer\": \"FALSE\", \n  \"relevant_cells\": [\n    {\"row_index\": 2, \"column_name\": \"French Open\"}, \n    {\"row_index\": 3, \"column_name\": \"Wimbledon\"}, \n    {\"row_index\": 4, \"column_name\": \"US Open\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "French Open"
+      },
+      {
+        "row_index": 3,
+        "column_name": "Wimbledon"
+      },
+      {
+        "row_index": 4,
+        "column_name": "US Open"
+      }
+    ]
+  },
+  {
+    "table_id": "2-12472200-7.html.csv",
+    "claim": "from 2007 - 2011 , olga govortsova 's wta year - end ranking have always go up",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 22, \"column_name\": \"year - end ranking\"},\n    {\"row_index\": 22, \"column_name\": \"year - end ranking\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 22,
+        "column_name": "year - end ranking"
+      },
+      {
+        "row_index": 22,
+        "column_name": "year - end ranking"
+      }
+    ]
+  },
+  {
+    "table_id": "2-12472200-7.html.csv",
+    "claim": "olga govortsova have win at least 5 grand slam tournament match in any give year from 2007 - 2011",
+    "predicted_response": 0,
+    "resp": "for year in range(2007, 2012):\n    for tournament in [\"grand slam tournaments\", \"australian open\", \"french open\", \"wimbledon\", \"us open\"]:\n        if any(\"a\" == cell for cell in row[tournament] if year in [int(t.split(\"-\")[1]) for t in cell]):\n            return {\"answer\": \"TRUE\", \"relevant_cells\": [{\"row_index\": 0, \"column_name\": tournament}, {\"row_index\": int(year), \"column_name\": \"win - loss\"}]}\nreturn {\"answer\": \"FALSE\", \"relevant_cells\": []}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-12472200-7.html.csv",
+    "claim": "olga govortsova advance to the third round in the french open 5 year in a row",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 3, \"column_name\": \"French Open\"}, {\"row_index\": 22, \"column_name\": \"Year End Ranking\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "French Open"
+      },
+      {
+        "row_index": 22,
+        "column_name": "Year End Ranking"
+      }
+    ]
+  }
+]

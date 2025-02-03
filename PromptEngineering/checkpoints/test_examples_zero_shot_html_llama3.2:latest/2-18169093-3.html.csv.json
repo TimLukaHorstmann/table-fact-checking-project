@@ -1,0 +1,109 @@
+[
+  {
+    "table_id": "2-18169093-3.html.csv",
+    "claim": "in the 1981 open championship no player finish under par",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 0, \"column_name\": \"score\"}, {\"row_index\": 3, \"column_name\": \"to par\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "score"
+      },
+      {
+        "row_index": 3,
+        "column_name": "to par"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18169093-3.html.csv",
+    "claim": "in the 1981 open championship there be 8 player that tie for 9th",
+    "predicted_response": 1,
+    "resp": "{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 9, \"column_name\": \"score\"},\n    {\"row_index\": 10, \"column_name\": \"to par\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 9,
+        "column_name": "score"
+      },
+      {
+        "row_index": 10,
+        "column_name": "to par"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18169093-3.html.csv",
+    "claim": "in the 1981 open championship the win score be 72 , with 2 player tie for this score",
+    "predicted_response": 0,
+    "resp": "{ \"answer\": \"FALSE\", \"relevant_cells\": [ { \"row_index\": 9, \"column_name\": \"score\" }, { \"row_index\": 10, \"column_name\": \"score\" } ] }",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 9,
+        "column_name": "score"
+      },
+      {
+        "row_index": 10,
+        "column_name": "score"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18169093-3.html.csv",
+    "claim": "england and the united state have the same number of player in the 1981 open championship with 5 each",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\nimport json\n\n# Load the table data into a Pandas DataFrame\ndf = pd.read_html('table')[0]\n\n# Convert df to JSON format for easier manipulation\njson_df = df.to_json(orient='records')\n\n# Parse the JSON string back into a dictionary\ndata_dict = json.loads(json_df)\n\n# Initialize variables to store relevant cells\nrelevant_cells = []\n\n# Loop through each row in the DataFrame\nfor index, row in df.iterrows():\n    # Check if the country is England or United States and there are 5 players\n    if (row['country'] == 'England' or row['country'] == 'United States') and len(row) == 6:\n        relevant_cells.append({'row_index': index, 'column_name': 'player'})\n\n# If there are exactly 5 players from England and United States, then the answer is TRUE\nif (len([cell for cell in data_dict if cell['country'] in ['England', 'United States']]) == 5) & (\n    len([cell for cell in data_dict if cell['country'] in ['England', 'United States']]) == 5):\n    ans = \"TRUE\"\nelse:\n    ans = \"FALSE\"\n\n# Print the result\nprint(json.dumps({'answer': ans, 'relevant_cells': relevant_cells}))",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18169093-3.html.csv",
+    "claim": "in the 1981 open championship no 1 player achieve their position alone , in other word there be a tie at every position",
+    "predicted_response": 0,
+    "resp": "import json\nimport pandas as pd\n\n# Load the table data into a Pandas DataFrame\ndf = pd.read_html('table.html')[0]\n\n# Check if there is a tie at every position\nfor row_index, row in df.iterrows():\n    for column_name, value in zip(df.columns, row):\n        if df[column_name].dtype == 'int64' and (df[column_name] < 70 or (column_name != \"to par\" and (df[\"to par\"] == 'e'))):\n\n            #Check if there are other players with the same score as this player\n            for col in ['player', 'country']:\n                if column_name != col:\n                    other_players = df[(df[col] == row[column_name]) & (df['score'] == row[column_name])]\n                    if len(other_players) > 1:\n                        print(f'Found a tie at position {row_index}: ({column_name}, {value})')\n                        break\n        else:\n            continue\n    else:\n        continue\n    break",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18169093-3.html.csv",
+    "claim": "in the 1981 open championship no player finish under par except isao aoki",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\n\ndata = {\n    'place': ['t1', 't1', 't3', 't3', 't3', 't3', 't3', 't9', 't9', 't9', 't9', 't9'],\n    'player': ['Vicente Fern\u00e1ndez', 'Nick Job', 'Isao Aoki', 'David Graham', 'Tony Jacklin', 'Johnny Miller', 'Simon Owen', 'Hal Sutton (a)', 'Howard Clark', 'Ben Crenshaw', 'David Jagger', 'Mark James'],\n    'country': ['Argentina', 'England', 'Japan', 'Australia', 'England', 'United States', 'New Zealand', 'England', 'United States', 'United States', 'Scotland', 'England'],\n    'score': [70, 70, 71, 71, 71, 71, 71, 72, 72, 72, 72, 72],\n    'to_par': ['e', '+1', '+1', '+1', '+1', '+1', '+1', '+2', '+2', '+2', '+2', '+2']\n}\n\ndf = pd.DataFrame(data)\n\nrelevant_cells = [{\"row_index\": i, \"column_name\": col} for i, row in enumerate(df['to_par'].values) if df.loc[i, 'to_par'] == 'e']\n\nif len(relevant_cells) > 0:\n    answer = \"FALSE\"\nelse:\n    answer = \"TRUE\"\n\nprint('{\"answer\": \"%s\", \"relevant_cells\": %s}' % (answer, relevant_cells))",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18169093-3.html.csv",
+    "claim": "in the 1981 open championship the win score be 72 , with 2 player tie for this score , isao aoki and david graham",
+    "predicted_response": 0,
+    "resp": "{ \"answer\": \"FALSE\", \"relevant_cells\": [] }",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18169093-3.html.csv",
+    "claim": "england , australia and the united state have the same number of player in the 1981 open championship with 5 each",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\n\ndata = {\n    \"place\": [\"t1\", \"t1\", \"t3\", \"t3\", \"t3\", \"t3\", \"t3\", \"t9\", \"t9\", \"t9\", \"t9\", \"t9\", \"t9\", \"t9\", \"t9\"],\n    \"player\": [\"Vicente Fern\u00e1ndez\", \"Nick Job\", \"Isao Aoki\", \"David Graham\", \"Tony Jacklin\", \"Johnny Miller\", \"Simon Owen\", \"Hal Sutton (A)\", \"Howard Clark\", \"Ben Crenshaw\", \"David Jagger\", \"Mark James\", \"Greg Norman\", \"Arnold Palmer\", \"Bill Rogers\", \"Sam Torrance\"],\n    \"country\": [\"Argentina\", \"England\", \"Japan\", \"Australia\", \"England\", \"United States\", \"New Zealand\", \"United States\", \"England\", \"United States\", \"England\", \"England\", \"Australia\", \"United States\", \"Scotland\", \"United States\"],\n    \"score\": [70, 70, 71, 71, 71, 71, 71, 72, 72, 72, 72, 72, 72, 72, 72, 72],\n    \"to_par\": [\"e\", \"+1\", \"+1\", \"+1\", \"+1\", \"+1\", \"+1\", \"+2\", \"+2\", \"+2\", \"+2\", \"+2\", \"+2\", \"+2\", \"+2\", \"+2\"]\n}\n\ndf = pd.DataFrame(data)\n\n# England \nengland_players = df.loc[df['country'] == 'England']['player'].tolist()\n\n# Australia \naustralia_players = df.loc[df['country'] == 'Australia']['player'].tolist()\n\n# United States \nunited_states_players = df.loc[df['country'] == 'United States']['player'].tolist()\n\nif len(england_players) == 5 and len(australia_players) == 5 and len(united_states_players) == 5:\n    answer = \"TRUE\"\nelse:\n    answer = \"FALSE\"\n\nrelevant_cells = [{\"row_index\": i, \"column_name\": 'player'} for i, player in enumerate(england_players + australia_players + united_states_players)]\n\nprint(\"{\" + \"answer\": answer + \", \\\"relevant_cells\\\": \" + str(relevant_cells) + \"}\")",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18169093-3.html.csv",
+    "claim": "in the 1981 open championship no 1 player achieve their position alone , except argentina",
+    "predicted_response": 0,
+    "resp": "Since the claim states that in the 1981 Open Championship, no 1 player achieved their position alone except for Argentina, we need to check if any player from England or Scotland (assuming they are playing alone) had a score that is better than the other players with the same score.\n\nLooking at the table, there is no such instance where an English or Scottish player has a lower score than another player with the same score.\n\nHowever, there are instances of multiple players having the same score and ranking in the same position. For example:\n\n* Position 3: There are four players (Isao Aoki, David Graham, Tony Jacklin, Johnny Miller) who all have a score of 71 (+1) and rank in the same position.\n* Position 9: There are five players (Howard Clark, Ben Crenshaw, David Jagger, Mark James, Greg Norman) who all have a score of 72 (+2) and rank in the same position.\n\nTherefore, since Argentina is not the only instance where a player achieved their position alone, but there are instances where multiple players share the same ranking in the same position, we cannot determine that no English or Scottish player achieved their position alone. However, given that it's impossible to achieve this feat without being tied for a position with other players from the same country, and only Argentina had a non-English/Scottish tie, we will state that:\n\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"place\"},\n    {\"row_index\": 1, \"column_name\": \"player\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18169093-3.html.csv",
+    "claim": "in the 1981 open championship there be 8 player that tie for 9th and 2 that tie for 3",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\nfrom io import StringIO\n\ndef evaluate_claim(data):\n    # Load the data into a DataFrame\n    df = pd.read_csv(StringIO(data), sep='\\t')\n\n    # Filter for players who tied for 9th and those who tied for 3rd\n    ninth_ties = df[(df['score'] == 72) & (df['to par'] == '+2')]\n    third_ties = df[(df['score'] == 71) & (df['to par'] == '+1')]\n\n    # Check the claim\n    if len(ninth_ties) >= 8 and len(third_ties) >= 2:\n        return {\n            \"answer\": \"TRUE\",\n            \"relevant_cells\": [\n                {\"row_index\": 9, \"column_name\": \"score\"},\n                {\"row_index\": 10, \"column_name\": \"to par\"}\n            ]\n        }\n    else:\n        return {\n            \"answer\": \"FALSE\",\n            \"relevant_cells\": []\n        }\n\n# Load the table and evaluate the claim\ndata = \"\"\"\n<table border=\"1\" class=\"dataframe table table-striped\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th>place</th>\n      <th>player</th>\n      <th>country</th>\n      <th>score</th>\n      <th>to par</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>t1</td>\n      <td>vicente fern\u00e3\u00a1ndez</td>\n      <td>argentina</td>\n      <td>70</td>\n      <td>e</td>\n    </tr>\n    <tr>\n      <td>t1</td>\n      <td>nick job</td>\n      <td>england</td>\n      <td>70</td>\n      <td>e</td>\n    </tr>\n    <tr>\n      <td>t3</td>\n      <td>isao aoki</td>\n      <td>japan</td>\n      <td>71</td>\n      <td>+ 1</td>\n    </tr>\n    <tr>\n      <td>t3</td>\n      <td>david graham</td>\n      <td>australia</td>\n      <td>71</td>\n      <td>+ 1</td>\n    </tr>\n    <tr>\n      <td>t3</td>\n      <td>tony jacklin</td>\n      <td>england</td>\n      <td>71</td>\n      <td>+ 1</td>\n    </tr>\n    <tr>\n      <td>t3</td>\n      <td>johnny miller</td>\n      <td>united states</td>\n      <td>71</td>\n      <td>+ 1</td>\n    </tr>\n    <tr>\n      <td>t3</td>\n      <td>simon owen</td>\n      <td)new zealand</td>\n      <td>71</td>\n      <td>+ 1</td>\n    </tr>\n    <tr>\n      <td>t3</td>\n      <td>hal sutton (a)</td>\n      <td>united states</td>\n      <td>71</td>\n      <td>+ 1</td>\n    </tr>\n    <tr>\n      <td>t9</td>\n      <td>howard clark</td>\n      <td>england</td>\n      <td>72</td>\n      <td>+ 2</td>\n    </tr>\n    <tr>\n      <td>t9</td>\n      <td>ben crenshaw</td>\n      <td>united states</td>\n      <td>72</td>\n      <td>+ 2</td>\n    </tr>\n    <tr>\n      <td>t9</td>\n      <td>david jagger</td>\n      <td>england</td>\n      <td>72</td>\n      <td>+ 2</td>\n    </tr>\n    <tr>\n      <td>t9</td>\n      <td>howard clark</td>\n      <td>england</td>\n      <td>72</td>\n      <td>+ 2</td>\n    </tr>\n    <tr>\n      <td>t9</td>\n      <td>ben crenshaw</td>\n      <td>united states</td>\n      <td>72</td>\n      <td>+ 2</td>\n    </tr>\n    <tr>\n      <td>t9</td>\n      <td>david jagger</td>\n      <td>england</td>\n      <td>72</td>\n      <td>+ 2</td>\n    </tr>\n    <tr>\n      <td>t9</td>\n      <td>ben crenshaw</td>\n      <td>united states</td>\n      <td>72</td>\n      <td>+ 2</td>\n    </tr>\n    <tr>\n      <td>t9</td>\n      <td>david jagger</td>\n      <td>england</td>\n      <td>72</td>\n      <td>+ 2</td>\n    </tr>\n  </tbody>\n</table>\n\"\"\"\n\nresult = evaluate_claim(data)\nprint(result)",
+    "true_response": 0,
+    "relevant_cells": []
+  }
+]

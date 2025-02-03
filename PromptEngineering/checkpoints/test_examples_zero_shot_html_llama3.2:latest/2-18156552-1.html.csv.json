@@ -1,0 +1,136 @@
+[
+  {
+    "table_id": "2-18156552-1.html.csv",
+    "claim": "ngc 1796 have the largest apparent magnitude of 12.9 follow by ngc 1705 with 12.8",
+    "predicted_response": 1,
+    "resp": "{\"answer\": \"TRUE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"apparent magnitude\"}, {\"row_index\": 3, \"column_name\": \"apparent magnitude\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "apparent magnitude"
+      },
+      {
+        "row_index": 3,
+        "column_name": "apparent magnitude"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18156552-1.html.csv",
+    "claim": "ngc 1705 have the smallest redshift at 633 kilometer per second plus or minus 6 kilometer per second",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 13, \"column_name\": \"redshift (km / s )\"}, {\"row_index\": 13, \"column_name\": \"apparent magnitude\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 13,
+        "column_name": "redshift (km / s )"
+      },
+      {
+        "row_index": 13,
+        "column_name": "apparent magnitude"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18156552-1.html.csv",
+    "claim": "the lowest right ascension (or ra) be ngc 1533 with a right ascension of 4 hour 9 minute and 51.8 second",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 3, \"column_name\": \"ra ( j2000 )\"}, {\"row_index\": 2, \"column_name\": \"ra ( j2000 )\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "ra ( j2000 )"
+      },
+      {
+        "row_index": 2,
+        "column_name": "ra ( j2000 )"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18156552-1.html.csv",
+    "claim": "ngc 1515 have the largest apparent magnitude of 12.9 follow by ngc 1705 with 12.8",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"apparent magnitude\"},\n    {\"row_index\": 8, \"column_name\": \"apparent magnitude\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "apparent magnitude"
+      },
+      {
+        "row_index": 8,
+        "column_name": "apparent magnitude"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18156552-1.html.csv",
+    "claim": "ngc 2082 redshift faster than ngc 1705 by 551 kilometer per second plus or minus 6 kilometer per second",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\nfrom io import StringIO\n\ndata = \"\"\"\n<table border=\"1\" class=\"dataframe table table-striped\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th>name</th>\n      <th>type</th>\n      <th>ra ( j2000 )</th>\n      <th>dec ( j2000 )</th>\n      <th>redshift (km / s )</th>\n      <th>apparent magnitude</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>ngc 2082</td>\n      <td>sab (rs + ) c</td>\n      <td>05h41 m51.1s</td>\n      <td>degree18\u203204\u2033</td>\n      <td>1184 \u00b1 6</td>\n      <td>12.6</td>\n    </tr>\n    <tr>\n      <td>ngc 1947</td>\n      <td>s0 - pec</td>\n      <td>05h26 m47.6s</td>\n      <td>degree01\u203200\u2033</td>\n      <td>633 \u00b1 6</td>\n      <td>12.8</td>\n    </tr>\n    <tr>\n      <td>ngc 1705</td>\n      <td>sa0 - pec</td>\n      <td>04h54 m13.5s</td>\n      <td>degree21\u203240\u2033</td>\n      <td>633 \u00b1 6</td>\n      <td>12.8</td>\n    </tr>\n  </tbody>\n</table>\n\"\"\"\n\n# Load data into a pandas DataFrame\ndf = pd.read_csv(StringIO(data))\n\n# Calculate the absolute difference in redshift between ngc 2082 and ngc 1705\ndiff = abs(df.loc[df['name'] == 'ngc 2082', 'redshift (km / s )'].values[0] - df.loc[df['name'] == 'ngc 1705', 'redshift (km / s )'].values[0])\n\n# Check if the difference is greater than or equal to 551 with an error margin of plus or minus 6\nif diff >= 551 + 6 and diff <= 551 - 6:\n    answer = \"TRUE\"\nelse:\n    answer = \"FALSE\"\n\n# Find the relevant cells in the DataFrame\nrelevant_cells = [{\"row_index\": i, \"column_name\": column} for i, row in df.iterrows() if 'redshift (km / s )' == row['type']]\n\n# Print the JSON response\nprint('{\"answer\": \"%s\", \"relevant_cells\": %s}' % (answer, relevant_cells))",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18156552-1.html.csv",
+    "claim": "ngc 1574 have a deeper declination (or dec) of \u00b058\u203229\u2033 , than any other galaxy in the dorado group",
+    "predicted_response": 0,
+    "resp": "import json\nimport pandas as pd\n\n# load the table\ndata = {\n    'name': ['ngc 2082', 'ngc 1947', 'ngc 1796', 'ngc 1688', 'ngc 1672', \n             'ic 2056', 'ngc 1559', 'ngc 1543', 'ngc 1574', 'ngc 1533', \n             'ngc 1546', 'ngc 1553', 'ngc 1549', 'ngc 1566', 'ngc 1617', \n             'ngc 1515', 'ngc 1705', 'ngc 1596'],\n    'type': ['sab (rs + ) c', 's0 - pec', '(r) sb (r) dm :</td>', 'sb (rs) dm', \n             '(r'_1: ) sb (r) bc sy2', 'sab (r) b', 'sb (s) cd', \n             '(r) sb (l) 0 0', 'sa0 -', 'sa (rl) 0 0', 'e0 1', \n             '(r'_1) sab (rs) bcsy1', '(r') sab (rs) a', 'sab (s) bc', \n             'sa0 - pec', 'sa0: sp'],\n    'dec': ['\u00b037\\'57\\'\\'', '\u00b042\\'19\\'\\'', '\u00b055\\'39\\'\\'', '\u00b029\\'59\\'\\'', \n           '\u00b017\\'21\\'\\'', '\u00b058\\'29\\'\\'', '\u00b046\\'49\\'\\'', '\u00b035\\'32\\'\\'', \n           '\u00b056\\'16\\'\\'', '\u00b036\\'08\\'\\'', '\u00b006\\'00\\'\\'', '\u00b001\\'40\\'\\'', \n           '\u00b035\\'42\\'\\'', '\u00b056\\'16\\'\\'', '\u00b036\\'08\\'\\'', '\u00b001\\'40\\'\\'', \n           '\u00b056\\'16\\'\\'', '\u00b001\\'40\\'\\'', '\u00b001\\'40\\'\\'', '\u00b000\\'50\\'\\'']\n}\n\ndf = pd.DataFrame(data)\n# Find the row index of ngc 1574\nrow_index_1574 = df.loc[df['name'] == 'ngc 1574'].index[0]\n\n# Find the row with a deeper declination than any other galaxy in the dorado group\ndeeper_dec_row_index = df[df['dec'] > df.loc[row_index_1574, 'dec']].index[0].item()\n\n# Get the relevant cells\nrelevant_cells = [\n    {\"row_index\": int(deeper_dec_row_index), \"column_name\": \"dec\"}\n]\n\njson_object = {\n    \"answer\": \"TRUE\" if deeper_dec_row_index != row_index_1574 else \"FALSE\",\n    \"relevant_cells\": relevant_cells\n}\n\nprint(json.dumps(json_object))",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18156552-1.html.csv",
+    "claim": "ngc 1796 have the largest redshift at 633 kilometer per second plus or minus 6 kilometer per second",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 3, \"column_name\": \"redshift (km / s )\"},\n    {\"row_index\": 0, \"column_name\": \"redshift (km / s )\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "redshift (km / s )"
+      },
+      {
+        "row_index": 0,
+        "column_name": "redshift (km / s )"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18156552-1.html.csv",
+    "claim": "the lowest right ascension (or ra) be ngc 2082 with a right ascension of 4 hour 8 minute and 58.1 second",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 2, \"column_name\": \"ra ( j2000 )\"}, {\"row_index\": 0, \"column_name\": \"name\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "ra ( j2000 )"
+      },
+      {
+        "row_index": 0,
+        "column_name": "name"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18156552-1.html.csv",
+    "claim": "ngc 1705 redshift faster than ngc2082 by 441 kilometer per second plus or minus 6 kilometer per second",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\nimport json\n\n# Load the table data\ndata = {\n    \"name\": [\"ngc 2082\", \"ngc 1947\", \"ngc 1796\", \"ngc 1688\", \"ngc 1672\", \"ic 2056\", \"ngc 1559\", \"ngc 1543\", \"ngc 1574\", \"ngc 1533\", \"ngc 1546\", \"ngc 1553\", \"ngc 1549\", \"ngc 1566\", \"ngc 1617\", \"ngc 1515\", \"ngc 1705\", \"ngc 1596\"],\n    \"type\": [\"sab (rs + ) c\", \"s0 - pec\", \"(r) sb (r) dm :\", \"sb (rs) dm\", \"(r'_1: ) sb (r) bc sy2\", \"sab (r) b\", \"sb (s) cd\", \"(r) sb (l) 0 0\", \"sa0 -\", \"(l) sb (rs) 0 0\", \"sa (rl) 0 0\", \"e0 1\", \"(r'_1) sab (rs) bcsy1\", \"(r') sab (rs) a\", \"sab (s) bc\", \"sa0 - pec\", \"sa0: sp\"],\n    \"redshift\": [441, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, 633, 1510]\n}\n\ndf = pd.DataFrame(data)\n\n# Find the redshift values for ngc 2082 and ngc 1705\nngc_2082_redshift = df.loc[df['name'] == 'ngc 2082', 'redshift'].iloc[0]\nngc_1705_redshift = df.loc[df['name'] == 'ngc 1705', 'redshift'].iloc[0]\n\n# Check if ngc 1705 has a redshift value\nif ngc_1705_redshift is not None:\n    # Calculate the difference between the two redshift values\n    redshift_diff = ngc_2082_redshift - ngc_1705_redshift\n\n    # Check if the claim is supported by the data\n    if abs(redshift_diff) >= 441 and abs(redshift_diff) <= 441 + 6:\n        answer = \"TRUE\"\n    else:\n        answer = \"FALSE\"\n\n    # Get the relevant cells for the answer\n    if answer == \"TRUE\":\n        relevant_cells = [{\"row_index\": df.index[df['name'] == 'ngc 2082'].tolist().index(0) + df.index[df['name'] == 'ngc 1705'].tolist().index(0)],\n                          {\"row_index\": df.index[df['name'] == 'ngc 2082'].tolist().index(0)},\n                          {\"row_index\": df.index[df['name'] == 'ngc 1705'].tolist().index(0)}]}\n    else:\n        relevant_cells = [{\"row_index\": None, \"column_name\": None}]\nelse:\n    answer = \"FALSE\"\n    relevant_cells = [{\"row_index\": None, \"column_name\": None}]\n\n# Print the result\nprint(json.dumps({\n    \"answer\": answer,\n    \"relevant_cells\": relevant_cells\n}))",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18156552-1.html.csv",
+    "claim": "ngc 2082 have a deeper declination (or dec) of \u00b059\u203228\u2033 , than any other galaxy in the dorado group",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\n\n# Define the table\ntable = \"\"\"\n<table border=\"1\" class=\"dataframe table table-striped\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th>name</th>\n      <th>type</th>\n      <th>ra ( j2000 )</th>\n      <th>dec ( j2000 )</th>\n      <th>redshift (km / s )</th>\n      <th>apparent magnitude</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>ngc 2082</td>\n      <td>sab (rs + ) c</td>\n      <td>05h41 m51.1s</td>\n      <td>degree18\u203204\u2033</td>\n      <td>1184 \u00b1 6</td>\n      <td>12.6</td>\n    </tr>\n    <tr>\n      <td>ngc 1947</td>\n      <td>s0 - pec</td>\n      <td>05h26 m47.6s</td>\n      <td>degree09\u203255\u2033</td>\n      <td>1143 \u00b1 4</td>\n      <td>11.5</td>\n    </tr>\n    <tr>\n      <td>ngc 1948</td>\n      <td>s0 - pec</td>\n      <td>05h32 m22.9s</td>\n      <td>degree15\u203242\u2033</td>\n      <td>1062 \u00b1 4</td>\n      <td>11.3</td>\n    </tr>\n    <!-- ... rest of the table -->\n  </tbody>\n</table>\n\"\"\"\n\n# Load the table into a pandas DataFrame\ndf = pd.read_html(table)[0]\n\n# Convert dec column to degrees\ndef deg(x):\n    import re\n    match = re.search(r'\u00b0(\\d+)\u2032?(\\d*)\"', x)\n    if match:\n        return int(match.group(1)) + (int(match.group(2) or 0)/60)\n\ndf['dec'] = df['dec'].apply(deg)\n\n# Find the galaxy with the deepest declination in the Dorado group\nmax_dec = max(df.loc[df['name'].str.contains('ngc 1948')].set_index('name')['dec'], default=0)\nmax_name = df.loc[df['name'].str.contains('ngc 2082')].iloc[0]['name']\n\n# Check if ngc 2082 have a deeper declination than any other galaxy in the Dorado group\nif max_dec < df.loc[(df['name'].str.contains('ngc 1948')) & (df['dec'] > deg(max_dec))][0]['dec']:\n    answer = \"TRUE\"\nelse:\n    answer = \"FALSE\"\n\nrelevant_cells = [{\"row_index\": 1, \"column_name\": \"dec\"}, {\"row_index\": 0, \"column_name\": \"name\"}]\nprint(\"{\\n  \\\"answer\\\": \\\"\" + answer + \"\\\",\\n  \\\"relevant_cells\\\": [\\n    \" + \",\\n    \".join([json.dumps(cell) for cell in relevant_cells]) + \"\\n  ]\\n}\")",
+    "true_response": 0,
+    "relevant_cells": []
+  }
+]

@@ -1,0 +1,166 @@
+[
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "the agricultural panel and labour panel both have 11 total member",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 6, \"column_name\": \"labour panel\"}, {\"row_index\": 6, \"column_name\": \"agricultural panel\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "labour panel"
+      },
+      {
+        "row_index": 6,
+        "column_name": "agricultural panel"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "university of dublin be the only group of origin make up entirely of member from 1 party",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 0, \"column_name\": \"total\"}, {\"row_index\": 1, \"column_name\": \"total\"}, {\"row_index\": 3, \"column_name\": \"total\"}, {\"row_index\": 5, \"column_name\": \"total\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "total"
+      },
+      {
+        "row_index": 1,
+        "column_name": "total"
+      },
+      {
+        "row_index": 3,
+        "column_name": "total"
+      },
+      {
+        "row_index": 5,
+        "column_name": "total"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "the party with 21 total member have 18 more member than the party with the fewest total member",
+    "predicted_response": 0,
+    "resp": "import json\n\ndef evaluate_claim():\n    # load table from naturalized\n    with open('table.json') as f:\n        data = json.load(f)\n\n    party_with_21_total_members = None\n    total_member_count_of_party_with_fewest_total_members = float('inf')\n\n    for row_index, row in enumerate(data):\n        if row['total'] == 21:\n            party_with_21_total_members = row\n        elif row['total'] < total_member_count_of_party_with_fewest_total_members:\n            total_member_count_of_party_with_fewest_total_members = row['total']\n\n    if total_member_count_of_party_with_fewest_total_members != float('inf') and total_member_count_of_party_with_fewest_total_members > 0:\n        member_difference = party_with_21_total_members['total'] - total_member_count_of_party_with_fewest_total_members\n        # print(party_with_21_total_members)\n        if member_difference == 18:\n            return {\n                \"answer\": \"TRUE\",\n                \"relevant_cells\": [\n                    {\"row_index\": 0, \"column_name\": \"Total\"},\n                    {\"row_index\": int(total_member_count_of_party_with_fewest_total_members) - 1, \"column_name\": \"Total\"}\n                ]\n            }\n    else:\n        return {\n            \"answer\": \"FALSE\",\n            \"relevant_cells\": [\n                {\"row_index\": 0, \"column_name\": \"Total\"},\n                {\"row_index\": int(total_member_count_of_party_with_fewest_total_members) - 1, \"column_name\": \"Total\"}\n            ]\n        }\n\nprint(evaluate_claim())",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "nominate by the taoiseach have the most member from 1 party",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 5, \"column_name\": \"total\"},\n    {\"row_index\": 6, \"column_name\": \"total\"},\n    {\"row_index\": 0, \"column_name\": \"nominated by the taoiseach\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "total"
+      },
+      {
+        "row_index": 6,
+        "column_name": "total"
+      },
+      {
+        "row_index": 0,
+        "column_name": "nominated by the taoiseach"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "industrial and commercial panel have 4 more member than cultural and educational panel",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"industrial and commercial panel\"},\n    {\"row_index\": 1, \"column_name\": \"cultural and educational panel\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "industrial and commercial panel"
+      },
+      {
+        "row_index": 1,
+        "column_name": "cultural and educational panel"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "the agricultural panel have 2 member and the labour panel have 5 member",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 2, \"column_name\": \"Agricultural panel\"},\n    {\"row_index\": 3, \"column_name\": \"Labour panel\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "Agricultural panel"
+      },
+      {
+        "row_index": 3,
+        "column_name": "Labour panel"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "the party with 21 total member have 9 more member than the party with the second most member",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 0, \"column_name\": \"total\"}, {\"row_index\": 6, \"column_name\": \"total\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "total"
+      },
+      {
+        "row_index": 6,
+        "column_name": "total"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "national university of ireland be the only group of origin make up mostly of member from 2 party",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 6, \"column_name\": \"total\"},\n    {\"row_index\": 0, \"column_name\": \"party\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "total"
+      },
+      {
+        "row_index": 0,
+        "column_name": "party"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "agricultural panel have the most member from 1 party",
+    "predicted_response": 0,
+    "resp": "{\"answer\":\"FALSE\",\"relevant_cells\":[{\"row_index\":4,\"column_name\":\"Agricultural Panel\"},{\"row_index\":6,\"column_name\":\"Agricultural Panel\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "Agricultural Panel"
+      },
+      {
+        "row_index": 6,
+        "column_name": "Agricultural Panel"
+      }
+    ]
+  },
+  {
+    "table_id": "2-15547694-1.html.csv",
+    "claim": "administrative panel have 4 more member than national university of ireland",
+    "predicted_response": 0,
+    "resp": "Let's parse the data and check if the claim is supported.\n\nFirst, we need to find the values for 'administrative panel' and 'national university of ireland' in each row:\n\nRow 1:\n- administrative panel: 4\n- national university of ireland: 1\n\nRow 2:\n- administrative panel: 1\n- national university of ireland: 1\n\nRow 3:\n- administrative panel: 0\n- national university of ireland: 0\n\nRow 4:\n- administrative panel: 0\n- national university of ireland: 0\n\nRow 5:\n- administrative panel: 0\n- national university of ireland: 1\n\nRow 6:\n- administrative panel: 7\n- national university of ireland: 3\n\nNow, let's check if the claim is supported:\n\nadministrative panel has more members than national university of ireland in Row 1 and Row 2. In Row 6, they have equal number but in Row 5, national university of ireland has less member, so it does not support.\n\nTherefore, the answer is FALSE.\n\nHere's the JSON output:\n\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"administrative panel\"},\n    {\"row_index\": 0, \"column_name\": \"national university of ireland\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  }
+]

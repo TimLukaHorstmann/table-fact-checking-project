@@ -1,0 +1,118 @@
+[
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "4 athlete have a mark of 28 foot",
+    "predicted_response": 0,
+    "resp": "const tableData = {\n  columns: [\n    { value: 'mark', index: 2 },\n    { value: 'wind', index: 1 },\n    { value: 'athlete', index: 2 },\n    { value: 'nationality', index: 3 },\n    { value: 'venue', index: 4 },\n    { value: 'date', index: 5 }\n  ],\n  data: [\n    {\n      mark: \"8.95 m (29ft4\\u00bcin)\",\n      wind: 0.3,\n      athlete: \"mike powell\",\n      nationality: \"united states\",\n      venue: \"tokyo\",\n      date: \"august 30 , 1991\"\n    },\n    {\n      mark: \"8.90 m (29ft2\\u00bcin) a\",\n      wind: 2.0,\n      athlete: \"bob beamon\",\n      nationality: \"united states\",\n      venue: \"mexico city\",\n      date: \"october 18 , 1968\"\n    },\n    {\n      mark: \"8.87 m (29ft1in)\",\n      wind: 0.2,\n      athlete: \"carl lewis\",\n      nationality: \"united states\",\n      venue: \"tokyo\",\n      date: \"august 30 , 1991\"\n    },\n    {\n      mark: \"8.86 m (29ft0\\u00bein) a\",\n      wind: 1.9,\n      athlete: \"robert emmiyan\",\n      nationality: \"soviet union\",\n      venue: \"tsakhkadzor\",\n      date: \"may 22 , 1987\"\n    },\n    {\n      mark: \"8.74 m (28ft8in)\",\n      wind: 1.4,\n      athlete: \"larry myricks\",\n      nationality: \"united states\",\n      venue: \"indianapolis\",\n      date: \"july 18 , 1988\"\n    },\n    {\n      mark: \"8.74 m (28ft8in) a\",\n      wind: 2.0,\n      athlete: \"erick walder\",\n      nationality: \"united states\",\n      venue: \"el paso\",\n      date: \"april 2 , 1994\"\n    },\n    {\n      mark: \"8.74 m (28ft8in)\",\n      wind: 1.2,\n      athlete: \"dwight phillips\",\n      nationality: \"united states\",\n      venue: \"eugene\",\n      date: \"june 7 , 2009\"\n    },\n    {\n      mark: \"8.73 m (28ft7\\u00bdin)\",\n      wind: 1.2,\n      athlete: \"irving saladino\",\n      nationality: \"panama\",\n      venue: \"hengelo\",\n      date: \"may 24 , 2008\"\n    },\n    {\n      mark: \"8.71 m (28ft6\\u00bein)\",\n      wind: 1.9,\n      athlete: \"iv\\u00e1n pedroso\",\n      nationality: \"cuba\",\n      venue: \"salamanca\",\n      date: \"july 18 , 1995\"\n    },\n    {\n      mark: \"8.66 m (28ft4\\u00bein)\",\n      wind: 1.6,\n      athlete: \"lo\\u00fais ts\\u00e1toumas\",\n      nationality: \"greece\",\n      venue: \"kalam\\u00e1ta\",\n      date: \"june 2 , 2007\"\n    }\n  ]\n}\n\nconst claim = {\n  answer: claimSupportsClaim(tableData) ? 'TRUE' : 'FALSE',\n  relevant_cells: getRelevantCells(tableData)\n};\n\nfunction claimSupportsClaim(data) {\n  const length = data.data.length;\n\n  for (let i = 0; i < length; i++) {\n    if (data.data[i].mark === \"28ft8in\") return true;\n  }\n\n  return false;\n}\n\nfunction getRelevantCells(tableData) {\n  const athleteIndex = tableData.columns.findIndex(column => column.value === 'athlete');\n  const markColumn = tableData.columns.find(column => column.value === 'mark');\n\n  return tableData.data.map((data, index) => {\n    if (data.mark === \"28ft8in\") {\n      return { row_index: index, column_name: markColumn.value };\n    } else if (data.athlete === '4 athlete') return null;\n  }).filter(Boolean);\n}\n\nmodule.exports = claim;",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "bob beamon have recently set his long jump record",
+    "predicted_response": 0,
+    "resp": "```json\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"wind\"},\n    {\"row_index\": 1, \"column_name\": \"athlete\"}\n  ]\n}\n```\n\nExplanation:\n\nThe claim states that Bob Beamon has recently set his long jump record. To evaluate this claim, we need to check if any of the athletes have updated their records.\n\nUpon examining the data, we can see that one of the rows for Bob Beamon was added in 1968 (October 18th), while another row with \"a\" at the end was added in 1994 (April 2nd). However, there is no row that indicates a recent update or any record set by Bob Beamon after his original record.",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "wind"
+      },
+      {
+        "row_index": 1,
+        "column_name": "athlete"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "erick walder and bob beamon have the same wind",
+    "predicted_response": 0,
+    "resp": "function getAnswer() {\n    var data = [\n        [\"8.95 m (29ft4\\u00bcin)\", 0.3, \"mike powell\", \"united states\", \"tokyo\", \"august 30 , 1991\"],\n        [\"8.90 m (29ft2\\u00bcin) a\", 2.0, \"bob beamon\", \"united states\", \"mexico city\", \"october 18 , 1968\"],\n        [\"8.87 m (29ft1in)\", 0.2, \"carl lewis\", \"united states\", \"tokyo\", \"august 30 , 1991\"],\n        [\"8.86 m (29ft0\\u00bein) a\", 1.9, \"robert emmiyan\", \"soviet union\", \"tsakhkadzor\", \"may 22 , 1987\"],\n        [\"8.74 m (28ft8in)\", 1.4, \"larry myricks\", \"united states\", \"indianapolis\", \"july 18 , 1988\"],\n        [\"8.74 m (28ft8in) a\", 2.0, \"erick walder\", \"united states\", \"el paso\", \"april 2 , 1994\"],\n        [\"8.74 m (28ft8in)\", 1.2, \"dwight phillips\", \"united states\", \"eugene\", \"june 7 , 2009\"],\n        [\"8.73 m (28ft7\\u00bdin)\", 1.2, \"irving saladino\", \"panama\", \"hengelo\", \"may 24 , 2008\"],\n        [\"8.71 m (28ft6\\u00bein)\", 1.9, \"iv\\u00e1n pedroso\", \"cuba\", \"salamanca\", \"july 18 , 1995\"],\n        [\"8.66 m (28ft4\\u00bein)\", 1.6, \"lo\\u00fais ts\\u00e1toumas\", \"greece\", \"kalam\\u00e1ta\", \"june 2 , 2007\"]\n    ];\n\n    var wind = data[1][1];\n    var beamonWind = data[0][1];\n\n    if (wind == beamonWind) {\n        return {\n            \"answer\": \"TRUE\",\n            \"relevant_cells\":\n                [\n                    {\"row_index\": 0, \"column_name\": \"wind\"},\n                    {\"row_index\": 1, \"column_name\": \"wind\"}\n                ]\n        };\n    } else {\n        return {\n            \"answer\": \"FALSE\"\n        }\n    }\n}\n\nprint(getAnswer());",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "the majority of the athlete with the longest mark be from the united state",
+    "predicted_response": 1,
+    "resp": "Let's analyze the claim by examining the table data:\n\n```json\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"athlete\"},\n    {\"row_index\": 1, \"column_name\": \"nationality\"}\n  ]\n}\n```\n\nExplanation: In the data, there are three athletes from the United States (Mike Powell, Bob Beam on, Larry Myricks) and one athlete from Panama (Irving Saladino).",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "athlete"
+      },
+      {
+        "row_index": 1,
+        "column_name": "nationality"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "only 4 of the athlete have a mark greater than 29 foot",
+    "predicted_response": 0,
+    "resp": "import json\n\ndef claim_evaluation(data):\n    athlete_marks_greater_than_29_foot = sum(1 for mark in data[0][0] if float(mark.split()[0].replace('m', '')) > 29)\n\n    relevant_cells = [\n        {\"row_index\": i, \"column_name\": col} \n        for i, row in enumerate(data[1:]) \n        for col, value in enumerate(row) \n        if value.split()[0].split(' ')[0] == 'a'\n    ]\n\n    return json.dumps({\"answer\": str(athlete_marks_greater_than_29_foot >= 4).upper(), \"relevant_cells\": relevant_cells})\n\nprint(claim_evaluation(table))",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "bob beamon be the athlete who set his long jump record the longest time ago",
+    "predicted_response": 0,
+    "resp": "import json\nimport pandas as pd\n\ntable_data = {\n  \"columns\": [\n    \"mark\",\n    \"wind\",\n    \"athlete\",\n    \"nationality\",\n    \"venue\",\n    \"date\"\n  ],\n  \"data\": [\n    [\n      \"8.95 m (29ft4\\u00bcin)\",\n      0.3,\n      \"mike powell\",\n      \"united states\",\n      \"tokyo\",\n      \"august 30 , 1991\"\n    ],\n    [\n      \"8.90 m (29ft2\\u00bcin) a\",\n      2.0,\n      \"bob beamon\",\n      \"united states\",\n      \"mexico city\",\n      \"october 18 , 1968\"\n    ],\n    [\n      \"8.87 m (29ft1in)\",\n      0.2,\n      \"carl lewis\",\n      \"united states\",\n      \"tokyo\",\n      \"august 30 , 1991\"\n    ],\n    [\n      \"8.86 m (29ft0\\u00bein) a\",\n      1.9,\n      \"robert emmiyan\",\n      \"soviet union\",\n      \"tsakhkadzor\",\n      \"may 22 , 1987\"\n    ],\n    [\n      \"8.74 m (28ft8in)\",\n      1.4,\n      \"larry myricks\",\n      \"united states\",\n      \"indianapolis\",\n      \"july 18 , 1988\"\n    ],\n    [\n      \"8.74 m (28ft8in) a\",\n      2.0,\n      \"erick walder\",\n      \"united states\",\n      \"el paso\",\n      \"april 2 , 1994\"\n    ],\n    [\n      \"8.74 m (28ft8in)\",\n      1.2,\n      \"dwight phillips\",\n      \"united states\",\n      \"eugene\",\n      \"june 7 , 2009\"\n    ],\n    [\n      \"8.73 m (28ft7\\u00bdin)\",\n      1.2,\n      \"irving saladino\",\n      \"panama\",\n      \"hengelo\",\n      \"may 24 , 2008\"\n    ],\n    [\n      \"8.71 m (28ft6\\u00bein)\",\n      1.9,\n      \"iv\\u00e1n pedroso\",\n      \"cuba\",\n      \"salamanca\",\n      \"july 18 , 1995\"\n    ],\n    [\n      \"8.66 m (28ft4\\u00bein)\",\n      1.6,\n      \"lo\\u00fais ts\\u00e9toumas\",\n      \"greece\",\n      \"kalam\\u00e1ta\",\n      \"june 2 , 2007\"\n    ]\n  ]\n}\n\ndf = pd.DataFrame(table_data[\"data\"], columns=table_data['columns'])\n\nfirst_record_date = df.loc[df['mark'].idxmax()]['date']\ncurrent_date = datetime.now()\n\nif current_date > first_record_date:\n    relevant_cells = [\n        {\"row_index\": int(df['date'].loc[first_record_date].split(\" \")[1]) - 1, \"column_name\": \"date\"}\n    ]\nelse:\n    relevant_cells = [{\"row_index\": 0, \"column_name\": \"date\"}]\n    \nrelevant_cells.append({\"row_index\": 0, \"column_name\": \"athlete\"})\nrelevant_cells.append({\"row_index\": 0, \"column_name\": \"nationality\"})\nrelevant_cells.append({\"row_index\": 0, \"column_name\": \"venue\"})\n\nprint(\"{\" + \n      \"'answer': '\" + (\"TRUE\" if current_date > first_record_date else \"FALSE\") + \"'\" +\n      \",\\n'relevant_cells': [\" + \n        json.dumps(relevant_cells[0]) + \",\n        json.dumps(relevant_cells[1]) + \",\n        json.dumps(relevant_cells[2]) + \",\n        json.dumps(relevant_cells[3]) + \"]\"\n      \"} \")",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "the most recent long jump record be set by dwight phillips",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 6, \"column_name\": \"date\"},\n    {\"row_index\": 7, \"column_name\": \"mark\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "date"
+      },
+      {
+        "row_index": 7,
+        "column_name": "mark"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "few athlete from the united state have the longest mark",
+    "predicted_response": 0,
+    "resp": "Based on the table and claim provided, here is the response in the required format:\n\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"athlete\"},\n    {\"row_index\": 1, \"column_name\": \"nationality\"},\n    {\"row_index\": 2, \"column_name\": \"athlete\"},\n    {\"row_index\": 3, \"column_name\": \"venue\"},\n    {\"row_index\": 4, \"column_name\": \"date\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "dwight phillips be the first person to set a long jump record",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 5, \"column_name\": \"athlete\"}, {\"row_index\": 7, \"column_name\": \"venue\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "athlete"
+      },
+      {
+        "row_index": 7,
+        "column_name": "venue"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18084-3.html.csv",
+    "claim": "all athlete have the same wind except eric walder and bob beamon",
+    "predicted_response": 0,
+    "resp": "Let's start by defining the function.\n\n```python\nimport json\n\ndef evaluate_claim(data):\n    \"\"\"\n    Evaluates a claim about the athlete wind data.\n    \n    Args:\n    data (list): A list of lists containing athlete data\n    \n    Returns:\n    dict: A dictionary with \"answer\" and \"relevant_cells\" keys.\n    \"\"\"\n\n    # Extract relevant columns\n    columns = data[0]\n    relevant_columns = [\"wind\"]\n    \n    # Initialize answer and cells\n    answer = \"FALSE\"\n    cells = []\n    \n    # Iterate over rows in data\n    for i, row in enumerate(data):\n        if any(value not in [0.2, 1.9] for value in row[relevant_columns]):\n            answer = \"TRUE\"\n            break\n        \n        for j, column_name in enumerate(relevant_columns):\n            cells.append({\"row_index\": i, \"column_name\": column_name})\n    \n    # Add relevant cells to the list\n    if columns[0] == \"athlete\":\n        cells.extend([{\"row_index\": i, \"column_name\": \"athlete\"} for i in range(len(data))])\n        \n    return {\n        \"answer\": answer,\n        \"relevant_cells\": cells\n    }\n```\n\nNow let's test our function.\n\n```python\ndata = [\n    [\"8.95 m (29ft4\\u00bcin)\", 0.3, \"mike powell\", \"united states\", \"tokyo\", \"august 30 , 1991\"],\n    [\"8.90 m (29ft2\\u00bcin) a\", 2.0, \"bob beamon\", \"united states\", \"mexico city\", \"october 18 , 1968\"],\n    [\"8.87 m (29ft1in)\", 0.2, \"carl lewis\", \"united states\", \"tokyo\", \"august 30 , 1991\"],\n    [\"8.86 m (29ft0\\u00bein) a\", 1.9, \"robert emmiyan\", \"soviet union\", \"tsakhkadzor\", \"may 22 , 1987\"],\n    [\"8.74 m (28ft8in)\", 1.4, \"larry myricks\", \"united states\", \"indianapolis\", \"july 18 , 1988\"],\n    [\"8.74 m (28ft8in) a\", 2.0, \"erick walder\", \"united states\", \"el paso\", \"april 2 , 1994\"],\n    [\"8.74 m (28ft8in)\", 1.2, \"dwight phillips\", \"united states\", \"eugene\", \"june 7 , 2009\"],\n    [\"8.73 m (28ft7\\u00bdin)\", 1.2, \"irving saladino\", \"panama\", \"hengelo\", \"may 24 , 2008\"],\n    [\"8.71 m (28ft6\\u00bein)\", 1.9, \"iv\\u00e1n pedroso\", \"cuba\", \"salamanca\", \"july 18 , 1995\"],\n    [\"8.66 m (28ft4\\u00bein)\", 1.6, \"lo\\u00fais ts\\u00e9toumas\", \"greece\", \"kalam\\u00e1ta\", \"june 2 , 2007\"]\n]\n\nprint(json.dumps(evaluate_claim(data), indent=2))\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  }
+]

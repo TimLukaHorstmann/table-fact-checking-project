@@ -1,0 +1,118 @@
+[
+  {
+    "table_id": "2-18700010-1.html.csv",
+    "claim": "among the player in df position , dave sutton have the most league goal",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\nfrom io import StringIO\n\ntable_string = \"\"\"\n<table border=\"1\" class=\"dataframe table table-striped\">\n  <thead>\n    <tr style=\"text-align: right;\">\n      <th>name</th>\n      <th>position</th>\n      <th>league goal</th>\n      <!-- ... -->\n  </thead>\n  ...\n</table>\n\"\"\"\n\n# Load the data\ndf = pd.read_csv(StringIO(table_string))\n\n# Find the player with the most league goals in the 'df' position\nmax_goal_player = df.loc[(df['position'] == 'df') & (df['league goal'].idxmax())]\n\nif max_goal_player.empty:\n    result = {\"answer\": \"FALSE\", \"relevant_cells\": []}\nelse:\n    row_index = df[df['position'] == 'df']['league goal'].eq(max_goal_player['league goal']).index[0]\n    column_name = 'league goal'\n    relevant_cells = [{\"row_index\": int(row_index), \"column_name\": column_name}]\n    result = {\"answer\": \"TRUE\", \"relevant_cells\": relevant_cells}\n\nprint(result)",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18700010-1.html.csv",
+    "claim": "the 2 player with the highest league apps be malcolm brown and peter hart",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 5, \"column_name\": \"league apps\"}, {\"row_index\": 6, \"column_name\": \"league goals\"}]}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "league apps"
+      },
+      {
+        "row_index": 6,
+        "column_name": "league goals"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18700010-1.html.csv",
+    "claim": "the player with the highest number of league goal be ian robin",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 1, \"column_name\": \"league goals\"}, {\"row_index\": 0, \"column_name\": \"name\"}]}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 1,
+        "column_name": "league goals"
+      },
+      {
+        "row_index": 0,
+        "column_name": "name"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18700010-1.html.csv",
+    "claim": "the player with the highest number of total goal be ian robin",
+    "predicted_response": 0,
+    "resp": "import pandas as pd\nimport json\n\n# Create a DataFrame from the table\ndf = pd.read_html('table')[0]\n\n# Find the row with the highest total goals\nmax_goals_row_index = df['total goals'].idxmax()\nmax_goals_player_name = df.loc[max_goals_row_index, 'player name']\n\n# Check if the player with the most total goals is Ian Robbins\nif max_goals_player_name == \"Ian Robins\":\n    answer = \"TRUE\"\nelse:\n    answer = \"FALSE\"\n\n# Get the row index and column name of the relevant cell\nrelevant_cells = [{\"row_index\": max_goals_row_index, \"column_name\": \"total goals\"}]\nelse:\n    relevant_cells = []\n\n# Create the JSON object\njson_object = {\"answer\": answer, \"relevant_cells\": relevant_cells}\n\nprint(json.dumps(json_object))",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18700010-1.html.csv",
+    "claim": "the only player that doesn't have 0 fa cup goal be peter hart",
+    "predicted_response": 0,
+    "resp": "{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 5, \"column_name\": \"fa cup goals\"},\n    {\"row_index\": 6, \"column_name\": \"fa cup apps\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "fa cup goals"
+      },
+      {
+        "row_index": 6,
+        "column_name": "fa cup apps"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18700010-1.html.csv",
+    "claim": "dave sutton have the list league goal in df position",
+    "predicted_response": 0,
+    "resp": "Based on the table provided, I analyzed the claim \"Dave Sutton have the list league goal in df position\".\n\nI found a row where Dave Sutton's position is 'df' and he has a non-zero number of league goals. The data suggests that Dave Sutton indeed has league goals in the 'df' position.\n\nThe relevant cells for this claim are:\n- Row index 10\n- Column name 'League Goal'\n\nHere is the JSON response:\n\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 10, \"column_name\": \"League Goal\"},\n    {\"row_index\": 11, \"column_name\": \"Total League Goals\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18700010-1.html.csv",
+    "claim": "chris topping and dave sutton have the highest league apps",
+    "predicted_response": 0,
+    "resp": "Let's analyze the data and verify the claim.\n\nFirst, we need to find the maximum value of 'league apps' in the table. After examining the data, we see that it is shared by two players: Chris Topping and Dave Sutton, with a total of 46 appearances each.\n\nHowever, we also notice that there are other players who have more appearances, such as Brian Stanton (41) and Ian Robins (45). Therefore, the claim \"Chris Topping and Dave Sutton have the highest league apps\" is FALSE.\n\nHere's the JSON response:\n\n{\"answer\": \"FALSE\", \"relevant_cells\": [{\"row_index\": 0, \"column_name\": \"league apps\"}, {\"row_index\": 1, \"column_name\": \"Dave sutton\"}]}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18700010-1.html.csv",
+    "claim": "tommy smith have he highest number of league goal",
+    "predicted_response": 0,
+    "resp": "Let's check the data for Tommy Smith having the highest number of league goals.\n\nThe column containing the league goal information is located at row_index 10, column_name 'League Apps' and then the League Goals column in the same row (since they are consecutive).\n\nWe will need to compare it with other players. The player with the most league goals can be identified by sorting the data for that specific column.\n\nFirst we sort the 'League Apps', 'League Goals' columns. Then we check if Tommy Smith is at the top of that list.\n\n\n\n```json\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 10, \"column_name\": \"League Apps\"},\n    {\"row_index\": 11, \"column_name\": \"League Goals\"}\n  ]\n}\n```\n\nThe answer is FALSE since Brian Stanton has the highest number of league goals",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 10,
+        "column_name": "League Apps"
+      },
+      {
+        "row_index": 11,
+        "column_name": "League Goals"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18700010-1.html.csv",
+    "claim": "there be 2 player with the highest number of total goal ian robin and chris topping",
+    "predicted_response": 0,
+    "resp": "{\"answer\": \"FALSE\", \"relevant_cells\": []}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18700010-1.html.csv",
+    "claim": "2 other player apart from peter hart have fa cup goal",
+    "predicted_response": 0,
+    "resp": "For the claim \"2 other player apart from peter hart have fa cup goal\", we can see from the table:\n\n- Ian Holmes scored in the FA Cup.\n- Alan Starling scored in the FA Cup.\n\nTherefore, the answer is:\n\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 9, \"column_name\": \"fa cup\"},\n    {\"row_index\": 12, \"column_name\": \"fa cup\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  }
+]
