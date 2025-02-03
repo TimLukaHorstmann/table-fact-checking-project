@@ -37,6 +37,7 @@ import logging
 import argparse
 from datetime import datetime
 from concurrent.futures import ProcessPoolExecutor, as_completed
+import sys
 from typing import Optional
 
 from factchecker_base import BaseFactChecker, test_model_on_claims, test_model_on_claims_parallel, calculate_and_plot_metrics, load_json_file
@@ -58,7 +59,7 @@ For example:
   ]
 }}
 
-No extra keys, no extra text. Just that JSON.
+No extra keys, no extra text. Just that JSON. You are not supposed to provide any python code.
 """
 
 ZERO_SHOT_PROMPT_MARKDOWN = """
@@ -265,7 +266,7 @@ def run_pipeline_for_model(model_name: str, dataset: str, learning_type: str, fo
 
     # Define a checkpoint folder specific to this configuration.
     config_str = f"{os.path.basename(dataset).replace('.json','')}_{learning_type}_{format_type}_{model_name}"
-    checkpoint_folder = os.path.join("checkpoints", config_str)
+    checkpoint_folder = os.path.join("checkpoints_promptEngineering", config_str)
     
     # Initialize LLM model.
     try:
@@ -357,6 +358,11 @@ def main():
     parser.add_argument("--N", type=int, default=5, help="Number of tables to test")
     args = parser.parse_args()
     
+    # Capture and log the command used to run the script
+    command_used = " ".join(sys.argv)
+    logging.info(f"Command used to run the script: {command_used}")
+
+
     # Split comma-separated arguments.
     dataset_list = [d.strip() for d in args.dataset.split(",")]
     learning_types = [l.strip() for l in args.learning_type.split(",")]

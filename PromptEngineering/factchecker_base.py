@@ -162,21 +162,50 @@ def format_table_to_html(table: pd.DataFrame) -> str:
 def extract_json_from_response(raw_response: str) -> dict:
     """
     Try to extract JSON from a model response by first searching for a JSON code fence,
-    and then by attempting to parse the entire response.
+    then (for deepseek outputs) considering only the text after the last </think> token,
+    and finally attempting to extract a substring that looks like JSON.
+    
+    Also performs minor cleanup (e.g., removing trailing commas) and, if JSON parsing fails,
+    falls back to detecting whether the response mentions "true" or "false" (ignoring case).
     """
+    # If the response contains </think>, use only the content after the last occurrence.
+    if '</think>' in raw_response:
+        raw_response = raw_response.split('</think>')[-1]
+    
+    # Try to extract JSON from a code fence if present.
     pattern = r"```json\s*(.*?)\s*```"
     match = re.search(pattern, raw_response, re.DOTALL | re.IGNORECASE)
     if match:
         json_str = match.group(1).strip()
-        try:
-            return json.loads(json_str)
-        except json.JSONDecodeError as e:
-            logging.warning(f"[WARN] JSON decode error (inside code fence): {e}")
+    else:
+        # Try to extract a substring starting with '{' and ending with '}'
+        brace_match = re.search(r"({.*})", raw_response, re.DOTALL)
+        if brace_match:
+            json_str = brace_match.group(1)
+        else:
+            json_str = raw_response.strip()
+    
+    # Clean up common JSON issues such as trailing commas.
+    json_str = re.sub(r",\s*([\]}])", r"\1", json_str)
+    
     try:
-        return json.loads(raw_response)
-    except json.JSONDecodeError:
-        logging.warning("[WARN] Could not parse raw_response as JSON either.")
-        return {}
+        parsed = json.loads(json_str)
+        # Optionally ensure that the expected key exists.
+        if "answer" not in parsed:
+            raise json.JSONDecodeError("Missing 'answer' key", json_str, 0)
+        return parsed
+    except json.JSONDecodeError as e:
+        logging.warning(f"[WARN] JSON decode error: {e}")
+        logging.warning(f"Attempting fallback parsing on: {json_str}")
+        # Fallback: try to determine whether "true" or "false" appears in the raw response.
+        lower_response = raw_response.lower()
+        if "true" in lower_response:
+            return {"answer": "TRUE", "relevant_cells": []}
+        elif "false" in lower_response:
+            return {"answer": "FALSE", "relevant_cells": []}
+        else:
+            return {"answer": "FALSE", "relevant_cells": []}
+
 
 ################################################################################
 #                         BASE FACT CHECKER CLASS
@@ -254,7 +283,7 @@ class BaseFactChecker:
             return self.model.invoke(prompt).strip()
         except Exception as e:
             logging.error(f"Error invoking LLM: {e}")
-            return ""
+            raise RuntimeError(f"Error invoking LLM: {e}")
 
     def parse_response(self, raw_response: str) -> Dict[str, Any]:
         """
