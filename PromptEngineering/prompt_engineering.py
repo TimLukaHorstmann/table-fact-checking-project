@@ -45,7 +45,7 @@ from langchain_ollama import OllamaLLM
 
 # Updated prompt templates with literal curly braces doubled.
 END_OF_PROMPT_INSTRUCTIONS = """
-Return only a valid JSON object with two keys:
+- Return only a valid JSON object with two keys:
 "answer": must be "TRUE" or "FALSE" (all caps)
 "relevant_cells": a list of objects, each with "row_index" (int) and "column_name" (string)
 
@@ -62,30 +62,20 @@ For example:
 No extra keys, no extra text. Just that JSON. You are not supposed to provide any python code.
 """
 
-ZERO_SHOT_PROMPT_MARKDOWN = """
-You are tasked with determining whether a claim about the following table (in Markdown) is TRUE or FALSE.
+ZERO_SHOT_PROMPT = """
+You are tasked with determining whether a claim about the following table (given in {format_type} format) is TRUE or FALSE.
 
-Table (Markdown):
+#### Table ({format_type}):
 {table_formatted}
 
-Claim: "{claim}"
+#### Claim:
+"{claim}"
 
 Instructions:
-- Carefully check each condition in the claim against the table and determine which cells are relevant.
+- Carefully check each condition in the claim against the table and determine which cells are relevant to verify the claim.
 - If fully supported, answer "TRUE"; otherwise, answer "FALSE".
 """ + END_OF_PROMPT_INSTRUCTIONS
 
-ZERO_SHOT_PROMPT_NATURALIZED = """
-You are tasked with determining whether a claim about the following table (in natural text) is TRUE or FALSE.
-
-Table (Naturalized):
-{table_formatted}
-
-Claim: "{claim}"
-
-Instructions:
-- If the claim is supported by the data, answer "TRUE"; otherwise, answer "FALSE".
-""" + END_OF_PROMPT_INSTRUCTIONS
 
 ONE_SHOT_EXAMPLE_MARKDOWN = """
 Example:
@@ -209,16 +199,11 @@ class PromptEngineeringFactChecker(BaseFactChecker):
             return None
         table_formatted = self.format_table(table)
         if self.learning_type == "zero_shot":
-            if self.format_type == "markdown":
-                prompt = ZERO_SHOT_PROMPT_MARKDOWN.format(
-                    table_formatted=table_formatted,
-                    claim=claim
-                )
-            else:
-                prompt = ZERO_SHOT_PROMPT_NATURALIZED.format(
-                    table_formatted=table_formatted,
-                    claim=claim
-                )
+            prompt = ZERO_SHOT_PROMPT.format(
+                table_formatted=table_formatted,
+                claim=claim,
+                format_type=self.format_type
+            )
         elif self.learning_type == "one_shot":
             if self.format_type == "markdown":
                 prompt = ONE_SHOT_PROMPT_MARKDOWN.format(

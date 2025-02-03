@@ -172,7 +172,7 @@ async function loadResults() {
     document.getElementById("performanceMetrics").style.display = "block";
   } catch (err) {
     console.error(`Failed to load ${resultsFileName}:`, err);
-    infoPanel.innerHTML = `<p style="color:red;">Failed to load <strong>${resultsFileName}</strong>: ${err}</p>`;
+    infoPanel.innerHTML = `<p style="color:red;">Failed to load results: ${err}</p>`;
     allResults = [];
     tableIdToResultsMap = {};
     document.getElementById("tableSelect").innerHTML = "";

@@ -45,14 +45,27 @@ import subprocess
 
 log_filename = f"logs/logs_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
 os.makedirs("logs", exist_ok=True)
-logging.basicConfig(
-    level=logging.WARN,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler(log_filename, mode="w")
-    ],
-)
+
+# Create logger
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)  # Set root logger level to capture all logs
+
+# Console Handler (Only WARN and above)
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.WARN)  # Console only gets WARN and above
+
+# File Handler (INFO and above)
+file_handler = logging.FileHandler(log_filename, mode="w")
+file_handler.setLevel(logging.INFO)  # File logs everything INFO and above
+
+# Define common log format
+formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+console_handler.setFormatter(formatter)
+file_handler.setFormatter(formatter)
+
+# Add handlers to the logger
+logger.addHandler(console_handler)
+logger.addHandler(file_handler)
 
 
 ################################################################################
@@ -408,6 +421,7 @@ def process_claim_worker(
         return fact_checker.process_claim(table_id, claim, true_label)
     except Exception as e:
         logging.error(f"Error processing claim for table {table_id}, claim: {claim}. Error: {e}")
+        raise RuntimeError(f"Error processing claim for table {table_id}, claim: {claim}. Error: {e}")
         return {
             "table_id": table_id,
             "claim": claim,
