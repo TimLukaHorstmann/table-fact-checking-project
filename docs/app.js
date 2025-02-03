@@ -5,6 +5,7 @@
 // CONSTANTS for paths (adjust these as needed)
 const CSV_BASE_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/data/all_csv/";
 const TABLE_TO_PAGE_JSON_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/data/table_to_page.json";
+const FULL_CLEANED_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/tokenized_data/full_cleaned.json";
 const MANIFEST_JSON_PATH = "results/manifest.json"; // Updated path
 
 // Global variables for precomputed results
@@ -24,6 +25,9 @@ let resultsChartInstance = null;
 // For live inference
 let deepSeekPipeline = null;
 let currentModelId = null;
+// Global variable for table->claims mapping from full_cleaned.json
+let tableIdToClaimsMap = {};
+
 
 // DOM element references
 const modelLoadingStatusEl = document.getElementById("modelLoadingStatus");
@@ -40,7 +44,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       tableToPageMap = {};
     }
 
-    // Attempt to fetch and process the manifest.
+    // Attempt to fetch and process the manifest and fetch the claims mapping.
     let manifest;
     try {
       manifest = await fetchManifest();
@@ -53,6 +57,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (manifestError) {
       console.warn("Failed to fetch or parse manifest.json. Continuing without manifest.", manifestError);
     }
+
+    await fetchFullCleanedClaims();
 
     // Continue with the rest of the initialization.
     populateExistingTableDropdown();
@@ -120,6 +126,21 @@ function parseManifest(manifest) {
   });
 }
 
+async function fetchFullCleanedClaims() {
+  try {
+    const response = await fetch(FULL_CLEANED_PATH);
+    if (!response.ok) {
+      console.warn("Failed to fetch full_cleaned.json", response.status, response.statusText);
+      return;
+    }
+    tableIdToClaimsMap = await response.json();
+  } catch (err) {
+    console.warn("Could not load full_cleaned.json", err);
+    tableIdToClaimsMap = {};  // fallback
+  }
+}
+
+
 function populateSelect(selectId, values) {
   const sel = document.getElementById(selectId);
   if (!sel) return;
@@ -170,6 +191,7 @@ async function loadResults() {
     document.getElementById("tableDropDown").style.display = "block";
     document.getElementById("tableMetaInfo").style.display = "block";
     document.getElementById("performanceMetrics").style.display = "block";
+    updateNativeMetrics();
   } catch (err) {
     console.error(`Failed to load ${resultsFileName}:`, err);
     infoPanel.innerHTML = `<p style="color:red;">Failed to load results: ${err}</p>`;
@@ -534,7 +556,11 @@ async function populateExistingTableDropdown() {
     existingTableSelect.addEventListener("change", async () => {
       const selectedFile = existingTableSelect.value;
       if (!selectedFile) return;
+      // 1. Load the CSV for the preview as you already do:
       await fetchAndFillTable(selectedFile);
+
+      // 2. Check if we have claims for this table:
+      populateClaimsDropdown(selectedFile);
     });
   } catch (error) {
     console.error("Error loading CSV list:", error);
@@ -581,6 +607,60 @@ async function fetchAndFillTable(tableId) {
     alert("Failed to load table from dataset.");
   }
 }
+
+
+function populateClaimsDropdown(tableId) {
+  const claimsWrapperEl = document.getElementById("existingClaimsWrapper");
+  const claimsSelectEl = document.getElementById("existingClaimsSelect");
+  
+  // Clear out previous content:
+  claimsSelectEl.innerHTML = `<option value="">-- Select a Claim --</option>`;
+  
+  // If we don't have data for this table, hide the wrapper and return
+  if (!tableIdToClaimsMap[tableId]) {
+    claimsWrapperEl.style.display = "none";
+    return;
+  }
+  
+  // The structure in full_cleaned.json is an array:
+  //   [ [claims array], [label array], [some other array], "table title" ]
+  // We'll just need the first array for the claim text, 
+  // and the second array for whether it's correct(1)/incorrect(0).
+  const tableData = tableIdToClaimsMap[tableId];
+  if (!Array.isArray(tableData) || tableData.length < 2) {
+    claimsWrapperEl.style.display = "none";
+    return;
+  }
+  
+  const claimsList = tableData[0];  // the array of claims
+  const labelsList = tableData[1];  // the array of 0/1 correctness (optional usage)
+  
+  // Show the claims dropdown
+  claimsWrapperEl.style.display = "block";
+
+  // Fill it with the claims
+  claimsList.forEach((claim, idx) => {
+    const isCorrect = labelsList[idx] === 1; // or 0
+    // We can optionally show correctness in text
+    const optionEl = document.createElement("option");
+    optionEl.value = idx;  // store index
+    optionEl.textContent = `Claim #${idx+1} (${isCorrect ? "TRUE" : "FALSE"}) - ${claim.slice(0,60)}...`;
+    claimsSelectEl.appendChild(optionEl);
+  });
+
+  // Add change listener to the claims select
+  claimsSelectEl.onchange = function() {
+    const selectedIndex = claimsSelectEl.value; // index in the array
+    if (!selectedIndex) return;
+
+    // The actual claim text is:
+    const chosenClaim = claimsList[selectedIndex];
+    // Put that into the #inputClaim
+    document.getElementById("inputClaim").value = chosenClaim;
+    validateLiveCheckInputs(); // re-validate so the "Run" button is enabled
+  };
+}
+
 
 function validateLiveCheckInputs() {
   const tableInput = document.getElementById("inputTable").value.trim();
