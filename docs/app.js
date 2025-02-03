@@ -105,7 +105,7 @@ async function fetchManifest() {
 function parseManifest(manifest) {
   manifest.results_files.forEach(filename => {
     const shortName = filename.replace(/^results\//, "");
-    const regex = /^results_with_cells_(.+?)_(test_examples|val_examples)_(\d+|all)_(zero_shot|one_shot|few_shot)_(naturalized|markdown)\.json$/;
+    const regex = /^results_with_cells_(.+?)_(test_examples|val_examples)_(\d+|all)_(zero_shot|one_shot|few_shot)_(naturalized|markdown|json|html)\.json$/;
     const match = shortName.match(regex);
     if (match) {
       const [_, model, dataset, nValue, learningType, formatType] = match;
