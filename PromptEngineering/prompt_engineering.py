@@ -187,6 +187,30 @@ Table (Naturalized):
 Claim: "{claim}"
 """ + END_OF_PROMPT_INSTRUCTIONS
 
+
+# chain-of-thought reasoning
+COT_PROMPT_TEMPLATE = """
+You are tasked with determining whether a claim about the following table (in {format_type} format) is TRUE or FALSE.
+Before providing your final answer, explain step-by-step your reasoning process by referring to the relevant parts of the table.
+
+#### Table ({format_type}):
+{table_formatted}
+
+#### Claim:
+"{claim}"
+
+Instructions:
+- First, list your reasoning steps in a clear and logical order.
+- After your explanation, output a final answer in a valid JSON object with the following format:
+{{
+  "chain_of_thought": "<your step-by-step reasoning here>",
+  "answer": "TRUE" or "FALSE",
+  "relevant_cells": [ list of relevant cells as objects with "row_index" and "column_name" ]
+}}
+
+Make sure that your output is strictly in this JSON format and nothing else.
+"""
+
 ################################################################################
 #                 PROMPT ENGINEERING FACT CHECKER CLASS
 ################################################################################
@@ -230,6 +254,12 @@ class PromptEngineeringFactChecker(BaseFactChecker):
                     table_formatted=table_formatted,
                     claim=claim
                 )
+        elif self.learning_type == "chain_of_thought":
+            prompt = COT_PROMPT_TEMPLATE.format(
+                table_formatted=table_formatted,
+                claim=claim,
+                format_type=self.format_type
+            )
         else:
             logging.error(f"Unsupported learning type: {self.learning_type}")
             return None
@@ -282,7 +312,7 @@ def run_pipeline_for_model(model_name: str, dataset: str, learning_type: str, fo
             learning_type=learning_type,
             format_type=format_type,
             approach="prompt_engineering",
-            test_all=False,
+            test_all=False if args.N else True,
             N=args.N,
             max_workers=args.max_workers,
             checkpoint_folder=checkpoint_folder
@@ -291,7 +321,7 @@ def run_pipeline_for_model(model_name: str, dataset: str, learning_type: str, fo
         results = test_model_on_claims(
             fact_checker=fact_checker,
             full_cleaned_data=dataset_data,
-            test_all=False,
+            test_all=False if args.N else True,
             N=args.N,
             checkpoint_folder=checkpoint_folder
         )
@@ -340,9 +370,12 @@ def main():
     parser.add_argument("--parallel_models", action="store_true", help="Run different combinations in parallel")
     parser.add_argument("--batch_prompts", action="store_true", help="Process claims in parallel for each combination")
     parser.add_argument("--max_workers", type=int, default=4, help="Number of worker processes for parallel claims")
-    parser.add_argument("--N", type=int, default=5, help="Number of tables to test")
+    parser.add_argument("--N", type=int, help="Number of tables to test") # if not provided, defaults to doing all
     args = parser.parse_args()
     
+    # running on host/machine
+    logging.info(f"Running on host/machine: {os.uname().nodename}")
+
     # Capture and log the command used to run the script
     command_used = " ".join(sys.argv)
     logging.info(f"Command used to run the script: {command_used}")

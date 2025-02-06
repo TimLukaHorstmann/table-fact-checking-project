@@ -16,6 +16,7 @@ import gc
 from datetime import datetime
 from functools import lru_cache
 from concurrent.futures import ProcessPoolExecutor, as_completed
+import sys
 from typing import List, Dict, Any, Optional
 
 import numpy as np
@@ -296,7 +297,7 @@ class BaseFactChecker:
             return self.model.invoke(prompt).strip()
         except Exception as e:
             logging.error(f"Error invoking LLM: {e}")
-            raise RuntimeError(f"Error invoking LLM: {e}")
+            sys.exit(-1)
 
     def parse_response(self, raw_response: str) -> Dict[str, Any]:
         """

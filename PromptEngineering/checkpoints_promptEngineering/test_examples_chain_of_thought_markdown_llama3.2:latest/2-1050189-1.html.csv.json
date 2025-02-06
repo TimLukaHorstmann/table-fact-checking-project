@@ -1,0 +1,178 @@
+[
+  {
+    "table_id": "2-1050189-1.html.csv",
+    "claim": "brian snitker be the manager for the greenville brave for more year than jeff cox be",
+    "predicted_response": 0,
+    "resp": "### Step-by-Step Reasoning:\n\n1. First, we need to compare the number of years Brian Snitker managed the Greenville Braves with the number of years Jeff Cox managed the team.\n2. We will extract the relevant information from the table:\n\t* For Brian Snitker: `year` column where his management ended (not started) and `year` column where he started managing, we can use any year as long as it's after both of these.\n\t* For Jeff Cox: Similarly, we will find a year where he started and ended managing the team.\n3. We then compare these years to determine if Brian Snitker managed for more years than Jeff Cox.\n\n### Step-by-Step Reasoning (continued):\n\n4. Looking at the table:\n    - For Brian Snitker, his last known management year is 2004 (`year` column).\n    - For Jeff Cox, his first and last known management year is not specified in the table; however, we can see that he managed for 1 less year than Randy Ingle (in 1997-1998) and Paul Runge (in 1999-2000).\n\n### Step-by-Step Reasoning (continued):\n\n5. Since there's no information about Jeff Cox managing the team in a full season, we cannot accurately determine his total years of management.\n\n### Final Answer:\n\n```json\n{\n  \"chain_of_thought\": [\n    \"Compare Brian Snitker and Jeff Cox's seasons.\",\n    \"Determine Brian Snitker managed for more years than Jeff Cox.\"\n  ],\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 26, \"column_name\": \"year\"},\n    {\"row_index\": 27, \"column_name\": \"year\"}\n  ]\n}\n```\n\nThis output indicates that the claim is false because Brian Snitker did not manage for more years than Jeff Cox.",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 26,
+        "column_name": "year"
+      },
+      {
+        "row_index": 27,
+        "column_name": "year"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1050189-1.html.csv",
+    "claim": "the greenville brave have more win in 1992 than the previous year",
+    "predicted_response": 1,
+    "resp": "### Step-by-Step Reasoning:\n\n1. The claim states that the Greenville Braves have more wins in 1992 than the previous year.\n2. To verify this, we need to check the number of wins for both 1991 and 1992.\n3. Looking at the table, we see that the team's name is \"greenville braves\" throughout the years, indicating consistency in team identity.\n4. We can verify the claim by comparing the number of wins for 1991 and 1992:\n\t* In 1991, the Greenville Braves had 88 wins (w-l percentage: 0.611%).\n\t* In 1992, the Greenville Braves also had 100 wins (w-l percentage: 0.699%).\n5. Since 100 is greater than 88, we can conclude that the claim is true.\n\n### Final Answer:\n\n{\n  \"chain_of_thought\": \"The claim states that the Greenville Braves have more wins in 1992 than the previous year. To verify this, we need to check the number of wins for both 1991 and 1992. Looking at the table, we see that the team's name is consistent throughout the years. We can verify the claim by comparing the number of wins for 1991 and 1992: In 1991, the Greenville Braves had 88 wins. In 1992, the Greenville Braves also had 100 wins. Since 100 is greater than 88, we can conclude that the claim is true.\",\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 1991, \"column_name\": \"wins\"},\n    {\"row_index\": 1992, \"column_name\": \"wins\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 1991,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 1992,
+        "column_name": "wins"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1050189-1.html.csv",
+    "claim": "since 1963 , there have be at 4 manager that hold that position for at least 3 year",
+    "predicted_response": 1,
+    "resp": "### Step-by-Step Reasoning:\n\n1. First, we need to find out how many managers have held the position for at least 3 years.\n2. To do this, we will iterate over each year in the table starting from 1964 (since there is a manager listed for that year), and check if the current team has had at least 3 consecutive years with the same number of wins as the previous two years.\n3. If yes, then it means the manager has held the position for at least 3 years.\n4. We will keep track of each manager's tenure in a list.\n5. After checking all the years, we will check if there have been at least 4 managers who have held the position for at least 3 years.\n\n### Python Code:\n\n```python\ndef check_claim():\n    # Initialize an empty list to store managers with at least 3 years of tenure\n    managers_with_tenure = []\n\n    # Iterate over each year in the table starting from 1964\n    for i in range(1964, 2005):\n        row_index = str(i)\n        \n        # If this is not the first year, check if there are at least 3 consecutive years with same number of wins as previous two years\n        if i > 1964:\n            previous_row_index = str(i-1)\n            current_row_index = row_index\n            \n            previous_year_wins = int(get_cell_value(previous_row_index, 'wins'))\n            current_year_wins = int(get_cell_value(current_row_index, 'wins'))\n            \n            # If the difference between consecutive years of wins is 0 and not already counted\n            if (previous_row_index != \"1964\" and previous_year_wins == int(get_cell_value(row_index, 'wins'))) and (current_row_index != row_index and current_year_wins == int(get_cell_value(current_row_index, 'wins'))):\n                # Get manager name\n                manager = get_cell_value(i, 'manager')\n                \n                # If the manager is already counted, check if he has a tenure of at least 3 years\n                if manager not in managers_with_tenure:\n                    count = 0\n                    \n                    # Counting years for which the same number of wins are recorded\n                    while i-1 >=1964 and get_cell_value(i-2, 'wins') == int(get_cell_value(i-1, 'wins')) and get_cell_value(i-3, 'wins') == int(get_cell_value(i-1, 'wins')):\n                        count += 1\n                        i -= 1\n                        \n                    if count>=3:\n                        managers_with_tenure.append(manager)\n                    \n        # Add manager name to list of managers with at least 3 years tenure        \n        row_index = str(i)\n        manager = get_cell_value(row_index, 'manager')\n        if manager not in managers_with_tenure and i > 1964:\n            count = 0\n            \n            # Counting years for which the same number of wins are recorded\n            while i-1 >=1964 and get_cell_value(i-2, 'wins') == int(get_cell_value(i-1, 'wins')) and get_cell_value(i-3, 'wins') == int(get_cell_value(i-1, 'wins')):\n                count += 1\n                i -= 1\n                \n            if count>=3:\n                managers_with_tenure.append(manager)\n                    \n    # If there are at least four managers who have held the position for at least 3 years, return True; otherwise, return False\n    return len(managers_with_tenure) >=4\n\ndef get_cell_value(row_index, column_name):\n    # Assume we have a function to get cell value based on row index and column name\n    pass\n\nprint({\n  \"chain_of_thought\": \"\"\"\nThe reasoning is as follows:\n\n1. Iterate over the table starting from year 1964.\n2. For each year, check if the number of wins is the same as the previous two years.\n3. If it is the same, then there are at least three consecutive years with the same number of wins.\n4. Count how many times this happens for a given manager and keep track of them in a list.\n5. Finally, count how many managers have held the position for at least 3 years.\n6. The final answer will be True if there are at least four managers who have held the position for at least 3 years; otherwise, it will be False.\n\"\"\",\n  \"answer\": \"TRUE\" if check_claim() else \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": str(i), \"column_name\": 'wins'} \n    for i in range(1964, 2005)\n  ]\n})\n```\n\nNote: This code assumes you have a function to get the cell value based on row index and column name.",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1050189-1.html.csv",
+    "claim": "the greenville brave have more win under grady little than any other manager",
+    "predicted_response": 1,
+    "resp": "### Step 1: Identify the years for which Grady Little managed the Greenville Braves\nTo verify the claim, we first need to identify the specific seasons under which Grady Little managed the team. This can be done by looking at the 'manager' column in the table.\n\n```markdown\n* 1992\n```\n\n### Step 2: Find the wins for each season under Grady Little's management\nWe then look up the number of wins during those years to see if they are more than any other manager had. This means we need to compare 'wins' across all seasons, but primarily focus on Grady Little.\n\n```markdown\n|   year | team name         |   wins |\n|-------:|:------------------|-------|\n|   1992 | greenville braves |    100 |\n```\n\n### Step 3: Check if the number of wins under Grady Little is greater than any other manager's wins\nBy comparing, we find that while there are no seasons where a win percentage for Grady Little is lower than another, we see he had a notable season.\n\n```markdown\n*   wins compared to other managers in their respective tenures:\n  + 1992: 100 (higher than some of the other managers)\n```\n\n### Step 4: List all relevant cells for comparison and conclusion\n\n| \"chain_of_thought\" : |\n| --- |\n| We are verifying if Grady Little's win percentage is higher than any other manager. The table shows a single season where his team won more games, which directly supports the claim |\n\n| \"answer\" : |\n| --- |\n| FALSE (This response will be updated to TRUE after verification) |\n\n| \"relevant_cells\": [ ] |",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1050189-1.html.csv",
+    "claim": "the greenville brave have more loss in 1999 than the 2 previous year",
+    "predicted_response": 0,
+    "resp": "Here are the steps to determine if the claim about the table is TRUE or FALSE:\n\n### Step 1: Identify the years preceding 1999\nTo evaluate the claim, we need to look at the losses of Greenville Braves for the two previous years, which are 2000 and 2001.\n\n```markdown\n- 2000: loss = 71\n- 2001: loss = 79\n```\n\n### Step 2: Compare the losses in 1999 with those in the previous years\nNow we need to compare the loss of Greenville Braves in 1999 (80) with the losses in 2000 (71) and 2001 (79).\n\n```markdown\n- Loss in 1999 is greater than the loss in both 2000 (71) and 2001 (79).\n```\n\n### Step 3: Determine if the claim is TRUE or FALSE\nBased on our comparison, we can conclude that the claim \"the Greenville Braves have more losses in 1999 than the two previous years\" is FALSE.\n\n```markdown\n- Claim is FALSE.\n```\n\n### Final Answer\n\n{\n  \"chain_of_thought\": [\n    {\n      \"step\": \"Identify the years preceding 1999\",\n      \"relevant_cells\": [\n        {\n          \"row_index\": 2000,\n          \"column_name\": \"loss\"\n        },\n        {\n          \"row_index\": 2001,\n          \"column_name\": \"loss\"\n        }\n      ]\n    },\n    {\n      \"step\": \"Compare the losses in 1999 with those in the previous years\",\n      \"relevant_cells\": [\n        {\n          \"row_index\": 1999,\n          \"column_name\": \"loss\"\n        },\n        {\n          \"row_index\": 2000,\n          \"column_name\": \"loss\"\n        },\n        {\n          \"row_index\": 2001,\n          \"column_name\": \"loss\"\n        }\n      ]\n    },\n    {\n      \"step\": \"Determine if the claim is TRUE or FALSE\",\n      \"relevant_cells\": [\n        {\n          \"row_index\": 1999,\n          \"column_name\": \"loss\"\n        },\n        {\n          \"row_index\": 2000,\n          \"column_name\": \"loss\"\n        },\n        {\n          \"row_index\": 2001,\n          \"column_name\": \"loss\"\n        }\n      ]\n    }\n  ],\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\n      \"row_index\": 1999,\n      \"column_name\": \"loss\"\n    },\n    {\n      \"row_index\": 2000,\n      \"column_name\": \"loss\"\n    },\n    {\n      \"row_index\": 2001,\n      \"column_name\": \"loss\"\n    }\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 1999,
+        "column_name": "loss"
+      },
+      {
+        "row_index": 2000,
+        "column_name": "loss"
+      },
+      {
+        "row_index": 2001,
+        "column_name": "loss"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1050189-1.html.csv",
+    "claim": "jeff cox be the manager for the greenville brave for longer than anyone else",
+    "predicted_response": 0,
+    "resp": "Here are the step-by-step reasoning steps:\n\n1. **Identify the manager's name and number of years managed**: From the table, we can see that Jeff Cox was the manager for Greenville Braves from 1996 to 2000 (4 years) in cell (16,2). We need to compare this duration with other managers.\n\n2. **Find the manager with the longest tenure**: In order to do this, we'll compare each manager's total time managed by summing up their individual years. This is done for all cells except column 2 which contains team names and therefore needs no calculation to identify who holds that position. \n\n    For instance, we can see that Bobby Dews was the manager from 1984 to 1987 (3 years), Leo Mazzone in 1985 had a 1-year term, Jim Beauchamp managed for 2 terms of 3 and 1 year respectively (totaling 4 years), and Buddy Bailey also managed for 2 terms with the first being 1-year long and the second one 2-years long. This leads us to calculate the total duration of each manager's tenure in cell (2,6). Here we can see that Grady Little was the manager from 1992 to 1995 which equates to 3 years.\n\n3. **Compare Jeff Cox with other managers**: In order to compare this with Jeff Cox's total tenure of 4 years, we need to calculate their individual totals: Jim Beuchamp had two terms (1985 and 1986) each lasting 1 year for a total of 2 years, Buddy Bailey managed from 1989-1990 totaling another 2-year term. As seen earlier Grady Little was the manager for 3 years. Now we know that 2+3=5 for these two managers combined.\n\n4. **Compare Jeff Cox's tenure with other managers**: Since Jim Beuchamp and Buddy Bailey's total managed time is 4, it leaves only one manager having more than 4 years of tenure: Grady Little.\n\n5. **Conclusion**: Given the information above and comparing all individual years of management from various managers in our table, we can conclude that Jeff Cox was not longer managed as a Greenville Braves' coach than anyone else.\n\n\n\nHere is the output in JSON format:\n\n{\n  \"chain_of_thought\": [\n    {\n      \"row_index\": 16,\n      \"column_name\": \"2\"\n    },\n    {\n      \"row_index\": 10,\n      \"column_name\": \"6\"\n    },\n    {\n      \"row_index\": 12,\n      \"column_name\": \"6\"\n    }\n  ],\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\n      \"row_index\": 16,\n      \"column_name\": \"2\"\n    },\n    {\n      \"row_index\": 10,\n      \"column_name\": \"6\"\n    },\n    {\n      \"row_index\": 12,\n      \"column_name\": \"6\"\n    }\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 16,
+        "column_name": "2"
+      },
+      {
+        "row_index": 10,
+        "column_name": "6"
+      },
+      {
+        "row_index": 12,
+        "column_name": "6"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1050189-1.html.csv",
+    "claim": "since 1963 , only 1 manager have hold that position for at least 3 year",
+    "predicted_response": 1,
+    "resp": "### Reasoning Steps:\n\n1. First, let's identify the years for which we need to check if any manager has held the position for at least 3 years.\n\n```markdown\nFrom 1964 onwards since there are no managers before that holding position for at least three years.\n```\n\n2. Next, let's iterate over each year from 1964 and find out how many years a single manager holds that position.\n\n```markdown\nFor each year (starting from 1964), if the manager in that year is different from previous year then count it as one new manager\n```\n\n3. Now we need to see which of these managers has managed this team for three or more consecutive years and verify that claim.\n4. To do this, let's initialize a dictionary where keys are manager names and values are the list of corresponding years.\n\n```markdown\ninitial_manager_years_dict = {}\nfor year in range(1963, 2004):\n    row_data = table[table['year'] == str(year)]\n    if row_data.empty:\n        break\n    manager = row_data.iloc[0]['manager']\n    if manager not in initial_manager_years_dict:\n        initial_manager_years_dict[manager] = []\n    year_number = int(row_data.iloc[0]['w-l %'].replace('%', ''))\n    initial_manager_years_dict[manager].append(year_number)\n```\n\n5. Now, check each manager to see if they have managed for at least 3 years.\n\n```markdown\nfor manager, years in initial_manager_years_dict.items():\n    if len(set(years)) > 1:\n        print(f\"Manager {manager} has held the position for more than three years\")\n```\n\n6. Check how many managers actually hold this position for more than three years and update claim accordingly.\n\n```markdown\ncount = 0\nfor manager, years in initial_manager_years_dict.items():\n    if len(set(years)) > 1:\n        count += 1\nif count == 1:\n    print(\"Claim is true\")\nelif count != 1:\n    print(\"Claim is false\")\n```\n\n### JSON Output\n\n```json\n{\n  \"chain_of_thought\": [\n    \"For each year (starting from 1964), if the manager in that year is different from previous year then count it as one new manager\",\n    \"From 1964 onwards since there are no managers before that holding position for at least three years.\",\n    \"initial_manager_years_dict = {}\",\n    \"count = 0\"\n  ],\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"manager\"},\n    {\"row_index\": 1, \"column_name\": \"w-l %\"}\n  ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "manager"
+      },
+      {
+        "row_index": 1,
+        "column_name": "w-l %"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1050189-1.html.csv",
+    "claim": "the greenville brave have more win in 1991 than any other year",
+    "predicted_response": 1,
+    "resp": "Here's the step-by-step reasoning process:\n\n1. First, let's examine the claim: \"the greenville brave have more win in 1991 than any other year.\"\n2. We need to check if the team 'greenville braves' has indeed won more games in the year 1991 compared to any other year.\n3. To do this, we'll look at the wins column for each year and see which one is the highest.\n4. Let's compare the number of wins in 1991 (88) with the number of wins in all other years.\n5. Upon reviewing the table, we can see that there are no other teams or data points where the number of wins exceeds 88 in 1991.\n6. Therefore, based on this analysis, it appears that the claim is true.\n\nHere's the JSON output:\n\n{\n  \"chain_of_thought\": \"First, examine the claim: 'the greenville brave have more win in 1991 than any other year.' Next, look at the wins column for each year and see which one is the highest. Upon reviewing the table, we can see that there are no other teams or data points where the number of wins exceeds 88 in 1991. Therefore, based on this analysis, it appears that the claim is true.\",\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"wins\"},\n    {\"row_index\": 3, \"column_name\": \"wins\"},\n    {\"row_index\": 4, \"column_name\": \"wins\"},\n    {\"row_index\": 5, \"column_name\": \"wins\"},\n    {\"row_index\": 7, \"column_name\": \"wins\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 3,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 4,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 5,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 7,
+        "column_name": "wins"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1050189-1.html.csv",
+    "claim": "the greenville brave have more win under jeff cox than any other manager",
+    "predicted_response": 1,
+    "resp": "Here are the step-by-step reasoning steps:\n\n1. First, we need to identify the managers who have played for the Greenville Braves under Jeff Cox. According to the table, Jeff Cox managed the team from 1996 to 2000.\n\n2. Next, we need to calculate the total number of wins for each of these managers. Since Jeff Cox's tenure is relatively short, we can directly look up his win-loss record in the table.\n\n3. Now, let's list out all the relevant cells:\n   ```markdown\n- row_index: 1996, column_name: \"wins\"\n- row_index: 1997, column_name: \"wins\" (not a Jeff Cox manager)\n- row_index: 1998, column_name: \"wins\" (not a Jeff Cox manager)\n- row_index: 1999, column_name: \"wins\" (not a Jeff Cox manager)\n- row_index: 2000, column_name: \"wins\"\n```\n\n4. We can see that only two relevant rows for Jeff Cox managers are available in the table:\n   ```markdown\n- row_index: 1996, column_name: \"wins\" = 58\n- row_index: 2000, column_name: \"wins\" = 68\n```\n\n5. Now let's check if there is any other manager who has more wins than Jeff Cox under his management.\n   ```markdown\n- row_index: 1996, column_name: \"wins\" = 58\n- row_index: 2000, column_name: \"wins\" = 68\n\nAll other managers for the braves have less wins than jeff cox \n```\n\n6. Finally, we conclude that Jeff Cox's Greenville Braves has more win than any other manager under his management.\n\nHere is the final answer in JSON format:\n\n```json\n{\n  \"chain_of_thought\": [\n    {\n      \"step_number\":1,\n      \"reasoning\": \"Identify managers who have played for the Greenville Braves under Jeff Cox\"\n    },\n    {\n      \"step_number\":2,\n      \"reasoning\": \"Calculate total number of wins for each manager.\"\n    },\n    {\n      \"step_number\":3,\n      \"reasoning\": \"List out all relevant cells.\"\n    },\n    {\n      \"step_number\":4,\n      \"reasoning\": \"Find the number of wins for Jeff Cox managers\"\n    },\n    {\n      \"step_number\":5,\n      \"reasoning\": \"Compare wins with other managers under jeff cox\"\n    }\n  ],\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\n      \"row_index\": 1996,\n      \"column_name\": \"wins\"\n    },\n    {\n      \"row_index\": 2000,\n      \"column_name\": \"wins\"\n    }\n  ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 1996,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 2000,
+        "column_name": "wins"
+      }
+    ]
+  },
+  {
+    "table_id": "2-1050189-1.html.csv",
+    "claim": "the greenville brave have more loss in the 1999 year than any other year",
+    "predicted_response": 0,
+    "resp": "### Step-by-Step Reasoning Process\n\n1. **Identify the claim**: The claim states that \"the greenville brave have more loss in the 1999 year than any other year.\"\n2. **Understand what needs to be verified**: We need to verify if there are indeed more losses in the 1999 year compared to all other years.\n3. **Locate relevant data**: In the table, we can find the wins and losses for each team (Greenville Braves) in different years.\n4. **Check losses in the 1999 year**: According to the table, in the 1999 year, the Greenville Braves had 58 losses.\n5. **Compare with other years**: We need to check if there are any other years where the Greenville Braves had more losses than the 58 losses in the 1999 year.\n6. **Analyze wins and losses for each year**: By examining the table, we can see that while some teams had fewer losses, others had significantly more:\n\t* In 1985, they lost 74 games.\n\t* In 1964 and 2002-2003, they also lost 63 and 70 games respectively, but these are tied with other years like 1991 (56) and 2003-2004 (70). \n\t* In 1996, the Greenville Braves had more losses than in 1999.\n7. **Conclusion**: Based on our analysis, we found that there were indeed other years where the Greenville Braves lost more games than they did in 1999.\n\n### JSON Output\n\n```json\n{\n  \"chain_of_thought\": [\n    {\n      \"step_number\": 1,\n      \"description\": \"Identify the claim\"\n    },\n    {\n      \"step_number\": 2,\n      \"description\": \"Understand what needs to be verified\"\n    },\n    {\n      \"step_number\": 3,\n      \"description\": \"Locate relevant data\"\n    },\n    {\n      \"step_number\": 4,\n      \"description\": \"Check losses in the 1999 year\"\n    },\n    {\n      \"step_number\": 5,\n      \"description\": \"Compare with other years\"\n    },\n    {\n      \"step_number\": 6,\n      \"description\": \"Analyze wins and losses for each year\"\n    },\n    {\n      \"step_number\": 7,\n      \"description\": \"Conclusion: found other years with more losses\"\n    }\n  ],\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\n      \"row_index\": 1999,\n      \"column_name\": \"losses\"\n    },\n    {\n      \"row_index\": 1996,\n      \"column_name\": \"losses\"\n    },\n    {\n      \"row_index\": 1985,\n      \"column_name\": \"losses\"\n    }\n  ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 1999,
+        "column_name": "losses"
+      },
+      {
+        "row_index": 1996,
+        "column_name": "losses"
+      },
+      {
+        "row_index": 1985,
+        "column_name": "losses"
+      }
+    ]
+  }
+]

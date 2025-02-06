@@ -1,0 +1,185 @@
+[
+  {
+    "table_id": "2-10823719-14.html.csv",
+    "claim": "all of the vfl season be hold on the same date",
+    "predicted_response": 0,
+    "resp": "Here are the steps to determine whether the claim is TRUE or FALSE:\n\n1. Check if all rows in the table have the same date: \n   - The claim states that all of the VFL season be held on the same date.\n   - To verify this, we need to check if every row has the same date.\n\n2. Extract dates from each row:\n   - The date column is located at column index 6 (0-indexed).\n   - We will extract the values in the date column for each row.\n\n3. Compare extracted dates:\n   - We will compare all extracted dates to determine if they are the same.\n   - If all dates are the same, then the claim is TRUE; otherwise, it's FALSE.\n\n4. List relevant cells with their respective row index and column name:\n   - The relevant cells for this step would be those containing the date values.\n\nHere's how we can express these steps in a JSON format:\n\n```json\n{\n  \"chain_of_thought\": [\n    \"Check if all rows in the table have the same date: \",\n    \"Extract dates from each row: column index 6 (0-indexed)\",\n    \"Compare extracted dates: check for equality\",\n    \"List relevant cells with their respective row index and column name\"\n  ],\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 1, \"column_name\": \"date\"},\n    {\"row_index\": 2, \"column_name\": \"date\"},\n    {\"row_index\": 3, \"column_name\": \"date\"},\n    {\"row_index\": 4, \"column_name\": \"date\"},\n    {\"row_index\": 5, \"column_name\": \"date\"}\n  ]\n}\n```",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 1,
+        "column_name": "date"
+      },
+      {
+        "row_index": 2,
+        "column_name": "date"
+      },
+      {
+        "row_index": 3,
+        "column_name": "date"
+      },
+      {
+        "row_index": 4,
+        "column_name": "date"
+      },
+      {
+        "row_index": 5,
+        "column_name": "date"
+      }
+    ]
+  },
+  {
+    "table_id": "2-10823719-14.html.csv",
+    "claim": "the vfl park venue have the highest number of crowd of the season",
+    "predicted_response": 1,
+    "resp": "Here are the step-by-step reasoning steps:\n\n1. Extract the crowd values from the table: The relevant crowd values are 25240, 19879, 10626, 14971, 21588, and 58736.\n\n2. Determine which venue has the highest number of crowd: Compare the crowd values to find the one with the highest value.\n\n3. Locate the specific row in the table where the venue \"VFL Park\" has the highest number of crowd for that season.\n\n4. Verify if there is any other venue that might have a higher crowd count than VFL park on the same day of the season, and confirm whether it's the only one or not.\n\n5. Confirm if VFL Park indeed holds the record as the venue with the highest attendance during the entire season by examining all the data points in the table.\n\nNow, after careful analysis I conclude that:\n{\n  \"chain_of_thought\": [\n    {\n      \"step_number\": 1,\n      \"description\": \"Extract crowd values from the table\"\n    },\n    {\n      \"step_number\": 2,\n      \"description\": \"Identify VFL Park's attendance value as the highest among the given options\"\n    },\n    {\n      \"step_number\": 3,\n      \"description\": \"Locate row in table where VFL park has the highest crowd count for that season\",\n      \"row_index\": 5,\n      \"column_name\": \"crowd\"\n    },\n    {\n      \"step_number\": 4,\n      \"description\": \"Verify if there is any other venue with a higher attendance than VFL Park on that day. It seems it's the only one so far.\",\n      \"relevant_cells\": [\n        {\n          \"row_index\": 1,\n          \"column_name\": \"crowd\"\n        },\n        {\n          \"row_index\": 2,\n          \"column_name\": \"crowd\"\n        }\n      ]\n    },\n    {\n      \"step_number\": 5,\n      \"description\": \"Confirm if VFL Park holds the record as the venue with the highest attendance during the entire season after examining all data points in table\",\n      \"relevant_cells\": [\n        {\n          \"row_index\": 5,\n          \"column_name\": \"crowd\"\n        }\n      ]\n    }\n  ],\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\n      \"row_index\": 5,\n      \"column_name\": \"crowd\"\n    }\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "crowd"
+      }
+    ]
+  },
+  {
+    "table_id": "2-10823719-14.html.csv",
+    "claim": "the lake oval park venue have the lowest number of crowd of the season",
+    "predicted_response": 0,
+    "resp": "Here are the steps to determine whether the claim about the table is TRUE or FALSE:\n\n1. Check if there is a row in the table where the crowd is zero, because if the number of people present was 0, then \"the lake oval park venue have the lowest number of crowd of the season\" would be false.\n\n2. Look for the \"crowd\" cell in each row and see which one has the smallest value (i.e., the lowest crowd). If there is at least one row with zero or a negative value, then we should continue checking that specific line in more detail, but if no such value exists, it will be obvious that lake oval venue is not the lowest.\n\n3. Check for any other rows where \"venue\" equals \"lake oval\". Since all of them have lower crowd values than the row with the highest crowd count at Lake Oval (if they exist), this would imply that \"the lake oval park venue have the lowest number of crowd of the season\" is true.\n\n4. Look through each cell in the table again to ensure there are no other rows where crowd counts could be lower than those of the specified row.\n\n5. Confirm if all previous steps were properly done and state our answer as a boolean value (TRUE or FALSE) based on whether or not lake oval venue indeed has the lowest crowd count among all the relevant venues in the table.\n\n6. List each cell that we looked at, specifically \"crowd\", \"venue\" for Lake Oval, and any row where crowd is greater than the specified one to verify our answer further.\n\n\nBased on the given reasoning steps above and checking the table again after explaining step 3, I will output my final answer in this JSON format:\n\n{\n  \"chain_of_thought\": \"Check if there is a row in the table where the crowd is zero. Look for the 'crowd' cell in each row to see which one has the smallest value. Check for any other rows where 'venue' equals 'lake oval'. Look through each cell in the table again to ensure there are no other rows where crowd counts could be lower than those of the specified row. Lake oval indeed has higher crowd values in some matches than the specific match mentioned, but it still is not confirmed as lowest crowd count venue unless none of the other venues have any lower value. Based on step 3 verified that lake oval does have a crowd value greater than 0 and no matching lower crowd value was found yet.\",\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 1, \"column_name\": \"crowd\"},\n    {\"row_index\": 2, \"column_name\": \"crowd\"},\n    {\"row_index\": 3, \"column_name\": \"crowd\"},\n    {\"row_index\": 4, \"column_name\": \"crowd\"},\n    {\"row_index\": 5, \"column_name\": \"crowd\"},\n    {\"row_index\": 6, \"column_name\": \"crowd\"},\n    {\"row_index\": 1, \"column_name\": \"venue\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 1,
+        "column_name": "crowd"
+      },
+      {
+        "row_index": 2,
+        "column_name": "crowd"
+      },
+      {
+        "row_index": 3,
+        "column_name": "crowd"
+      },
+      {
+        "row_index": 4,
+        "column_name": "crowd"
+      },
+      {
+        "row_index": 5,
+        "column_name": "crowd"
+      },
+      {
+        "row_index": 6,
+        "column_name": "crowd"
+      },
+      {
+        "row_index": 1,
+        "column_name": "venue"
+      }
+    ]
+  },
+  {
+    "table_id": "2-10823719-14.html.csv",
+    "claim": "collingwood have the highest score of the away team in the season",
+    "predicted_response": 1,
+    "resp": "### Step-by-Step Reasoning Process:\n\n1. **Identify the Away Team Scores Column:** First, we need to identify the column that contains scores for away teams. According to the table structure, it's located at column index 3.\n\n2. **Filter Away Team Scores:** We then filter the table to only include rows of games where Collingwood was the away team, and specifically look at their score in this filtered set of data.\n\n3. **Compare with Highest Score Among All Away Teams:** To determine if Collingwood has the highest score among all away teams, we need to identify the row(s) for each away team's game and compare them against Collingwood's score.\n\n4. **Identify Relevant Row Index and Column Names (Scores):** For the claim about Collingwood having the highest score of any away team, we specifically focus on rows with Collingwood as the away team in column 3 (\"away team\") and their corresponding scores in column 2 (\"home team score\"). These are identified by row index and specific columns.\n\n5. **Conclusion:** Based on these steps, if Collingwood's score for an away game matches or exceeds all other away teams' scores found across the table, we can conclude the claim is true; otherwise, it is false.\n\n### Step 3: Execute the Steps\n\nGiven the instruction to list step-by-step reasoning in a clear and logical order followed by outputting a final answer in a specific JSON format:\n\n```json\n{\n    \"chain_of_thought\": [\n        {\n            \"step\": \"Identify the column containing away team scores\",\n            \"value\": 3\n        },\n        {\n            \"step\": \"Filter table for Collingwood's away game and extract its score\",\n            \"value\": 15.11 (101)\n        },\n        {\n            \"step\": \"Compare with highest score among all away teams found in the table\",\n            \"value\": false\n        }\n    ],\n    \"answer\": \"FALSE\",\n    \"relevant_cells\": [\n        {\n            \"row_index\": 7,\n            \"column_name\": \"away team\"\n        },\n        {\n            \"row_index\": 8,\n            \"column_name\": \"home team score\"\n        }\n    ]\n}\n```\n\n### Final Answer:\n\n```json\n{\n  \"chain_of_thought\": [\n    {\"step\": \"Identify the column containing away team scores\", \"value\": 3},\n    {\"step\": \"Filter table for Collingwood's away game and extract its score\", \"value\": 15.11 (101)},\n    {\"step\": \"Compare with highest score among all away teams found in the table\", \"value\": false}\n  ],\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 7, \"column_name\": \"away team\"},\n    {\"row_index\": 8, \"column_name\": \"home team score\"}\n  ]\n}\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-10823719-14.html.csv",
+    "claim": "richmond have the highest score of the home team in the season",
+    "predicted_response": 1,
+    "resp": "Here are the steps to evaluate the claim:\n\n1. First, we need to find the scores of all home teams in the table. We can do this by looking at the cells where the team name is listed as \"home team\".\n\n2. Next, we compare these scores with each other to determine which one is the highest.\n\n3. If there is only one score for a particular home team, that score will be the highest. However, if there are multiple scores for the same home team (for example, in case of a draw), we need to look at additional data to make an informed decision.\n\n4. Since the table does not contain any information about draws or other special conditions, we can simply ignore such cases and compare the actual values.\n\n5. After comparing all the scores, if one score is higher than the rest, that means it has the highest value in its respective row. In this case, if only Richmond's score is greater than others, then they have the highest score for their home team.\n\n\n```json\n{\n  \"chain_of_thought\": \"Step 1: Extract scores from table\\nStep 2: Compare scores within each row\\nStep 3: Check for draws or special conditions (none in this case)\\nStep 4: Identify which row has the highest score and its respective home team is Richmond.\\nAnswer based on these steps: TRUE\",\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 1, \"column_name\": \"home team\"},\n    {\"row_index\": 2, \"column_name\": \"home team\"}\n  ]\n}\n```",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 1,
+        "column_name": "home team"
+      },
+      {
+        "row_index": 2,
+        "column_name": "home team"
+      }
+    ]
+  },
+  {
+    "table_id": "2-10823719-14.html.csv",
+    "claim": "all of the vfl season be hold on a different date",
+    "predicted_response": 1,
+    "resp": "Here's the step-by-step reasoning process:\n\n1. The table appears to be a football (Australian Rules) match record from the 1979 VFL season.\n2. Looking at the table, I notice that there are multiple rows where the date is listed as \"7 july 1979\".\n3. Since all these dates are on the same day and month, it's possible that they could be for different matches played on the same day, but with no other details provided in the table.\n4. However, I also notice that the venue and crowd figures for each match seem to vary significantly. For instance, the Melbourne vs Richmond match had a crowd of 19879, while the Essendon vs Footscray match had a crowd of 25240, which is more than double that number.\n5. This variation in crowd sizes between matches on the same day suggests that the matches might be played at different venues or have different capacities for each venue.\n6. Therefore, it's possible that all VFL season matches were held on different dates.\n\nHere's the JSON output:\n\n{\n  \"chain_of_thought\": [\n    {\n      \"step\": \"1. The table appears to be a football (Australian Rules) match record from the 1979 VFL season.\"\n    },\n    {\n      \"step\": \"2. Looking at the table, I notice that there are multiple rows where the date is listed as '7 july 1979'.\"\n    },\n    {\n      \"step\": \"3. Since all these dates are on the same day and month, it's possible that they could be for different matches played on the same day, but with no other details provided in the table.\"\n    },\n    {\n      \"step\": \"4. However, I also notice that the venue and crowd figures for each match seem to vary significantly.\"\n    },\n    {\n      \"step\": \"5. This variation in crowd sizes between matches on the same day suggests that the matches might be played at different venues or have different capacities for each venue.\"\n    },\n    {\n      \"step\": \"6. Therefore, it's possible that all VFL season matches were held on different dates.\"\n    }\n  ],\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\n      \"row_index\": 0,\n      \"column_name\": \"date\"\n    },\n    {\n      \"row_index\": 1,\n      \"column_name\": \"date\"\n    },\n    {\n      \"row_index\": 2,\n      \"column_name\": \"date\"\n    },\n    {\n      \"row_index\": 3,\n      \"column_name\": \"date\"\n    }\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "date"
+      },
+      {
+        "row_index": 1,
+        "column_name": "date"
+      },
+      {
+        "row_index": 2,
+        "column_name": "date"
+      },
+      {
+        "row_index": 3,
+        "column_name": "date"
+      }
+    ]
+  },
+  {
+    "table_id": "2-10823719-14.html.csv",
+    "claim": "the lake oval venue have the highest number of crowd of the season",
+    "predicted_response": 1,
+    "resp": "Here are the steps to evaluate the claim:\n\n1. **Identify the relevant columns**: The relevant columns for evaluating the claim are 'crowd' and 'venue'.\n\n2. **Locate all rows with a venue of \"lake oval\"**: We need to identify which row in the table has a crowd value that is higher than any other row.\n\n3. **Compare the crowd values at lake oval to those at other venues**: Compare the crowd value at Lake Oval (10626) to each crowd value at the other venues (25240, 19879, 14971, 21588, 58736).\n\n4. **Determine which venue has the highest number of crowd**: Based on the comparisons in step 3, determine if \"lake oval\" indeed has the highest number of crowd.\n\nHere's a Python code that implements these steps:\n\n```python\nimport pandas as pd\n\n# Read the table from html format into a DataFrame\ndf = pd.read_html('table.html')[0]\n\n# Define the relevant columns\nrelevant_columns = ['crowd', 'venue']\n\n# Filter rows where venue is \"lake oval\"\nrows_at_lake_oval = df[df['venue'] == 'lake oval']\n\n# If there are no rows at Lake Oval, the claim is False\nif len(rows_at_lake_oval) == 0:\n    print({\n        \"chain_of_thought\": \"There were no rows where venue was lake oval.\",\n        \"answer\": \"FALSE\",\n        \"relevant_cells\": [\n            {\"row_index\": None, \"column_name\": \"\"}\n        ]\n    })\n    exit()\n\n# Get the highest crowd at Lake Oval\nhighest_crowd_at_lake_oval = rows_at_lake_oval['crowd'].max()\n\n# Find the venue with the highest crowd (not necessarily at Lake Oval)\nvenue_with_highest_crowd = df.loc[df['crowd'] == highest_crowd_at_lake_oval, 'venue'].values[0]\n\n# If Lake Oval is not the venue with the highest crowd, then claim is False\nif venue_with_highest_crowd != \"lake oval\":\n    print({\n        \"chain_of_thought\": f\"The venue at Lake Oval does have a high crowd ({highest_crowd_at_lake_oval}), but it's not the highest. The actual highest crowd is in {venue_with_highest_crowd} with {highest_crowd_at_lake_oval}.\",\n        \"answer\": \"FALSE\",\n        \"relevant_cells\": [\n            {\"row_index\": 0, \"column_name\": \"crowd\"},\n            {\"row_index\": None, \"column_name\": \"\"},\n            {\"row_index\": 5, \"column_name\": \"venue\"}\n        ]\n    })\nelse:\n    print({\n        \"chain_of_thought\": f\"The crowd at Lake Oval is {highest_crowd_at_lake_oval}. This is the highest crowd value in the table.\",\n        \"answer\": \"TRUE\",\n        \"relevant_cells\": [\n            {\"row_index\": 0, \"column_name\": \"crowd\"},\n            {\"row_index\": None, \"column_name\": \"\"},\n            {\"row_index\": 4, \"column_name\": \"venue\"}\n        ]\n    })\n```\n\nPlease note that the 'table.html' file should be in the same directory as the python script.",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-10823719-14.html.csv",
+    "claim": "the vfl park venue have the lowest number of crowd of the season",
+    "predicted_response": 0,
+    "resp": "Here are the step-by-step reasoning steps:\n\n1. Identify the column that contains the crowd data: The relevant column for crowd data is the 6th column, which has the values representing the number of people at each match.\n\n2. Look up the value in row 3 and find the corresponding venue: In this case, the value is \"58736\" and the corresponding venue is \"vfl park\". \n\n3. Compare with other rows to see if there are any other venues with lower crowd values for that day: In this table, we only have one match at VFL Park on 7 July 1979. We can't compare it directly since no other matches are listed.\n\n4. Look up the value in row 4 and find the corresponding venue: In this case, the value is \"10626\" and the corresponding venue is \"lake oval\". However, we are trying to see if VFL Park had the lowest crowd of all.\n\n5. Compare with other venues that appear in matches on the same day as VFL Park: Since there's only one match at VFL Park for that day, we can look up other values at that venue but they're already accounted for since it is listed separately in row 3. \n\n6. Conclude whether the claim is TRUE or FALSE based on comparison of crowd data with all relevant cells.\n\n7. List relevant cells: \n   - The cell at row 3, column \"crowd\" has value \"58736\"\n   - The cell at row 4, column \"crowd\" has value \"10626\"\n   - The cell at row 1, column \"crowd\" has value \"25240\"\n\nHere is the output in JSON format:\n\n{\n  \"chain_of_thought\": [\n    {\n      \"row_index\": 3,\n      \"column_name\": \"venue\"\n    },\n    {\n      \"row_index\": 4,\n      \"column_name\": \"venue\"\n    }\n  ],\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 3, \"column_name\": \"crowd\"},\n    {\"row_index\": 4, \"column_name\": \"crowd\"},\n    {\"row_index\": 1, \"column_name\": \"crowd\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "crowd"
+      },
+      {
+        "row_index": 4,
+        "column_name": "crowd"
+      },
+      {
+        "row_index": 1,
+        "column_name": "crowd"
+      }
+    ]
+  },
+  {
+    "table_id": "2-10823719-14.html.csv",
+    "claim": "hawthorn have the highest score of the away team in the season",
+    "predicted_response": 1,
+    "resp": "### Step-by-Step Reasoning:\n\n1. **Find the row where Hawthorn is the away team**: We need to identify the row where Hawthorn is listed as the away team.\n\n2. **Determine if Hawthorn has the highest score of the away team**: After finding the relevant row, we will compare its \"away team score\" with other rows that have Hawthorn as the home team (since there should be one) and determine if it has a higher score than those.\n\n3. **Compare scores**: If the score is higher, then the claim is True; otherwise, it's False.\n\n4. **Find relevant cells for JSON output**:\n\n   - The row where Hawthorn is the away team.\n   - The rows that have Hawthorn as the home team (since we need to compare this with Hawthorn's away score).\n   - The \"away team score\" cell for each of these rows.\n\n### Step-by-Step Reasoning Continued...\n\n5. **Hawthorn Away Team Row Index and Column Names**:\n\n   ```json\n[\n  {\"row_index\": 2, \"column_name\": \"away team\"},\n  {\"row_index\": 3, \"column_name\": \"home team score\"}\n]\n```\n\n6. **Find Hawthorn's Home Team Rows and Their Scores**:\n\n   To confirm if there's indeed a row where Hawthorn is the home team to compare scores with its away score.\n\n7. **Hawthorn Home Team Rows Index and Column Names for Comparison**:\n\n   ```json\n[\n  {\"row_index\": 5, \"column_name\": \"away team\"},\n  {\"row_index\": 5, \"column_name\": \"home team score\"}\n]\n```\n\n8. **Compare Scores**: We now compare Hawthorn's away score (74) with the scores of Hawthorn when it was home.\n\n9. **Result**: Hawthorn's home team score isn't directly available in a way to compare, but we can infer its highest away score comparison doesn't necessarily require Hawthorn's home score since our task only asks about the away score which Hawthorn has.\n\n### Conclusion:\n\nSince Hawthorn does indeed have an away team score that matches or is higher than none of their home scores (in this context, no direct comparison is required for a definitive answer based on provided data), and without Hawthorn having any higher away scores in the table directly compared to it's own away scores (which isn't necessary given our task focus), we infer the claim as True.\n\n### JSON Output:\n\n```json\n{\n  \"chain_of_thought\": \"Listed steps were performed but not directly relevant due to question wording. Focus was on identifying Hawthorn's highest away score which indeed outperforms all home scores directly available in comparison.\",\n  \"answer\": \"TRUE\",\n  \"relevant_cells\":\n   [\n     {\"row_index\": 2, \"column_name\": \"away team\"},\n     {\"row_index\": 3, \"column_name\": \"home team score\"}\n   ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-10823719-14.html.csv",
+    "claim": "st kilda have the highest score of the home team in the season",
+    "predicted_response": 1,
+    "resp": "### Step-by-Step Reasoning:\n\n1. **Identify the home team scores to compare**:\n   - We need to extract all the score values from the 'home team' column.\n\n2. **Extract relevant scores**:\n   - List all scores: 10.11 (71), 17.18 (120), 13.11 (89), 17.16 (118), 6.16 (52).\n   - Determine the highest value among these scores to verify if St Kilda has it.\n\n3. **Verify St Kilda's score is the highest**:\n   - Compare the extracted scores with each of St Kilda's scores in the table.\n   - St Kilda's score: 6.16 (52)\n   - Check for the highest value among all home team scores.\n\n4. **Conclusion**:\n   - Since no other home team scored higher than St Kilda, we need to verify that this is indeed true by checking if there are any other teams with a higher score in their 'home team' column.\n   \n### Step-by-Step Conclusion Verification:\n\n1. Verify the highest value among all scores from \"home team\" column for all listed games:\n   - After listing and comparing all relevant home scores, we must ensure no team scored higher than St Kilda.\n\n2. **Conclusion Finalized**:\n   - If we find another team with a higher score in their 'home team' column, the claim is false.\n   - Since our verification confirms that St Kilda's highest score of 6.16 (52) remains unmatched by any other team in the table within its \"home team\" scores, we can assert the truth of the claim.\n\n3. **Finalize the Chain of Thought**:\n   The final steps involve confirming that no other team outscored St Kilda and summarizing our findings.\n\n### Final Answer JSON:\n\n```json\n{\n  \"chain_of_thought\": \"Verified that St Kilda has a home score (6.16, 52), checked all other teams' scores to ensure none are higher within the 'home team' column.\",\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"home team\"},\n    {\"row_index\": 4, \"column_name\": \"home team\"}\n  ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "home team"
+      },
+      {
+        "row_index": 4,
+        "column_name": "home team"
+      }
+    ]
+  }
+]
