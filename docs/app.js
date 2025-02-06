@@ -1077,16 +1077,26 @@ Now return your answer in JSON format.`.trim();
           if (!liveThinkOutputEl.style.display || liveThinkOutputEl.style.display === "none") {
             liveThinkOutputEl.style.display = "block";
           }
-          let thinkingLabel = document.getElementById("thinkingLabel");
-          if (!thinkingLabel) {
+          if (!document.getElementById("thinkingLabel")) {
             liveThinkOutputEl.innerHTML = `
               <div class="thinking-overlay">
                 <span id="thinkingLabel" class="thinking-label">Thinking...</span>
+                <button id="toggleThinkingBtn" class="toggle-thinking">▲</button>
               </div>
               <div id="thinkContent"></div>
             `;
-            thinkingLabel = document.getElementById("thinkingLabel");
-          }
+            // Add event listener for the toggle button:
+            document.getElementById("toggleThinkingBtn").addEventListener("click", function() {
+              const thinkContent = document.getElementById("thinkContent");
+              if (thinkContent.style.display === "none") {
+                thinkContent.style.display = "block";
+                this.textContent = "▲";
+              } else {
+                thinkContent.style.display = "none";
+                this.textContent = "▼";
+              }
+            });
+          }          
           const thinkContentDiv = document.getElementById("thinkContent");
           if (thinkContentDiv) {
             thinkContentDiv.innerHTML = DOMPurify.sanitize(marked.parse(thinkText.trim()));
