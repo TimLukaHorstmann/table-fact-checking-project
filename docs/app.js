@@ -5,7 +5,8 @@
 // CONSTANTS for paths (adjust these as needed)
 const CSV_BASE_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/data/all_csv/";
 const TABLE_TO_PAGE_JSON_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/data/table_to_page.json";
-const FULL_CLEANED_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/tokenized_data/total_examples.json";
+const TOTAL_EXAMPLES_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/tokenized_data/total_examples.json";
+const FULL_CLEANED_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/tokenized_data/full_cleaned.json";
 const MANIFEST_JSON_PATH = "results/manifest.json"; // Updated path
 
 // Global variables for precomputed results
@@ -25,8 +26,11 @@ let resultsChartInstance = null;
 // For live inference
 let deepSeekPipeline = null;
 let currentModelId = null;
-// Global variable for table->claims mapping from full_cleaned.json
+// Global variable for table->claims mapping from total_examples.json
 let tableIdToClaimsMap = {};
+let tableEntityLinkingMap = {}; // mapping for full_cleaned.json (i.e., table_id -> entity linking)
+
+let manifestOptions = []; // Array of manifest options for filtering
 
 
 // DOM element references
@@ -52,13 +56,34 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.warn("Manifest does not contain results_files. Using an empty list.");
         manifest.results_files = [];
       }
-      parseManifest(manifest);
-      populateDropdowns();
+      parseManifest(manifest); // Populate manifestOptions
+
+      const globalModels    = Array.from(new Set(manifestOptions.map(o => o.model))).sort();
+      const globalDatasets  = Array.from(new Set(manifestOptions.map(o => o.dataset))).sort();
+      const globalLearningTypes = Array.from(new Set(manifestOptions.map(o => o.learningType))).sort();
+      const globalNValues   = Array.from(new Set(manifestOptions.map(o => o.nValue))).sort((a, b) => {
+        if (a === "all") return 1;
+        if (b === "all") return -1;
+        return parseInt(a) - parseInt(b);
+      });
+      const globalFormatTypes = Array.from(new Set(manifestOptions.map(o => o.formatType))).sort();
+
+      updateLinkedDropdowns(); // Populate dropdowns based on manifest
+      ["modelSelect", "datasetSelect", "learningTypeSelect", "nValueSelect", "formatTypeSelect"].forEach(id => {
+        document.getElementById(id).addEventListener("change", updateLinkedDropdowns);
+      }); // Add event listeners to update linked dropdowns when any dropdown changes
+      ["modelSelect", "datasetSelect", "learningTypeSelect", "nValueSelect", "formatTypeSelect"].forEach(id => {
+        document.getElementById(id).addEventListener("change", (e) => {
+          // When the user changes one dropdown, update the other dropdowns.
+          updateOtherDropdowns(e.target.id);
+        });
+      });
     } catch (manifestError) {
       console.warn("Failed to fetch or parse manifest.json. Continuing without manifest.", manifestError);
     }
 
-    await fetchFullCleanedClaims();
+    await fetchTotalExamplesClaims();
+    await fetchFullCleaned();
 
     // Continue with the rest of the initialization.
     populateExistingTableDropdown();
@@ -115,42 +140,208 @@ function parseManifest(manifest) {
     const match = shortName.match(regex);
     if (match) {
       const [_, model, dataset, nValue, learningType, formatType] = match;
-      availableOptions.models.add(model);
-      availableOptions.datasets.add(dataset);
-      availableOptions.learningTypes.add(learningType);
-      availableOptions.nValues.add(nValue);
-      availableOptions.formatTypes.add(formatType);
+      manifestOptions.push({ model, dataset, nValue, learningType, formatType, filename });
     } else {
       console.warn(`Filename "${filename}" does not match expected pattern; ignoring.`);
     }
   });
 }
 
-async function fetchFullCleanedClaims() {
+function updateLinkedDropdowns() {
+  // Get current selections.
+  const modelEl = document.getElementById("modelSelect");
+  const datasetEl = document.getElementById("datasetSelect");
+  const learningTypeEl = document.getElementById("learningTypeSelect");
+  const nValueEl = document.getElementById("nValueSelect");
+  const formatTypeEl = document.getElementById("formatTypeSelect");
+
+  const currentModel = modelEl.value;
+  const currentDataset = datasetEl.value;
+  const currentLearningType = learningTypeEl.value;
+  const currentNValue = nValueEl.value;
+  const currentFormatType = formatTypeEl.value;
+
+  // For modelSelect:
+  let filtered = manifestOptions.filter(opt =>
+    (!currentDataset || opt.dataset === currentDataset) &&
+    (!currentLearningType || opt.learningType === currentLearningType) &&
+    (!currentNValue || opt.nValue === currentNValue) &&
+    (!currentFormatType || opt.formatType === currentFormatType)
+  );
+  let models = new Set(filtered.map(opt => opt.model));
+  populateSelect("modelSelect", Array.from(models).sort(), currentModel);
+
+  // For datasetSelect:
+  filtered = manifestOptions.filter(opt =>
+    (!currentModel || opt.model === currentModel) &&
+    (!currentLearningType || opt.learningType === currentLearningType) &&
+    (!currentNValue || opt.nValue === currentNValue) &&
+    (!currentFormatType || opt.formatType === currentFormatType)
+  );
+  let datasets = new Set(filtered.map(opt => opt.dataset));
+  populateSelect("datasetSelect", Array.from(datasets).sort(), currentDataset);
+
+  // For learningTypeSelect:
+  filtered = manifestOptions.filter(opt =>
+    (!currentModel || opt.model === currentModel) &&
+    (!currentDataset || opt.dataset === currentDataset) &&
+    (!currentNValue || opt.nValue === currentNValue) &&
+    (!currentFormatType || opt.formatType === currentFormatType)
+  );
+  let learningTypes = new Set(filtered.map(opt => opt.learningType));
+  populateSelect("learningTypeSelect", Array.from(learningTypes).sort(), currentLearningType);
+
+  // For nValueSelect:
+  filtered = manifestOptions.filter(opt =>
+    (!currentModel || opt.model === currentModel) &&
+    (!currentDataset || opt.dataset === currentDataset) &&
+    (!currentLearningType || opt.learningType === currentLearningType) &&
+    (!currentFormatType || opt.formatType === currentFormatType)
+  );
+  let nValues = new Set(filtered.map(opt => opt.nValue));
+  let nValuesArray = Array.from(nValues).sort((a, b) => {
+    if (a === "all") return 1;
+    if (b === "all") return -1;
+    return parseInt(a) - parseInt(b);
+  });
+  populateSelect("nValueSelect", nValuesArray, currentNValue);
+
+  // For formatTypeSelect:
+  filtered = manifestOptions.filter(opt =>
+    (!currentModel || opt.model === currentModel) &&
+    (!currentDataset || opt.dataset === currentDataset) &&
+    (!currentLearningType || opt.learningType === currentLearningType) &&
+    (!currentNValue || opt.nValue === currentNValue)
+  );
+  let formatTypes = new Set(filtered.map(opt => opt.formatType));
+  populateSelect("formatTypeSelect", Array.from(formatTypes).sort(), currentFormatType);
+}
+
+
+function updateOtherDropdowns(changedId) {
+  // Get the current selections from all dropdowns.
+  const modelEl = document.getElementById("modelSelect");
+  const datasetEl = document.getElementById("datasetSelect");
+  const learningTypeEl = document.getElementById("learningTypeSelect");
+  const nValueEl = document.getElementById("nValueSelect");
+  const formatTypeEl = document.getElementById("formatTypeSelect");
+
+  const currentModel = modelEl.value;
+  const currentDataset = datasetEl.value;
+  const currentLearningType = learningTypeEl.value;
+  const currentNValue = nValueEl.value;
+  const currentFormatType = formatTypeEl.value;
+
+  // For each dropdown except the one just changed, update the valid options.
+  if (changedId !== "modelSelect") {
+    // Filter manifestOptions by the current selections of the others.
+    let filtered = manifestOptions.filter(opt =>
+      (!currentDataset || opt.dataset === currentDataset) &&
+      (!currentLearningType || opt.learningType === currentLearningType) &&
+      (!currentNValue || opt.nValue === currentNValue) &&
+      (!currentFormatType || opt.formatType === currentFormatType)
+    );
+    let models = new Set(filtered.map(opt => opt.model));
+    // Do not include the wildcard here.
+    populateSelect("modelSelect", Array.from(models).sort(), currentModel, false);
+  }
+  if (changedId !== "datasetSelect") {
+    let filtered = manifestOptions.filter(opt =>
+      (!currentModel || opt.model === currentModel) &&
+      (!currentLearningType || opt.learningType === currentLearningType) &&
+      (!currentNValue || opt.nValue === currentNValue) &&
+      (!currentFormatType || opt.formatType === currentFormatType)
+    );
+    let datasets = new Set(filtered.map(opt => opt.dataset));
+    populateSelect("datasetSelect", Array.from(datasets).sort(), currentDataset, false);
+  }
+  if (changedId !== "learningTypeSelect") {
+    let filtered = manifestOptions.filter(opt =>
+      (!currentModel || opt.model === currentModel) &&
+      (!currentDataset || opt.dataset === currentDataset) &&
+      (!currentNValue || opt.nValue === currentNValue) &&
+      (!currentFormatType || opt.formatType === currentFormatType)
+    );
+    let learningTypes = new Set(filtered.map(opt => opt.learningType));
+    populateSelect("learningTypeSelect", Array.from(learningTypes).sort(), currentLearningType, false);
+  }
+  if (changedId !== "nValueSelect") {
+    let filtered = manifestOptions.filter(opt =>
+      (!currentModel || opt.model === currentModel) &&
+      (!currentDataset || opt.dataset === currentDataset) &&
+      (!currentLearningType || opt.learningType === currentLearningType) &&
+      (!currentFormatType || opt.formatType === currentFormatType)
+    );
+    let nValues = new Set(filtered.map(opt => opt.nValue));
+    let nValuesArray = Array.from(nValues).sort((a, b) => {
+      if (a === "all") return 1;
+      if (b === "all") return -1;
+      return parseInt(a) - parseInt(b);
+    });
+    populateSelect("nValueSelect", nValuesArray, currentNValue, false);
+  }
+  if (changedId !== "formatTypeSelect") {
+    let filtered = manifestOptions.filter(opt =>
+      (!currentModel || opt.model === currentModel) &&
+      (!currentDataset || opt.dataset === currentDataset) &&
+      (!currentLearningType || opt.learningType === currentLearningType) &&
+      (!currentNValue || opt.nValue === currentNValue)
+    );
+    let formatTypes = new Set(filtered.map(opt => opt.formatType));
+    populateSelect("formatTypeSelect", Array.from(formatTypes).sort(), currentFormatType, false);
+  }
+}
+
+async function fetchTotalExamplesClaims() {
   try {
-    const response = await fetch(FULL_CLEANED_PATH);
+    const response = await fetch(TOTAL_EXAMPLES_PATH);
     if (!response.ok) {
-      console.warn("Failed to fetch full_cleaned.json", response.status, response.statusText);
+      console.warn("Failed to fetch total_examples.json", response.status, response.statusText);
       return;
     }
     tableIdToClaimsMap = await response.json();
   } catch (err) {
-    console.warn("Could not load full_cleaned.json", err);
+    console.warn("Could not load total_examples.json", err);
     tableIdToClaimsMap = {};  // fallback
   }
 }
 
+async function fetchFullCleaned() {
+  try {
+    const response = await fetch(FULL_CLEANED_PATH);
+    if (!response.ok) {
+      console.warn("Failed to fetch full_cleaned.json");
+      return;
+    }
+    tableEntityLinkingMap = await response.json();
+  } catch (err) {
+    console.warn("Error fetching full_cleaned.json", err);
+  }
+}
 
-function populateSelect(selectId, values) {
+
+function populateSelect(selectId, values, currentSelection = "", includeAny = true) {
   const sel = document.getElementById(selectId);
   if (!sel) return;
   sel.innerHTML = "";
+  if (includeAny) {
+    const anyOption = document.createElement("option");
+    anyOption.value = "";
+    anyOption.textContent = "Any";
+    sel.appendChild(anyOption);
+  }
   values.forEach(v => {
     const opt = document.createElement("option");
     opt.value = v;
     opt.textContent = v;
     sel.appendChild(opt);
   });
+  // Preserve the selection if possible.
+  if (currentSelection && values.includes(currentSelection)) {
+    sel.value = currentSelection;
+  } else {
+    sel.value = includeAny ? "" : (values.length > 0 ? values[0] : "");
+  }
 }
 
 function populateDropdowns() {
@@ -284,6 +475,8 @@ function showClaimsForTable(tableId) {
 
 
 async function renderClaimAndTable(resultObj) {
+  document.getElementById("full-highlight-legend-precomputed").style.display = "none";
+  document.getElementById("full-entity-highlight-legend-precomputed").style.display = "none";
   const container = document.getElementById("table-container");
   container.innerHTML = "";
   const infoDiv = document.createElement("div");
@@ -357,13 +550,46 @@ async function renderClaimAndTable(resultObj) {
         hc => hc.row_index === rowIndex &&
               hc.column_name.toLowerCase() === columnName.toLowerCase()
       );
-      if (shouldHighlight) td.classList.add("highlight");
+      if (shouldHighlight) {
+        td.classList.add("highlight");
+        document.getElementById("full-highlight-legend-precomputed").style.display = "block";
+      }
       tr.appendChild(td);
     });
     tbody.appendChild(tr);
   });
   tableEl.appendChild(tbody);
   container.appendChild(tableEl);
+
+
+  // --- Highlight entity-linked cells from full_cleaned.json ---
+  if (tableEntityLinkingMap[resultObj.table_id]) {
+    // Get the entity linking info. In full_cleaned.json, the first element is an array of statements.
+    const entityStatements = tableEntityLinkingMap[resultObj.table_id][0];
+    let entityCoords = [];
+    const regex = /#([^#]+);(-?\d+),(-?\d+)#/g;
+    entityStatements.forEach(statement => {
+      let match;
+      while ((match = regex.exec(statement)) !== null) {
+        // Note: match[2] is the row and match[3] the column, as numbers.
+        const row = Number(match[2]);
+        const col = Number(match[3]);
+        entityCoords.push({ row, col });
+      }
+    });
+    // Now loop over the tbody rows of the table and add the class "entity-highlight" if the cell is in the list.
+    const tbody = tableEl.querySelector("tbody");
+    if (tbody) {
+      Array.from(tbody.rows).forEach((tr, rowIndex) => {
+        Array.from(tr.cells).forEach((td, colIndex) => {
+          if (entityCoords.some(coord => coord.row === rowIndex && coord.col === colIndex)) {
+            td.classList.add("entity-highlight");
+          }
+        });
+      });
+    }
+    document.getElementById("full-entity-highlight-legend-precomputed").style.display = "block";
+  }
 }
 
 
@@ -623,7 +849,7 @@ function populateClaimsDropdown(tableId) {
     return;
   }
   
-  // The structure in full_cleaned.json is an array:
+  // The structure in total_examples.json is an array:
   //   [ [claims array], [label array], [some other array], "table title" ]
   // We'll just need the first array for the claim text, 
   // and the second array for whether it's correct(1)/incorrect(0).
@@ -1104,7 +1330,54 @@ function renderLivePreviewTable(csvText, relevantCells) {
     tbody.appendChild(tr);
   });
   tableEl.appendChild(tbody);
+
+
+  // --- If an existing table is selected, highlight entity-linked cells ---
+  const existingTableSelect = document.getElementById("existingTableSelect");
+  if (existingTableSelect && existingTableSelect.value && tableEntityLinkingMap[existingTableSelect.value]) {
+    const entityStatements = tableEntityLinkingMap[existingTableSelect.value][0];
+    let entityCoords = [];
+    const regex = /#([^#]+);(-?\d+),(-?\d+)#/g;
+    entityStatements.forEach(statement => {
+      let match;
+      while ((match = regex.exec(statement)) !== null) {
+        const row = Number(match[2]);
+        const col = Number(match[3]);
+        entityCoords.push({ row, col });
+      }
+    });
+    const tbody = tableEl.querySelector("tbody");
+    if (tbody) {
+      Array.from(tbody.rows).forEach((tr, rowIndex) => {
+        Array.from(tr.cells).forEach((td, colIndex) => {
+          if (entityCoords.some(coord => coord.row === rowIndex && coord.col === colIndex)) {
+            td.classList.add("entity-highlight");
+          }
+        });
+      });
+    }
+  }
+
+
   previewContainer.appendChild(tableEl);
+
+  // --- Update the dynamic legend based on highlighted cells ---
+  const legendModel = document.getElementById("full-highlight-legend-live");
+  const legendEntity = document.getElementById("full-entity-highlight-legend-live");
+
+  // Check if any cells in the table have the model highlighting (".highlight")
+  if (tableEl.querySelectorAll("td.highlight").length > 0) {
+    legendModel.style.display = "block"; // or "block", depending on your styling
+  } else {
+    legendModel.style.display = "none";
+  }
+
+  // Check if any cells in the table have the entity linking highlight (".entity-highlight")
+  if (tableEl.querySelectorAll("td.entity-highlight").length > 0) {
+    legendEntity.style.display = "block"; // or "block"
+  } else {
+    legendEntity.style.display = "none";
+  }
 }
 
 function displayLiveResults(csvText, claim, answer, relevantCells) {
