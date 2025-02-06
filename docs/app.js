@@ -1001,7 +1001,9 @@ Link: ${wikiLink}
       }
     }
   
-    const userPrompt = `You are checking whether a claim about a structured table is TRUE or FALSE ("answer") and which cells support it ("relevant_cells").
+    const userPrompt = `
+You are tasked with determining whether a claim about the following table (in JSON format) is TRUE or FALSE.
+Before providing your final answer, explain step-by-step your reasoning process by referring to the relevant parts of the table.
     
 Output ONLY valid JSON with:
 - "answer" as "TRUE" or "FALSE".
@@ -1011,21 +1013,24 @@ Output ONLY valid JSON with:
 
 ${optionalTitleSection}
 
-### Table (JSON Format):
+#### Table (JSON Format):
 \`\`\`json
 ${tablePrompt}
 \`\`\`
 
-### Claim:
+#### Claim:
 "${claimInput}"
 
-### Instructions:
-- Identify the **exact row index** where the relevant entity appears.
-- Use the **exact column header names** when referring to relevant cells.
-- Ensure **consistent formatting** in "relevant_cells", with row indices as integers and column names as strings.
-- Do **not** generate extra explanations—only return valid JSON.
+Instructions:
+- First, list your reasoning steps in a clear and logical order.
+- After your explanation, output a final answer in a valid JSON object with the following format:
+{{
+  "answer": "TRUE" or "FALSE",
+  "relevant_cells": [ list of relevant cells as objects with "row_index" and "column_name" ]
+}}
 
-Now return your answer in JSON format.`.trim();
+Make sure that your output is strictly in this JSON format and nothing else.
+"""`.trim();
   
     liveThinkOutputEl.textContent = "";
     liveThinkOutputEl.style.display = "none";
