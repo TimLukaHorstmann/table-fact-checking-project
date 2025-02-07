@@ -6,6 +6,8 @@
 const CSV_BASE_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/data/all_csv/";
 const TABLE_TO_PAGE_JSON_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/data/table_to_page.json";
 const TOTAL_EXAMPLES_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/tokenized_data/total_examples.json";
+const R1_TRAINING_ALL_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/collected_data/r1_training_all.json";
+const R2_TRAINING_ALL_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/collected_data/r2_training_all.json";
 const FULL_CLEANED_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/tokenized_data/full_cleaned.json";
 const MANIFEST_JSON_PATH = "results/manifest.json"; // Updated path
 
@@ -294,12 +296,23 @@ function updateOtherDropdowns(changedId) {
 
 async function fetchTotalExamplesClaims() {
   try {
-    const response = await fetch(TOTAL_EXAMPLES_PATH);
-    if (!response.ok) {
+    //const response = await fetch(TOTAL_EXAMPLES_PATH);
+    const response = await fetch(R1_TRAINING_ALL_PATH);
+    const response2 = await fetch(R2_TRAINING_ALL_PATH);
+
+    if (!response.ok || !response2.ok) {
       console.warn("Failed to fetch total_examples.json", response.status, response.statusText);
       return;
     }
-    tableIdToClaimsMap = await response.json();
+    //tableIdToClaimsMap = await response.json();
+    // Combine the two training sets into one
+    const r1Data = await response.json();
+    const r2Data = await response2.json();
+    // Note: r1Data.concat(r2Data) would not work as expected, because it says "concat" is not a function.
+    tableIdToClaimsMap = r1Data;
+    for (let i = 0; i < r2Data.length; i++) {
+      tableIdToClaimsMap.push(r2Data[i]);
+    }
   } catch (err) {
     console.warn("Could not load total_examples.json", err);
     tableIdToClaimsMap = {};  // fallback
@@ -938,6 +951,7 @@ function setupLiveCheckEvents() {
     const modelId = document.getElementById("liveModelSelect").value;
     const modelName = document.getElementById("liveModelSelect").selectedOptions[0].textContent;
     await initLivePipeline(modelId, modelName);
+    validateLiveCheckInputs(); // re-validate so the "Run" button is enabled
   });
 
   const inputTableEl = document.getElementById("inputTable");
@@ -969,6 +983,9 @@ function setupLiveCheckEvents() {
     }
     const startTime = performance.now();
 
+    document.getElementById("liveStreamOutput").style.display = "none";
+    document.getElementById("liveResults").style.display = "none";
+
     // Instead of manually setting width, let the flex layout handle it
     // runLiveCheckBtn.style.width = "calc(100% - 40px)";  // removed
     const stopLiveCheckBtn = document.getElementById("stopLiveCheck");
@@ -987,7 +1004,8 @@ function setupLiveCheckEvents() {
   
     const selectedFile = document.getElementById("existingTableSelect").value;
     const includeTitleChecked = document.getElementById("includeTableNameCheck").checked;
-    const tablePrompt = csvToJson(tableInput);
+    //const tablePrompt = csvToJson(tableInput);
+    const tablePrompt = csvToMarkdown(tableInput);
   
     let optionalTitleSection = "";
     if (selectedFile && includeTitleChecked) {
@@ -1002,7 +1020,7 @@ Link: ${wikiLink}
     }
   
     const userPrompt = `
-You are tasked with determining whether a claim about the following table (in JSON format) is TRUE or FALSE.
+You are tasked with determining whether a claim about the following table (in markdown format) is TRUE or FALSE.
 Before providing your final answer, explain step-by-step your reasoning process by referring to the relevant parts of the table.
     
 Output ONLY valid JSON with:
@@ -1013,10 +1031,8 @@ Output ONLY valid JSON with:
 
 ${optionalTitleSection}
 
-#### Table (JSON Format):
-\`\`\`json
+#### Table (markdown Format):
 ${tablePrompt}
-\`\`\`
 
 #### Claim:
 "${claimInput}"
