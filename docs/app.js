@@ -296,28 +296,28 @@ function updateOtherDropdowns(changedId) {
 
 async function fetchTotalExamplesClaims() {
   try {
-    //const response = await fetch(TOTAL_EXAMPLES_PATH);
-    const response = await fetch(R1_TRAINING_ALL_PATH);
+    const response1 = await fetch(R1_TRAINING_ALL_PATH);
     const response2 = await fetch(R2_TRAINING_ALL_PATH);
 
-    if (!response.ok || !response2.ok) {
-      console.warn("Failed to fetch total_examples.json", response.status, response.statusText);
+    if (!response1.ok || !response2.ok) {
+      console.warn("Failed to fetch one or both training data files.");
       return;
     }
-    //tableIdToClaimsMap = await response.json();
-    // Combine the two training sets into one
-    const r1Data = await response.json();
+
+    const r1Data = await response1.json();
     const r2Data = await response2.json();
-    // Note: r1Data.concat(r2Data) would not work as expected, because it says "concat" is not a function.
-    tableIdToClaimsMap = r1Data;
-    for (let i = 0; i < r2Data.length; i++) {
-      tableIdToClaimsMap.push(r2Data[i]);
-    }
+
+    // Combine the two objects.
+    // If the same table_id appears in both, the r2Data value will override r1Data's.
+    tableIdToClaimsMap = { ...r1Data, ...r2Data };
+
   } catch (err) {
-    console.warn("Could not load total_examples.json", err);
+    console.warn("Could not load training data:", err);
     tableIdToClaimsMap = {};  // fallback
   }
 }
+
+
 
 async function fetchFullCleaned() {
   try {
@@ -1289,7 +1289,15 @@ async function initLivePipeline(modelId, modelName) {
           device: "webgpu",
           progress_callback: progressCallback
         });
-      } else {
+      } else if (modelId.includes("Phi")) {
+        generator = await pipeline("text-generation", modelId, {
+          dtype: "q4f16",
+          device: "webgpu",
+          use_external_data_format: true,
+          progress_callback: progressCallback
+        });
+      } 
+      else {
         generator = await pipeline("text-generation", modelId, {
           device: "webgpu",
           dtype: "fp32",
