@@ -69,17 +69,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         return parseInt(a) - parseInt(b);
       });
       const globalFormatTypes = Array.from(new Set(manifestOptions.map(o => o.formatType))).sort();
-
-      updateLinkedDropdowns(); // Populate dropdowns based on manifest
+      
+      populateAllDropdowns(); // Populate dropdowns with all possible values
+      populateAllDropdowns();
       ["modelSelect", "datasetSelect", "learningTypeSelect", "nValueSelect", "formatTypeSelect"].forEach(id => {
-        document.getElementById(id).addEventListener("change", updateLinkedDropdowns);
-      }); // Add event listeners to update linked dropdowns when any dropdown changes
-      ["modelSelect", "datasetSelect", "learningTypeSelect", "nValueSelect", "formatTypeSelect"].forEach(id => {
-        document.getElementById(id).addEventListener("change", (e) => {
-          // When the user changes one dropdown, update the other dropdowns.
-          updateOtherDropdowns(e.target.id);
-        });
+        document.getElementById(id).addEventListener("change", updateDropdownsAndDisableInvalidOptions);
       });
+      updateDropdownsAndDisableInvalidOptions();
+
     } catch (manifestError) {
       console.warn("Failed to fetch or parse manifest.json. Continuing without manifest.", manifestError);
     }
@@ -138,7 +135,7 @@ async function fetchManifest() {
 function parseManifest(manifest) {
   manifest.results_files.forEach(filename => {
     const shortName = filename.replace(/^results\//, "");
-    const regex = /^results_with_cells_(.+?)_(test_examples|val_examples)_(\d+|all)_(zero_shot|one_shot|few_shot)_(naturalized|markdown|json|html)\.json$/;
+    const regex = /^results_with_cells_(.+?)_(test_examples|val_examples)_(\d+|all)_(zero_shot|one_shot|few_shot|chain_of_thought)_(naturalized|markdown|json|html)\.json$/;
     const match = shortName.match(regex);
     if (match) {
       const [_, model, dataset, nValue, learningType, formatType] = match;
@@ -149,150 +146,79 @@ function parseManifest(manifest) {
   });
 }
 
-function updateLinkedDropdowns() {
-  // Get current selections.
-  const modelEl = document.getElementById("modelSelect");
-  const datasetEl = document.getElementById("datasetSelect");
-  const learningTypeEl = document.getElementById("learningTypeSelect");
-  const nValueEl = document.getElementById("nValueSelect");
-  const formatTypeEl = document.getElementById("formatTypeSelect");
-
-  const currentModel = modelEl.value;
-  const currentDataset = datasetEl.value;
-  const currentLearningType = learningTypeEl.value;
-  const currentNValue = nValueEl.value;
-  const currentFormatType = formatTypeEl.value;
-
-  // For modelSelect:
-  let filtered = manifestOptions.filter(opt =>
-    (!currentDataset || opt.dataset === currentDataset) &&
-    (!currentLearningType || opt.learningType === currentLearningType) &&
-    (!currentNValue || opt.nValue === currentNValue) &&
-    (!currentFormatType || opt.formatType === currentFormatType)
-  );
-  let models = new Set(filtered.map(opt => opt.model));
-  populateSelect("modelSelect", Array.from(models).sort(), currentModel);
-
-  // For datasetSelect:
-  filtered = manifestOptions.filter(opt =>
-    (!currentModel || opt.model === currentModel) &&
-    (!currentLearningType || opt.learningType === currentLearningType) &&
-    (!currentNValue || opt.nValue === currentNValue) &&
-    (!currentFormatType || opt.formatType === currentFormatType)
-  );
-  let datasets = new Set(filtered.map(opt => opt.dataset));
-  populateSelect("datasetSelect", Array.from(datasets).sort(), currentDataset);
-
-  // For learningTypeSelect:
-  filtered = manifestOptions.filter(opt =>
-    (!currentModel || opt.model === currentModel) &&
-    (!currentDataset || opt.dataset === currentDataset) &&
-    (!currentNValue || opt.nValue === currentNValue) &&
-    (!currentFormatType || opt.formatType === currentFormatType)
-  );
-  let learningTypes = new Set(filtered.map(opt => opt.learningType));
-  populateSelect("learningTypeSelect", Array.from(learningTypes).sort(), currentLearningType);
-
-  // For nValueSelect:
-  filtered = manifestOptions.filter(opt =>
-    (!currentModel || opt.model === currentModel) &&
-    (!currentDataset || opt.dataset === currentDataset) &&
-    (!currentLearningType || opt.learningType === currentLearningType) &&
-    (!currentFormatType || opt.formatType === currentFormatType)
-  );
-  let nValues = new Set(filtered.map(opt => opt.nValue));
-  let nValuesArray = Array.from(nValues).sort((a, b) => {
+function populateAllDropdowns() {
+  // Extract all values from the manifestOptions
+  const models = Array.from(new Set(manifestOptions.map(opt => opt.model))).sort();
+  const datasets = Array.from(new Set(manifestOptions.map(opt => opt.dataset))).sort();
+  const learningTypes = Array.from(new Set(manifestOptions.map(opt => opt.learningType))).sort();
+  const nValues = Array.from(new Set(manifestOptions.map(opt => opt.nValue))).sort((a, b) => {
     if (a === "all") return 1;
     if (b === "all") return -1;
     return parseInt(a) - parseInt(b);
   });
-  populateSelect("nValueSelect", nValuesArray, currentNValue);
+  const formatTypes = Array.from(new Set(manifestOptions.map(opt => opt.formatType))).sort();
 
-  // For formatTypeSelect:
-  filtered = manifestOptions.filter(opt =>
-    (!currentModel || opt.model === currentModel) &&
-    (!currentDataset || opt.dataset === currentDataset) &&
-    (!currentLearningType || opt.learningType === currentLearningType) &&
-    (!currentNValue || opt.nValue === currentNValue)
+  // Populate each select with all possible values plus the "Any" option (empty value)
+  populateSelect("modelSelect", models, "", true);
+  populateSelect("datasetSelect", datasets, "", true);
+  populateSelect("learningTypeSelect", learningTypes, "", true);
+  populateSelect("nValueSelect", nValues, "", true);
+  populateSelect("formatTypeSelect", formatTypes, "", true);
+}
+
+function isValidCombination(model, dataset, learningType, nValue, formatType) {
+  // Each parameter is either a value or "" meaning "Any"
+  return manifestOptions.some(opt => {
+    if (model && opt.model !== model) return false;
+    if (dataset && opt.dataset !== dataset) return false;
+    if (learningType && opt.learningType !== learningType) return false;
+    if (nValue && opt.nValue !== nValue) return false;
+    if (formatType && opt.formatType !== formatType) return false;
+    return true;
+  });
+}
+
+function updateDropdownDisabledState(dropdownId, isValidCandidate) {
+  const selectEl = document.getElementById(dropdownId);
+  Array.from(selectEl.options).forEach(option => {
+    // Always allow the "Any" option (assumed to have an empty string as its value)
+    if (option.value === "") {
+      option.disabled = false;
+    } else {
+      option.disabled = !isValidCandidate(option.value);
+    }
+  });
+}
+
+function updateDropdownsAndDisableInvalidOptions() {
+  const currentModel = document.getElementById("modelSelect").value;
+  const currentDataset = document.getElementById("datasetSelect").value;
+  const currentLearningType = document.getElementById("learningTypeSelect").value;
+  const currentNValue = document.getElementById("nValueSelect").value;
+  const currentFormatType = document.getElementById("formatTypeSelect").value;
+
+  // For modelSelect: candidate value is the model while using current values from the other dropdowns.
+  updateDropdownDisabledState("modelSelect", candidate =>
+    isValidCombination(candidate, currentDataset, currentLearningType, currentNValue, currentFormatType)
   );
-  let formatTypes = new Set(filtered.map(opt => opt.formatType));
-  populateSelect("formatTypeSelect", Array.from(formatTypes).sort(), currentFormatType);
+
+  updateDropdownDisabledState("datasetSelect", candidate =>
+    isValidCombination(currentModel, candidate, currentLearningType, currentNValue, currentFormatType)
+  );
+
+  updateDropdownDisabledState("learningTypeSelect", candidate =>
+    isValidCombination(currentModel, currentDataset, candidate, currentNValue, currentFormatType)
+  );
+
+  updateDropdownDisabledState("nValueSelect", candidate =>
+    isValidCombination(currentModel, currentDataset, currentLearningType, candidate, currentFormatType)
+  );
+
+  updateDropdownDisabledState("formatTypeSelect", candidate =>
+    isValidCombination(currentModel, currentDataset, currentLearningType, currentNValue, candidate)
+  );
 }
 
-
-function updateOtherDropdowns(changedId) {
-  // Get the current selections from all dropdowns.
-  const modelEl = document.getElementById("modelSelect");
-  const datasetEl = document.getElementById("datasetSelect");
-  const learningTypeEl = document.getElementById("learningTypeSelect");
-  const nValueEl = document.getElementById("nValueSelect");
-  const formatTypeEl = document.getElementById("formatTypeSelect");
-
-  const currentModel = modelEl.value;
-  const currentDataset = datasetEl.value;
-  const currentLearningType = learningTypeEl.value;
-  const currentNValue = nValueEl.value;
-  const currentFormatType = formatTypeEl.value;
-
-  // For each dropdown except the one just changed, update the valid options.
-  if (changedId !== "modelSelect") {
-    // Filter manifestOptions by the current selections of the others.
-    let filtered = manifestOptions.filter(opt =>
-      (!currentDataset || opt.dataset === currentDataset) &&
-      (!currentLearningType || opt.learningType === currentLearningType) &&
-      (!currentNValue || opt.nValue === currentNValue) &&
-      (!currentFormatType || opt.formatType === currentFormatType)
-    );
-    let models = new Set(filtered.map(opt => opt.model));
-    // Do not include the wildcard here.
-    populateSelect("modelSelect", Array.from(models).sort(), currentModel, false);
-  }
-  if (changedId !== "datasetSelect") {
-    let filtered = manifestOptions.filter(opt =>
-      (!currentModel || opt.model === currentModel) &&
-      (!currentLearningType || opt.learningType === currentLearningType) &&
-      (!currentNValue || opt.nValue === currentNValue) &&
-      (!currentFormatType || opt.formatType === currentFormatType)
-    );
-    let datasets = new Set(filtered.map(opt => opt.dataset));
-    populateSelect("datasetSelect", Array.from(datasets).sort(), currentDataset, false);
-  }
-  if (changedId !== "learningTypeSelect") {
-    let filtered = manifestOptions.filter(opt =>
-      (!currentModel || opt.model === currentModel) &&
-      (!currentDataset || opt.dataset === currentDataset) &&
-      (!currentNValue || opt.nValue === currentNValue) &&
-      (!currentFormatType || opt.formatType === currentFormatType)
-    );
-    let learningTypes = new Set(filtered.map(opt => opt.learningType));
-    populateSelect("learningTypeSelect", Array.from(learningTypes).sort(), currentLearningType, false);
-  }
-  if (changedId !== "nValueSelect") {
-    let filtered = manifestOptions.filter(opt =>
-      (!currentModel || opt.model === currentModel) &&
-      (!currentDataset || opt.dataset === currentDataset) &&
-      (!currentLearningType || opt.learningType === currentLearningType) &&
-      (!currentFormatType || opt.formatType === currentFormatType)
-    );
-    let nValues = new Set(filtered.map(opt => opt.nValue));
-    let nValuesArray = Array.from(nValues).sort((a, b) => {
-      if (a === "all") return 1;
-      if (b === "all") return -1;
-      return parseInt(a) - parseInt(b);
-    });
-    populateSelect("nValueSelect", nValuesArray, currentNValue, false);
-  }
-  if (changedId !== "formatTypeSelect") {
-    let filtered = manifestOptions.filter(opt =>
-      (!currentModel || opt.model === currentModel) &&
-      (!currentDataset || opt.dataset === currentDataset) &&
-      (!currentLearningType || opt.learningType === currentLearningType) &&
-      (!currentNValue || opt.nValue === currentNValue)
-    );
-    let formatTypes = new Set(filtered.map(opt => opt.formatType));
-    populateSelect("formatTypeSelect", Array.from(formatTypes).sort(), currentFormatType, false);
-  }
-}
 
 async function fetchTotalExamplesClaims() {
   try {
