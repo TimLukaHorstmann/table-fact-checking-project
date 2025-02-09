@@ -356,14 +356,28 @@ function populateTableSelect() {
   tableIds.forEach(tid => {
     const option = document.createElement("option");
     option.value = tid;
-    option.textContent = tid;
+    // Use the table title if available
+    let title = tableToPageMap[tid] ? tableToPageMap[tid][0] : "";
+    option.textContent = title ? `${tid} - ${title}` : tid;
     tableSelect.appendChild(option);
   });
   tableSelect.removeEventListener("change", onTableSelectChange);
   tableSelect.addEventListener("change", onTableSelectChange);
+  // Set an initial value and trigger an update
   tableSelect.value = tableIds[0];
   onTableSelectChange();
+
+  // Initialize (or reinitialize) Choices.js on the tableSelect
+  if (window.tableSelectChoices) {
+    window.tableSelectChoices.destroy();
+  }
+  window.tableSelectChoices = new Choices('#tableSelect', {
+    searchEnabled: true,
+    itemSelectText: '',  // Remove the “Press to select” text if you prefer
+    shouldSort: false     // (Optional) Prevent Choices from sorting the options
+  });
 }
+
 
 function onTableSelectChange() {
   const tableSelect = document.getElementById("tableSelect");
@@ -716,15 +730,27 @@ async function populateExistingTableDropdown() {
     csvIds.sort().forEach(csvFile => {
       const option = document.createElement("option");
       option.value = csvFile;
-      option.textContent = csvFile;
+      // Look up the title from tableToPageMap, if available.
+      let meta = tableToPageMap[csvFile];
+      option.textContent = meta ? `${csvFile} - ${meta[0]}` : csvFile;
       existingTableSelect.appendChild(option);
     });
+
+    // Initialize (or reinitialize) Choices.js on the existingTableSelect
+    if (window.existingTableSelectChoices) {
+      window.existingTableSelectChoices.destroy();
+    }
+    window.existingTableSelectChoices = new Choices('#existingTableSelect', {
+      searchEnabled: true,
+      itemSelectText: '',
+      shouldSort: false
+    });
+
     existingTableSelect.addEventListener("change", async () => {
       const selectedFile = existingTableSelect.value;
       if (!selectedFile) return;
       // 1. Load the CSV for the preview as you already do:
       await fetchAndFillTable(selectedFile);
-
       // 2. Check if we have claims for this table:
       populateClaimsDropdown(selectedFile);
     });
@@ -733,6 +759,7 @@ async function populateExistingTableDropdown() {
     alert("Failed to fetch available tables. Please try again later.");
   }
 }
+
 
 async function fetchAndFillTable(tableId) {
   const inputTableEl = document.getElementById("inputTable");
