@@ -217,6 +217,21 @@ function updateDropdownsAndDisableInvalidOptions() {
   updateDropdownDisabledState("formatTypeSelect", candidate =>
     isValidCombination(currentModel, currentDataset, currentLearningType, currentNValue, candidate)
   );
+
+  // Check if any selected value is "Select", if so, disable the "Load" button
+  const loadBtn = document.getElementById("loadBtn");
+  const allValues = [currentModel, currentDataset, currentLearningType, currentNValue, currentFormatType];
+  if (allValues.some(v => v === "")) {
+    loadBtn.disabled = true;
+    loadBtn.style.cursor = "not-allowed";
+    loadBtn.style.opacity = "0.5";
+    loadBtn.style.pointerEvents = "auto";
+  } else {
+    loadBtn.disabled = false;
+    loadBtn.style.cursor = "pointer";
+    loadBtn.style.opacity = "1";
+    loadBtn.style.pointerEvents = "auto";
+  }
 }
 
 
@@ -266,7 +281,7 @@ function populateSelect(selectId, values, currentSelection = "", includeAny = tr
   if (includeAny) {
     const anyOption = document.createElement("option");
     anyOption.value = "";
-    anyOption.textContent = "Any";
+    anyOption.textContent = "Select";
     sel.appendChild(anyOption);
   }
   values.forEach(v => {
@@ -307,15 +322,15 @@ async function loadResults() {
   const nValue = document.getElementById("nValueSelect").value;
   const formatType = document.getElementById("formatTypeSelect").value;
   const resultsFileName = `results/results_with_cells_${modelName}_${datasetName}_${nValue}_${learningType}_${formatType}.json`;
-
+  
   const infoPanel = document.getElementById("infoPanel");
-  infoPanel.innerHTML = `<p>Loading <strong>${resultsFileName}</strong> ...</p>`;
+  infoPanel.innerHTML = `<p>Loading results ...</p>`;
 
   try {
     const response = await fetch(resultsFileName);
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     allResults = await response.json();
-    infoPanel.innerHTML = `<p>Loaded <strong>${allResults.length}</strong> results from <strong>${resultsFileName}</strong>.</p>`;
+    infoPanel.innerHTML = `<p>Loaded <strong>${allResults.length}</strong> results for the <strong>${modelName}</strong> model (dataset: ${datasetName}, learning type: ${learningType}, n-value: ${nValue}, format: ${formatType}).</p>`;
     buildTableMap();
     populateTableSelect();
     document.getElementById("tableDropDown").style.display = "block";
