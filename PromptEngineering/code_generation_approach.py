@@ -13,16 +13,12 @@ import os
 import json
 import logging
 import argparse
-import re
 from datetime import datetime
 from concurrent.futures import ProcessPoolExecutor, as_completed
-from typing import Optional, Dict, Any, List
-import time
+from typing import Optional
 
-
-from factchecker_base import BaseFactChecker, test_model_on_claims, test_model_on_claims_parallel, calculate_and_plot_metrics, load_json_file, format_table_to_json
+from factchecker_base import BaseFactChecker, test_model_on_claims, test_model_on_claims_parallel, calculate_and_plot_metrics, load_json_file
 from langchain_ollama import OllamaLLM
-
 
 class CodeGenerationFactChecker(BaseFactChecker):
     """
@@ -34,127 +30,18 @@ class CodeGenerationFactChecker(BaseFactChecker):
       - Specifying clear instructions on how the generated code should process the table.
       - Including an example of acceptable code output.
     """
-
     def generate_prompt(self, table_id: str, claim: str) -> Optional[str]:
-        # logging.info("Code generation approach stub: Implement code-generation instructions here.")
-        # Provide instructions to the LLM to output executable code.
+        logging.info("Code generation approach stub: Implement code-generation instructions here.")
+        # TODO: Provide instructions to the LLM to output executable code.
         # For instance, "Write a Python function using pandas to filter rows where the claim holds..."
-        df_table = self.load_table(table_id)
-        json_table = format_table_to_json(df_table)
-        column_types = df_table.dtypes.astype(str).to_dict()
-        # /*
-        #     "{df_table}.head(5).to_string(index=False)" as follows:
-        #     {df_table.head(5).to_string(index=False)}
-        # */
-        prompt = f"""
-        You are an AI assistant that writes Python code to check factual claims against tabular data.
-        Given a json_table and a claim, generate a Python function 'check_claim(df)' using pandas that:
-          - Assumes table is a pandas dataframe called df, corresponding to the json_table.
-          - Filters rows of df that are relevant to the claim (look carefully at the column names).
-          - Computes necessary statistics or extracts relevant values.
-          - Returns a boolean indicating if the claim is supported by the table data.
-
-        Here is the json_table:
-        /*
-            {json_table}
-        */
-        Claim on table: {claim}
-
-        For additional context, here are the data types of each column in the table:
-        /*
-            {column_types}
-        */
-
-        
-
-        Format of what you should ouput:
-        ```python
-        def check_claim(df):
-            # Implement filtering logic
-            # Implement claim validation logic
-            return True or False  # Based on 
-        ```
-        Ensure strict type consistency when processing data. Pay close attention to whether values are strings, integers, booleans, or other types to prevent type-related errors.
-        Output only Python code, encapsulated in ```python [code] ```, no explanations, no example usage..
-        """
-        # print(f"claim is -------------- {claim}")
-        return prompt
-
-    def parse_response(self, raw_response: str, table_id: str, claim: str) -> Dict[str, Any]:
-        """
-        ***Method OVERRIDEN from the BaseFactChecker class***
-        Parse the LLM response to extract the JSON output.
-        """
-        # print(f"llm answer: {raw_response} \n ------------------------------")
-
-        extracted_code = re.findall(r"```python(.*?)```", raw_response, re.DOTALL)
-        if not extracted_code:
-            logging.error("No code found in llm answer, for")
-            is_supported = False  # No code block found
-        else:
-            code = "import pandas as pd\n" + extracted_code[-1].strip()
-
-        df = self.load_table(table_id)
-        try:
-            exec_locals = {"df": df}
-            exec(code, {}, exec_locals)
-            check_function = exec_locals.get("check_claim")
-            if check_function and callable(check_function):
-                is_supported = check_function(df)
-            else:
-                logging.error("Generated code does not contain a valid check_claim function.")
-                is_supported = False
-            answer = "TRUE" if is_supported else "FALSE"
-            relevant_cells = []
-
-        except Exception as e:
-            logging.warning(f"Error processing claim with generated code: {e}, \n table and claim was {self.load_table(table_id) + claim} \nllm code was {code} ")
-            answer = "FALSE"
-            relevant_cells = []
-        return {"answer": answer, "relevant_cells": relevant_cells}
-
-    def process_claim(self, table_id: str, claim: str, true_label: int) -> Dict[str, Any]:
-        """
-        ***Method OVERRIDEN from the BaseFactChecker class***
-        Process a single claim: generate prompt, invoke LLM, parse response,
-        and return a result dictionary.
-        """
-        prompt = self.generate_prompt(table_id, claim)
-
-        if prompt is None:
-            logging.warning(f"Prompt generation failed for table {table_id}, claim: {claim}")
-            return {
-                "table_id": table_id,
-                "claim": claim,
-                "predicted_response": None,
-                "resp": "PROMPT_ERROR",
-                "true_response": true_label,
-                "relevant_cells": []
-            }
-        raw_response = self.invoke_llm(prompt)
-        parsed = self.parse_response(raw_response, table_id, claim)
-        predicted_label = 1 if parsed.get("answer") == "TRUE" else 0
-
-        ###### temp ####
-        print(f"true={true_label}, pred={predicted_label}")
-        ################
-        return {
-            "table_id": table_id,
-            "claim": claim,
-            "predicted_response": predicted_label,
-            "resp": raw_response,
-            "true_response": true_label,
-            "relevant_cells": parsed.get("relevant_cells")
-        }        
-
-
-    
+        return None
 
 def run_pipeline_for_model(model_name: str, dataset: str, learning_type: str, format_type: str, args):
     repo_folder = args.repo_folder
     csv_folder = os.path.join(repo_folder, args.csv_folder)
     dataset_file = os.path.join(repo_folder, dataset)
-    dataset_data = load_json_file(dataset_file)    
+    dataset_data = load_json_file(dataset_file)
+    
     try:
         if "deepseek" in model_name:
             model = OllamaLLM(model=model_name, params={"n_ctx": 4096, "n_batch": 256})
@@ -180,7 +67,7 @@ def run_pipeline_for_model(model_name: str, dataset: str, learning_type: str, fo
             learning_type=learning_type,
             format_type=format_type,
             approach="code_generation",
-            test_all=args.test_all,
+            test_all=False,
             N=args.N,
             max_workers=args.max_workers
         )
@@ -200,7 +87,6 @@ def run_pipeline_for_model(model_name: str, dataset: str, learning_type: str, fo
     with open(results_file, "w") as f:
         json.dump(results, f, indent=2)
     logging.info(f"Results saved to {results_file}")
-    print(f"Results saved to {results_file}")
     
     metrics_folder = os.path.join(results_folder, f"plots_CodeGeneration_{combo_str}")
     os.makedirs(metrics_folder, exist_ok=True)
@@ -213,31 +99,7 @@ def run_pipeline_for_model(model_name: str, dataset: str, learning_type: str, fo
         format_type=format_type
     )
 
-    #################################
-    with open(results_file, "r") as f:
-        results = json.load(f)
-
-    correct_predictions = 0
-    total_predictions = 0
-    
-    # Count correct predictions and total predictions
-    for result in results:
-        true_label = result['true_response']
-        predicted_label = result['predicted_response']
-        
-        if predicted_label == true_label:
-            correct_predictions += 1
-        total_predictions += 1
-    
-    # Print out the results
-    print(f"Total predictions: {total_predictions}")
-    print(f"Correct predictions: {correct_predictions}")
-    print(f"Accuracy: {correct_predictions / total_predictions * 100:.2f}%")
-
-
 def main():
-    start_time = time.time()
-    
     parser = argparse.ArgumentParser(description="Run Code Generation Fact Checking Approach (stub)")
     parser.add_argument("--repo_folder", type=str, default="../original_repo", help="Path to repository folder")
     parser.add_argument("--csv_folder", type=str, default="data/all_csv/", help="Folder containing CSV tables")
@@ -248,7 +110,6 @@ def main():
     parser.add_argument("--parallel_models", action="store_true", help="Run different combinations in parallel")
     parser.add_argument("--batch_prompts", action="store_true", help="Process claims in parallel for each combination")
     parser.add_argument("--max_workers", type=int, default=4, help="Number of worker processes for parallel claims")
-    parser.add_argument("--test_all", type=bool, default=False, help="Wether to test all of the claims of the file or not")
     parser.add_argument("--N", type=int, default=5, help="Number of tables to test")
     args = parser.parse_args()
     
@@ -277,11 +138,6 @@ def main():
     else:
         for (model_name, dataset, lt, ft) in tasks:
             run_pipeline_for_model(model_name, dataset, lt, ft, args)
-    end_time = time.time()
-    print("total exec time=", round(end_time-start_time, 1), "seconds")
-    
-
-
 
 if __name__ == "__main__":
     main()
