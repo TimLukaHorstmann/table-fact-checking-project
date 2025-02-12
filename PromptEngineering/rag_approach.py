@@ -4,8 +4,8 @@ rag_approach.py
 
 This script implements a stub for a Retrieval-Augmented Generation (RAG) based fact checker.
 Extend the generate_prompt() method with your RAG-specific logic (e.g. table encoding, retrieval,
-and reasoning). This script also supports parallel processing of claims and parallel execution
-of multiple models.
+and reasoning). This script also supports parallel processing over multiple datasets,
+learning types, and format types.
 """
 
 import os
@@ -14,23 +14,31 @@ import logging
 import argparse
 from datetime import datetime
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from typing import Optional
 
 from factchecker_base import BaseFactChecker, test_model_on_claims, test_model_on_claims_parallel, calculate_and_plot_metrics, load_json_file
 from langchain_ollama import OllamaLLM
-from typing import Optional
 
 class RAGFactChecker(BaseFactChecker):
+    """
+    RAGFactChecker implements a Retrieval-Augmented Generation approach.
+    
+    To extend this stub:
+      - Implement table encoding to transform the table into a searchable or vectorized format.
+      - Retrieve relevant passages or cells.
+      - Integrate the retrieved evidence into the prompt before querying the LLM.
+    """
     def generate_prompt(self, table_id: str, claim: str) -> Optional[str]:
         logging.info("RAG approach stub: Implement retrieval and reasoning here.")
-        # TODO: Implement table encoding, retrieval, and reasoning logic.
-        # For example, you might first retrieve relevant rows/cells from the table and then
-        # incorporate that into a prompt.
+        # TODO: 1) Load and encode the table data.
+        #       2) Retrieve related evidence based on the claim.
+        #       3) Format a prompt that combines the table, retrieved evidence, and the claim.
         return None
 
-def run_pipeline_for_model(model_name: str, args):
+def run_pipeline_for_model(model_name: str, dataset: str, learning_type: str, format_type: str, args):
     repo_folder = args.repo_folder
     csv_folder = os.path.join(repo_folder, args.csv_folder)
-    dataset_file = os.path.join(repo_folder, args.dataset)
+    dataset_file = os.path.join(repo_folder, dataset)
     dataset_data = load_json_file(dataset_file)
     
     try:
@@ -44,8 +52,8 @@ def run_pipeline_for_model(model_name: str, args):
 
     fact_checker = RAGFactChecker(
         all_csv_folder=csv_folder,
-        learning_type=args.learning_type,
-        format_type=args.format_type,
+        learning_type=learning_type,
+        format_type=format_type,
         model=model
     )
     
@@ -55,8 +63,8 @@ def run_pipeline_for_model(model_name: str, args):
             model_name=model_name,
             full_cleaned_data=dataset_data,
             all_csv_folder=csv_folder,
-            learning_type=args.learning_type,
-            format_type=args.format_type,
+            learning_type=learning_type,
+            format_type=format_type,
             approach="rag",
             test_all=False,
             N=args.N,
@@ -71,53 +79,64 @@ def run_pipeline_for_model(model_name: str, args):
             checkpoint_file=None
         )
     
+    combo_str = f"{os.path.basename(dataset).replace('.json','')}_{learning_type}_{format_type}_{model_name}"
     results_folder = f"results_{datetime.now().strftime('%Y%m%d')}"
     os.makedirs(results_folder, exist_ok=True)
-    results_file = os.path.join(results_folder, f"results_RAG_{model_name}_{args.learning_type}_{args.format_type}_{args.N}.json")
+    results_file = os.path.join(results_folder, f"results_RAG_{combo_str}.json")
     with open(results_file, "w") as f:
         json.dump(results, f, indent=2)
     logging.info(f"Results saved to {results_file}")
     
-    metrics_folder = os.path.join(results_folder, f"plots_RAG_{model_name}_{args.learning_type}_{args.format_type}_{args.N}")
+    metrics_folder = os.path.join(results_folder, f"plots_RAG_{combo_str}")
     os.makedirs(metrics_folder, exist_ok=True)
     calculate_and_plot_metrics(
         results=results,
         save_dir=metrics_folder,
-        learning_type=args.learning_type,
-        dataset_type="test_set",
+        learning_type=learning_type,
+        dataset_type=os.path.basename(dataset).replace('.json',''),
         model_name=model_name,
-        format_type=args.format_type
+        format_type=format_type
     )
 
 def main():
     parser = argparse.ArgumentParser(description="Run RAG Fact Checking Approach (stub)")
     parser.add_argument("--repo_folder", type=str, default="../original_repo", help="Path to repository folder")
     parser.add_argument("--csv_folder", type=str, default="data/all_csv/", help="Folder containing CSV tables")
-    parser.add_argument("--dataset", type=str, default="tokenized_data/test_examples.json", help="Path to dataset JSON file")
+    parser.add_argument("--dataset", type=str, default="tokenized_data/test_examples.json", help="Comma-separated list of dataset JSON files")
+    parser.add_argument("--learning_type", type=str, default="zero_shot", help="Comma-separated list of learning types")
+    parser.add_argument("--format_type", type=str, default="naturalized", help="Comma-separated list of format types")
     parser.add_argument("--models", type=str, default="mistral", help="Comma-separated list of model names")
-    parser.add_argument("--parallel_models", action="store_true", help="Run different models in parallel")
-    parser.add_argument("--batch_prompts", action="store_true", help="Process claims in parallel for each model")
+    parser.add_argument("--parallel_models", action="store_true", help="Run different combinations in parallel")
+    parser.add_argument("--batch_prompts", action="store_true", help="Process claims in parallel for each combination")
     parser.add_argument("--max_workers", type=int, default=4, help="Number of worker processes for parallel claims")
-    parser.add_argument("--learning_type", type=str, default="zero_shot", choices=["zero_shot", "one_shot", "few_shot"])
-    parser.add_argument("--format_type", type=str, default="naturalized", choices=["markdown", "naturalized"])
     parser.add_argument("--N", type=int, default=5, help="Number of tables to test")
     args = parser.parse_args()
     
+    dataset_list = [d.strip() for d in args.dataset.split(",")]
+    learning_types = [l.strip() for l in args.learning_type.split(",")]
+    format_types = [f.strip() for f in args.format_type.split(",")]
     model_list = [m.strip() for m in args.models.split(",")]
     
+    tasks = []
+    for model_name in model_list:
+        for dataset in dataset_list:
+            for lt in learning_types:
+                for ft in format_types:
+                    tasks.append((model_name, dataset, lt, ft))
+    
     if args.parallel_models:
-        with ProcessPoolExecutor(max_workers=len(model_list)) as executor:
+        with ProcessPoolExecutor(max_workers=len(tasks)) as executor:
             futures = []
-            for model_name in model_list:
-                futures.append(executor.submit(run_pipeline_for_model, model_name, args))
+            for (model_name, dataset, lt, ft) in tasks:
+                futures.append(executor.submit(run_pipeline_for_model, model_name, dataset, lt, ft, args))
             for future in as_completed(futures):
                 try:
                     future.result()
                 except Exception as e:
-                    logging.error(f"Error in parallel model execution: {e}")
+                    logging.error(f"Error in parallel execution: {e}")
     else:
-        for model_name in model_list:
-            run_pipeline_for_model(model_name, args)
+        for (model_name, dataset, lt, ft) in tasks:
+            run_pipeline_for_model(model_name, dataset, lt, ft, args)
 
 if __name__ == "__main__":
     main()

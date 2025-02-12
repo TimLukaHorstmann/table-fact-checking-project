@@ -1,0 +1,264 @@
+[
+  {
+    "table_id": "2-13844614-5.html.csv",
+    "claim": "position 1 , 2 , and 3 all win more than 2 of their match",
+    "predicted_response": 1,
+    "resp": "<think>\nOkay, so I need to determine if the claim is true or false based on the given table and then identify which cells are relevant. The claim says that positions 1, 2, and 3 all win more than two of their matches.\n\nFirst, I should look at the 'wins' column in the table because the claim is about how many wins each position has. Let me go through each row one by one.\n\nRow 1: Position 1 has 5 wins.\nRow 2: Position 2 has 4 wins.\nRow 3: Position 3 has 3 wins.\nRow 4: Position 4 has 2 wins.\nRow 5: Position 5 has 1 win.\nRow 6: Position 6 has 0 wins.\n\nNow, the claim is that positions 1, 2, and 3 all have more than two wins. \"More than two\" means they should have at least three wins each.\n\nPosition 1: 5 wins (more than two) \u2714\ufe0f\nPosition 2: 4 wins (more than two) \u2714\ufe0f\nPosition 3: 3 wins (exactly three, so this is more than two as well) \u2714\ufe0f\n\nSo positions 1, 2, and 3 all meet the condition. Now I need to map their row indices and column names.\n\nRow index for position 1 is 0 (since it's the first row), column is 'wins'.\nPosition 2 is row index 1, column 'wins'.\nPosition 3 is row index 2, column 'wins'.\n\nTherefore, the relevant cells are positions 0, 1, and 2 in the 'wins' column.\n\nI should structure this as a JSON object with \"answer\" as \"TRUE\" and \"relevant_cells\" listing each of these cells.\n</think>\n\n```json\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"wins\"},\n    {\"row_index\": 1, \"column_name\": \"wins\"},\n    {\"row_index\": 2, \"column_name\": \"wins\"}\n  ]\n}\n```",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 1,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 2,
+        "column_name": "wins"
+      }
+    ]
+  },
+  {
+    "table_id": "2-13844614-5.html.csv",
+    "claim": "position 1 lose no match , while position 5 lose every match",
+    "predicted_response": 0,
+    "resp": "<think>\nOkay, so I need to determine whether the claim about the table is true or false. The claim says: \"position 1 lose no match , while position 5 lose every match.\" Let me break this down step by step.\n\nFirst, I should look at what each part of the claim means. Position 1 is supposed to have lost zero matches, and position 5 is supposed to have lost all their matches. So, I need to check these two positions against the table provided.\n\nLooking at the table, it's an HTML table with headers: pos, matches, wins, loses, results, points, diff. The rows go from 1 to 6, each representing a position.\n\nStarting with Position 1:\n- For position 1, I look at the 'loses' column. In row 1, the 'loses' cell shows 0. That means position 1 has lost zero matches, which aligns with the first part of the claim. So that's correct.\n\nNow for Position 5:\n- Next, position 5: in the table, there are rows up to 6, so position 5 is row 5. Looking at 'loses' column for row 5, it shows 4. That means position 5 lost 4 matches, not all of their matches. The claim says they lose every match, which would mean 5 losses (since they played 5 matches in total? Wait, let me check the 'matches' column.\n\nWait, the 'matches' column for each row shows 5, except for position 6, which also has 5. So each position plays 5 matches. Therefore, position 5's 'loses' is 4 out of 5, meaning they lost not all their matches. The claim says they lose every match, so that's incorrect.\n\nSo overall, the first part of the claim is true for position 1, but the second part is false for position 5. Therefore, the entire claim is FALSE.\n</think>\n\nTo verify the claim \"position 1 lose no match , while position 5 lose every match,\" we check each relevant cell:\n\n1. **Position 1**:\n   - 'loses' column: 0\n   - This supports that position 1 lost no matches.\n\n2. **Position 5**:\n   - 'loses' column: 4\n   - Since they have 4 losses, they didn't lose every match as claimed.\n\nSince one part of the claim is false, the overall answer is FALSE.\n\n```json\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"loses\"},\n    {\"row_index\": 4, \"column_name\": \"loses\"}\n  ]\n}\n```",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "loses"
+      },
+      {
+        "row_index": 4,
+        "column_name": "loses"
+      }
+    ]
+  },
+  {
+    "table_id": "2-13844614-5.html.csv",
+    "claim": "position 4 , 5 , and 6 all win 3 of their match",
+    "predicted_response": 0,
+    "resp": "<think>\nOkay, so I need to determine whether the given claim is TRUE or FALSE based on the provided HTML table. The claim says: \"position 4, 5, and 6 all win 3 of their match.\" \n\nFirst, I should look at the table structure. The table has columns: pos, matches, wins, loses, results, points, diff. Each row represents a position, presumably from 1 to 6.\n\nI'm specifically interested in positions 4, 5, and 6. For each of these positions, I need to check how many wins they have. The claim states that each of them has exactly 3 wins.\n\nLooking at the table:\n\n- Row 4 (position 4): Under 'wins' column, it's 2.\n- Row 5: 'wins' is 1.\n- Row 6: 'wins' is 0.\n\nSo, none of these positions have 3 wins. Position 4 has 2, position 5 has 1, and position 6 has none. Therefore, the claim is false because it's not true that all three positions won 3 matches each.\n\nI should map this out to make sure I'm checking the correct cells. For each position (rows 4,5,6), look at the 'wins' column. Since they don't have 3 wins, the claim is incorrect.\n</think>\n\n```json\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 3, \"column_name\": \"wins\"},\n    {\"row_index\": 4, \"column_name\": \"wins\"},\n    {\"row_index\": 5, \"column_name\": \"wins\"}\n  ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 4,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 5,
+        "column_name": "wins"
+      }
+    ]
+  },
+  {
+    "table_id": "2-13844614-5.html.csv",
+    "claim": "every position have 5 match , and nobody win all of them",
+    "predicted_response": 0,
+    "resp": "<think>\nOkay, so I need to determine whether the given claim about the table is TRUE or FALSE. The claim says, \"every position have 5 match , and nobody win all of them.\" Let me break this down.\n\nFirst, looking at the table, each row represents a position, from 1 to 6. Each row has columns like 'matches', 'wins', etc. The claim is making two points: every position has 5 matches, and no one won all their matches.\n\nLet's check the first part: does every position have 5 matches? Looking at each row:\n\n- Position 1: matches = 5\n- Position 2: matches = 5\n- Position 3: matches = 5\n- Position 4: matches = 5\n- Position 5: matches = 5\n- Position 6: matches = 5\n\nYes, every position has exactly 5 matches. So that part of the claim is correct.\n\nNow, the second part: nobody won all their matches. To win all matches, a person would have 'wins' equal to the number of matches they played, which is 5. Let me check each row's 'wins' column:\n\n- Position 1: wins = 5\n- Position 2: wins = 4\n- Position 3: wins = 3\n- Position 4: wins = 2\n- Position 5: wins = 1\n- Position 6: wins = 0\n\nSo, in position 1, the person won all 5 matches. That means the claim is incorrect because this person did win all their matches.\n\nTherefore, the overall claim is FALSE.\n</think>\n\n```json\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"wins\"},\n    {\"row_index\": 1, \"column_name\": \"wins\"},\n    {\"row_index\": 2, \"column_name\": \"wins\"},\n    {\"row_index\": 3, \"column_name\": \"wins\"},\n    {\"row_index\": 4, \"column_name\": \"wins\"},\n    {\"row_index\": 5, \"column_name\": \"wins\"}\n  ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 1,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 2,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 3,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 4,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 5,
+        "column_name": "wins"
+      }
+    ]
+  },
+  {
+    "table_id": "2-13844614-5.html.csv",
+    "claim": "position 4 , 5 , and 6 all win less than 3 of their match",
+    "predicted_response": 1,
+    "resp": "<think>\nOkay, I need to determine whether the claim is true or false based on the given table. The claim says that positions 4, 5, and 6 all win less than 3 of their matches. \n\nFirst, I should look at each position mentioned (4, 5, 6) in the table and check how many wins they have.\n\nLooking at row 4: In the \"wins\" column, it shows 2 wins. That's less than 3, so this part checks out.\n\nRow 5 has 1 win, which is also less than 3.\n\nRow 6 has 0 wins, definitely less than 3.\n\nSo all three positions have wins below 3. Therefore, the claim is TRUE.\n</think>\n\n```json\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 4, \"column_name\": \"wins\"},\n    {\"row_index\": 5, \"column_name\": \"wins\"},\n    {\"row_index\": 6, \"column_name\": \"wins\"}\n  ]\n}\n```",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 5,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 6,
+        "column_name": "wins"
+      }
+    ]
+  },
+  {
+    "table_id": "2-13844614-5.html.csv",
+    "claim": "every position have 5 match , and only 1 of them win all of them",
+    "predicted_response": 1,
+    "resp": "<think>\nAlright, so I need to figure out whether the given claim about the table is TRUE or FALSE. The claim says: \"every position have 5 match , and only 1 of them win all of them.\" Let me break this down step by step.\n\nFirst, looking at the table, each row represents a position (pos) from 1 to 6. The columns are 'matches', 'wins', 'loses', etc. The claim has two main parts: every position has 5 matches, and only one of them wins all their matches.\n\nStarting with the first part: do all positions have 5 matches? I'll check each row's 'matches' column. \n\n- Position 1: 5\n- Position 2: 5\n- Position 3: 5\n- Position 4: 5\n- Position 5: 5\n- Position 6: 5\n\nSo yes, every position has exactly 5 matches. That part checks out.\n\nNow the second part: only one position wins all their matches. To see this, I need to check how many positions have 'wins' equal to 5 since they can't win more than 5 matches if they play 5 games each.\n\nLooking at the 'wins' column:\n\n- Position 1: 5\n- Position 2: 4\n- Position 3: 3\n- Position 4: 2\n- Position 5: 1\n- Position 6: 0\n\nOnly position 1 has 5 wins. So that means only one position (position 1) won all their matches, which aligns with the claim.\n\nNow, to map this out in terms of relevant cells for verification:\n\nFor each position, we need to check two things: whether 'matches' is 5 and whether 'wins' are equal to the number of matches. \n\nSo, for each row (position), we'll look at the 'matches' column and the 'wins' column.\n\nThus, the relevant cells are all rows since every position's 'matches' and 'wins' need to be checked.\n</think>\n\nTo verify the claim, I check each row for the number of matches and wins. All positions have 5 matches, and only position 1 has 5 wins, confirming the claim is TRUE.\n\n```json\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"matches\"},\n    {\"row_index\": 0, \"column_name\": \"wins\"},\n    {\"row_index\": 1, \"column_name\": \"matches\"},\n    {\"row_index\": 1, \"column_name\": \"wins\"},\n    {\"row_index\": 2, \"column_name\": \"matches\"},\n    {\"row_index\": 2, \"column_name\": \"wins\"},\n    {\"row_index\": 3, \"column_name\": \"matches\"},\n    {\"row_index\": 3, \"column_name\": \"wins\"},\n    {\"row_index\": 4, \"column_name\": \"matches\"},\n    {\"row_index\": 4, \"column_name\": \"wins\"},\n    {\"row_index\": 5, \"column_name\": \"matches\"},\n    {\"row_index\": 5, \"column_name\": \"wins\"},\n    {\"row_index\": 6, \"column_name\": \"matches\"},\n    {\"row_index\": 6, \"column_name\": \"wins\"}\n  ]\n}\n```",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "matches"
+      },
+      {
+        "row_index": 0,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 1,
+        "column_name": "matches"
+      },
+      {
+        "row_index": 1,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 2,
+        "column_name": "matches"
+      },
+      {
+        "row_index": 2,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 3,
+        "column_name": "matches"
+      },
+      {
+        "row_index": 3,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 4,
+        "column_name": "matches"
+      },
+      {
+        "row_index": 4,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 5,
+        "column_name": "matches"
+      },
+      {
+        "row_index": 5,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 6,
+        "column_name": "matches"
+      },
+      {
+        "row_index": 6,
+        "column_name": "wins"
+      }
+    ]
+  },
+  {
+    "table_id": "2-13844614-5.html.csv",
+    "claim": "every position win 2 point for win a match , from 0 up to 10",
+    "predicted_response": 1,
+    "resp": "<think>\nOkay, I'm trying to figure out whether the claim is true or false based on the given table and the instructions provided. The claim says, \"every position win 2 point for win a match , from 0 up to 10.\" So, I need to check if each position (pos) in the table assigns exactly 2 points for every win.\n\nLooking at the table, it has several columns: pos, matches, wins, loses, results, points, and diff. The claim focuses on the 'points' column and whether it correctly reflects 2 points per win across all positions.\n\nFirst, I'll go through each row to see how points are assigned based on wins. \n\n- Row 1: pos=1, matches=5, wins=5, points=10. So, 5 wins lead to 10 points, which is exactly 2 points per win.\n- Row 2: pos=2, wins=4, points=8. That's also 2 points per win.\n- Row 3: pos=3, wins=3, points=6. Again, 2 points per win.\n- Row 4: pos=4, wins=2, points=4. Still matches.\n- Row 5: pos=5, wins=1, points=2. Correct again.\n- Row 6: pos=6, wins=0, points=0. No wins, so no points, which makes sense.\n\nSo, for every position listed in the table (from pos 1 to 6), each win is worth exactly 2 points. The 'points' column accurately reflects 2 points per win across all positions. There's no variation or exception observed in the data provided. \n\nTherefore, the claim holds true based on the data presented in the table.\n</think>\n\n```json\n{\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"points\"},\n    {\"row_index\": 1, \"column_name\": \"points\"},\n    {\"row_index\": 2, \"column_name\": \"points\"},\n    {\"row_index\": 3, \"column_name\": \"points\"},\n    {\"row_index\": 4, \"column_name\": \"points\"},\n    {\"row_index\": 5, \"column_name\": \"points\"}\n  ]\n}\n```",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "points"
+      },
+      {
+        "row_index": 1,
+        "column_name": "points"
+      },
+      {
+        "row_index": 2,
+        "column_name": "points"
+      },
+      {
+        "row_index": 3,
+        "column_name": "points"
+      },
+      {
+        "row_index": 4,
+        "column_name": "points"
+      },
+      {
+        "row_index": 5,
+        "column_name": "points"
+      }
+    ]
+  },
+  {
+    "table_id": "2-13844614-5.html.csv",
+    "claim": "every position win 4 point for win a match , from 0 up to 10",
+    "predicted_response": 0,
+    "resp": "<think>\nAlright, I'm trying to determine whether the given claim about the table is TRUE or FALSE. The claim states: \"every position win 4 points for win a match , from 0 up to 10\". \n\nFirst, I need to understand what this claim is saying. It seems like it's suggesting that each position (pos) awards 4 points when they win a match, and these points range from 0 up to 10. So, every win should give exactly 4 points, and the total points per position shouldn't exceed 10.\n\nLooking at the table provided, I see several columns: pos, matches, wins, loses, results, points, and diff. The 'points' column seems directly related to the claim since it's about how many points each position has earned.\n\nI'll go through each row in the table to check the 'points' values against the claim.\n\n1. **Row 1**: points = 10. Since they have 5 wins (matches), if each win gives 4 points, 5*4=20. But here it's 10, which is half of that. So this doesn't match the claim. Maybe there's a mistake in my assumption.\n\nWait, maybe I'm misunderstanding the 'results' column. It shows something like \"434:358\", which might represent total points for and against. If that's the case, perhaps the points are calculated differently. For example, if each win gives 4 points to the winner and subtracts from the loser, but in this row, the total points (10) would be the net result.\n\nBut then again, looking at other rows:\n\n- Row 1: 5 wins, 10 points.\n- If each win is +4, 5*4=20, but they have a diff of +76. So maybe the points are cumulative and not per match. Or perhaps it's something else.\n\nWait, maybe I should focus solely on the 'points' column as per the claim. The claim says \"win a match\" gives 4 points. So for each position, the number of wins multiplied by 4 should equal their total points.\n\nLet's check:\n\n- Row 1: 5 wins *4=20 vs points=10 \u2192 Doesn't match.\n- Row 2:4 wins*4=16 vs 8 \u2192 No.\n- Row3:3*4=12 vs6\u2192No.\n- Row4:2*4=8 vs4\u2192No.\n- Row5:1*4=4 vs2\u2192No.\n- Row6:0*4=0 vs0\u2192Yes.\n\nSo only row6 matches, others don't. Therefore, the claim that every position wins 4 points per match is not fully supported by all rows. So the answer should be FALSE.\n</think>\n\nThe claim states that each position earns 4 points for each win, ranging from 0 to 10. Checking each row:\n\n- Only Row6 matches (0 wins, 0 points).\n- Other rows don't align with 4 points per win.\n\nThus, the claim is not fully supported.\n\n```json\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 5, \"column_name\": \"points\"}\n  ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "points"
+      }
+    ]
+  },
+  {
+    "table_id": "2-13844614-5.html.csv",
+    "claim": "position 1 , 2 , and 5 all win more than 2 of their match",
+    "predicted_response": 0,
+    "resp": "<think>\nOkay, so I need to determine whether the given claim is TRUE or FALSE based on the table provided. The claim says: \"position 1 , 2 , and 5 all win more than 2 of their match.\" \n\nFirst, I should understand what each part of this claim means. It's talking about positions 1, 2, and 5 in the table. For each of these positions, I need to check if they have \"won more than 2 of their matches.\"\n\nLooking at the table, it has several columns: pos (position), matches, wins, loses, results, points, and diff. The relevant column here is \"wins.\" \n\nI'll start by identifying the rows for positions 1, 2, and 5.\n\n- Position 1 is row 0.\n- Position 2 is row 1.\n- Position 5 is row 4 (since it's zero-indexed, but wait, actually in the table, position 6 is the last one, so maybe I need to check. Wait, no, the first position is 1, which is row 0 because the rows are numbered starting from 0.\n\nWait, let me clarify: the table has a <tbody> with 6 rows. So position 1 is in row 0, position 2 is row 1, and position 5 is row 4 (since 5th position would be at index 4 because it's zero-based). But wait, looking back, the positions go from 1 to 6, so position 6 is in row 5.\n\nSo for positions 1, 2, and 5:\n\n- Position 1: row 0\n- Position 2: row 1\n- Position 5: row 4\n\nNow, I need to look at the \"wins\" column for each of these rows.\n\n- Row 0 (position 1): wins = 5. So does 5 count as more than 2? Yes.\n- Row 1 (position 2): wins = 4. That's also more than 2.\n- Row 4 (position 5): wins = 1. Oh, that's only 1, which is not more than 2.\n\nSo the claim says all three positions win more than 2 matches. But position 5 (row 4) only has 1 win, which is less than or equal to 2. Therefore, the claim is false because it claims all three positions have more than 2 wins, but one of them doesn't.\n\nWait, maybe I miscounted. Let me double-check the table:\n\nLooking at row 4 (position 5): \n\nYes, the \"wins\" column for position 5 is 1. So that's correct.\n\nTherefore, since one of the positions (position 5) has only 1 win, which is not more than 2, the claim is false.\n</think>\n\n```json\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"wins\"},\n    {\"row_index\": 1, \"column_name\": \"wins\"},\n    {\"row_index\": 4, \"column_name\": \"wins\"}\n  ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 1,
+        "column_name": "wins"
+      },
+      {
+        "row_index": 4,
+        "column_name": "wins"
+      }
+    ]
+  },
+  {
+    "table_id": "2-13844614-5.html.csv",
+    "claim": "position 1 lose 4 match , while position 5 lose every match",
+    "predicted_response": 0,
+    "resp": "<think>\nAlright, so I have this task where I need to determine if a claim about the given table is TRUE or FALSE. The claim is: \"position 1 lose 4 match , while position 5 lose every match.\" Let me break this down step by step.\n\nFirst, I'll look at the table provided. It has several columns: pos, matches, wins, loses, results, points, and diff. Each row represents a position from 1 to 6, with their respective statistics.\n\nThe claim mentions two positions specifically: position 1 and position 5. So, my focus will be on rows corresponding to these positions.\n\nStarting with position 1 (row 0 in the table since it's zero-indexed). The relevant columns here are 'matches', 'loses', 'results', etc. Looking at row 0:\n- matches: 5\n- loses: 0\nWait, that doesn't match the claim which says \"position 1 lose 4 matches.\" So according to the table, position 1 hasn't lost any matches; they've actually won all 5 of their matches.\n\nMoving on to position 5. The claim states that position 5 loses every match. In row 4 (since position 5 is the fifth row), let's check:\n- matches: 5\n- loses: 4\nSo, out of 5 matches, they lost 4. That means they didn't lose every single match; they actually won one and lost four.\n\nWait a minute, that seems contradictory. The claim says position 5 loses every match, but the table shows they only lost 4 out of 5, meaning there's at least one win. Therefore, both parts of the claim don't hold true based on the table data.\n\nBut let me double-check if I'm interpreting the table correctly. Maybe I'm misunderstanding the 'lose' column. For position 1, it shows loses=0, so no losses. The claim says they lose 4 matches, which is not the case. For position 5, they have 4 losses and 1 win, so they don't lose every match. Therefore, both parts of the claim are false.\n\nSo, putting it all together, since neither part of the claim aligns with the table data, the overall claim must be FALSE.\n</think>\n\nThe claim is incorrect because position 1 does not lose any matches and position 5 does not lose all their matches.\n\n```json\n{\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"loses\"},\n    {\"row_index\": 4, \"column_name\": \"loses\"}\n  ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "loses"
+      },
+      {
+        "row_index": 4,
+        "column_name": "loses"
+      }
+    ]
+  }
+]

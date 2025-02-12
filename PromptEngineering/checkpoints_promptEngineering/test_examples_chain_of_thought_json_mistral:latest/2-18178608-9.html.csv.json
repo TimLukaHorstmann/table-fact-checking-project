@@ -1,0 +1,216 @@
+[
+  {
+    "table_id": "2-18178608-9.html.csv",
+    "claim": "australia score the most point against england during their second test match and the second most point during their first test match",
+    "predicted_response": 0,
+    "resp": "Here are the steps to determine the validity of the claim:\n\n1. Identify the teams involved in the claim: Australia (since they played multiple games)\n2. Find the matches where England was involved, as it's implied that these were the matches against England:\n    - First test match: Look for a row with Australia and \"against\" equal to England (or England is missing in the 'against' column).\n    - Second test match: Look for a row with Australia and \"against\" equal to England, and a 'status' value of 'test match'. This is because the claim specifies that it's during their second test match.\n3. Check the scores (points) from the identified matches to compare them with Australia's score against Wales (since it's the highest score in the table):\n    - For the first test match, get the score for the row identified in step 2 (if any). Compare this score with Australia's score against Wales. If the score against England is greater than or equal to the score against Wales, then the claim about the first test match holds true.\n    - For the second test match, simply compare the score from the row identified in step 2 with the scores of other rows where Australia scored against England and the status is 'test match' (if any). If the score in this match is greater than all the other test matches, then the claim about the second test match holds true.\n4. Based on the results from steps 3, determine whether the claim is TRUE or FALSE.\n\nNow, let's find the relevant cells:\n\n- First Test Match (if any): row_index: ?, column_name: \"against\"\n- Second Test Match against England: row_index: 7, column_name: \"against\"\n- Scores for Australia during their test matches: columns: [\"opposing teams\", \"against\", \"date\", \"venue\", \"status\"], rows: [0, 1, 2, 3, 4, 5, 6, 7] (excluding the first row with headers)\n\nNow, let's output the final answer in the specified JSON format:\n\n{\n  \"chain_of_thought\": \"We looked for matches involving Australia and England, compared their scores against each other, and determined if the scores match the claim. We found that Australia scored 28 points during their second test match against England (row_index=7), while they scored 22 points against Wales during their first test match (implicit since it's the highest score). Since 28 > 22, the claim about the second test match holds true. However, the claim does not specify which test match is meant by 'their first test match', so we cannot conclusively verify that part of the claim.\",\n  \"answer\": \"TRUE for the second test match, INCONCLUSIVE for the first test match\",\n  \"relevant_cells\": [\n    {\n      \"row_index\": 7,\n      \"column_name\": \"against\"\n    },\n    {\n      \"row_index\": 5,\n      \"column_name\": \"opposing teams\"\n    }\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 7,
+        "column_name": "against"
+      },
+      {
+        "row_index": 5,
+        "column_name": "opposing teams"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18178608-9.html.csv",
+    "claim": "england compete against ireland during the five nation championship as well as during the millennium trophy match",
+    "predicted_response": 0,
+    "resp": "Here are the steps to analyze the claim:\n\n1. Identify the teams mentioned in the claim - England and Ireland.\n2. Check if any row in the table contains both England and Ireland as opposing teams.\n3. Filter the data by looking for rows where \"opposing teams\" contains either 'England' or 'Ireland'.\n4. Examine the filtered rows to determine if they also share a common \"status\" value that indicates they participated in the Five Nations Championship or the Millennium Trophy match.\n5. If any row is found with both England and Ireland as opposing teams and a status that indicates participation in either the Five Nations Championship or the Millennium Trophy match, then the claim is TRUE. Otherwise, the claim is FALSE.\n\nNow, let's check the table:\n\n1. The team mentioned in the claim is England (not present) and Ireland (present).\n2. Filtering the data for rows containing 'England' or 'Ireland' results in a subset of four rows.\n3. Examining the filtered rows, we find that one row has both England and Ireland as opposing teams (row 5), and its status is \"millennium trophy match\". However, England is not present in any other row with the same 'status'. The other three rows are part of the Five Nations Championship.\n4. Since there is a single row where England competes against Ireland during the Millennium Trophy match (row 5), the claim is TRUE for this specific tournament but FALSE for the Five Nations Championship.\n\nHere's the final answer in the requested JSON format:\n\n{\n  \"chain_of_thought\": [\n    \"Identify the teams mentioned in the claim\",\n    \"Check if any row contains both England and Ireland as opposing teams\",\n    \"Filter the data by looking for rows where 'opposing teams' contains either 'England' or 'Ireland'\",\n    \"Examine the filtered rows to determine if they share a common 'status' value indicating participation in the Five Nations Championship or the Millennium Trophy match\"\n  ],\n  \"answer\": {\n    \"Five Nations Championship\": \"FALSE\",\n    \"Millennium Trophy match\": \"TRUE\"\n  },\n  \"relevant_cells\": [\n    { \"row_index\": 5, \"column_name\": \"opposing teams\" },\n    { \"row_index\": 5, \"column_name\": \"status\" }\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18178608-9.html.csv",
+    "claim": "ireland score the least amount of point against england and scotland score the second least amount",
+    "predicted_response": 1,
+    "resp": "Here are the steps to determine whether the claim is TRUE or FALSE:\n\n1. Identify the teams mentioned in the claim: Ireland (IRE) and Scotland (SCO).\n2. Find all rows in the table that correspond to matches involving either IRE or SCO.\n3. For each row, extract the \"against\" column (opponent's team name) and the \"points\" column (number of points scored by the team).\n4. Compare the number of points scored by IRE against all opponents and find the minimum value. Let's call this value `min_IRE`.\n5. Compare the number of points scored by SCO against all opponents and find the second smallest value (after `min_IRE`). Let's call this value `second_min`.\n6. Check if `second_min` is equal to the points scored by SCO in a match against an opponent that is not IRE.\n\nNow let's find relevant cells:\n1. To find the minimum points scored by Ireland, we would need the rows with opponents for both Ireland and the other teams. So the relevant cells for this step are: [{\"row_index\": 0, \"column_name\": \"against\"}, {\"row_index\": 1, \"column_name\": \"points\"}, {\"row_index\": 2, \"column_name\": \"against\"}, {\"row_index\": 3, \"column_name\": \"points\"}, ...]\n2. Similarly, the relevant cells for finding the points scored by Scotland would be: [{\"row_index\": 0, \"column_name\": \"against\"}, {\"row_index\": 1, \"column_name\": \"points\"}, {\"row_index\": 4, \"column_name\": \"against\"}, {\"row_index\": 5, \"column_name\": \"points\"}, ...]\n3. The relevant cells for comparing the points scored by IRE and SCO are [{\"row_index\": 0, \"column_name\": \"against\"}, {\"row_index\": 1, \"column_name\": \"points\"}, {\"row_index\": 4, \"column_name\": \"points\"}]\n\nNow let's perform the comparisons and evaluate the claim:\n- Find the minimum points scored by Ireland: 3 (vs England)\n- Compare the number of points scored by Scotland against all opponents and find the second smallest value. Let's assume it is 7 points in a match against an opponent that is not IRE.\n- The claim states that \"Scotland scores the second least amount of point\", which is NOT TRUE if we have found a smaller value for another team (e.g., Wales with 6 points). In this table, there seems to be no other team with fewer points than Scotland (7), so it can be assumed that Scotland does score the second least number of points.\n- However, the claim also states that \"Ireland scores the least amount of point against England and scotland score the second least amount\", which is FALSE because we have found a smaller value for Ireland (3) than for Scotland (7).\n\nFinal answer:\n{\n  \"chain_of_thought\": [\n    \"Identify teams in claim: IRE, SCO\",\n    \"Find rows corresponding to matches with IRE and SCO\",\n    \"Extract 'against' and 'points' columns for each row\",\n    \"Compare points scored by IRE against all opponents (find minimum value)\",\n    \"Compare points scored by SCO against all opponents (find second smallest value after the minimum found for IRE)\",\n    \"Check if the second smallest value is equal to the points scored by SCO in a match against an opponent that is not IRE\"\n  ],\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"against\"},\n    {\"row_index\": 1, \"column_name\": \"points\"},\n    {\"row_index\": 4, \"column_name\": \"points\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18178608-9.html.csv",
+    "claim": "england compete in 3 separate test match against austrailia 's team",
+    "predicted_response": 0,
+    "resp": "Here's my step-by-step reasoning:\n\n1. Identify the table's structure to understand what data it contains. The table has five columns: \"opposing teams\", \"against\", \"date\", \"venue\", and \"status\".\n2. Determine the relevant columns for checking the claim, which would be \"opposing teams\" and \"against\". This is because we are looking for rows where England (not present in our table) is playing against Australia.\n3. Check if there's a row where the value of \"opposing teams\" matches 'england'. Since 'England' is not present in the table, we can move to step 4 without finding a match.\n4. Check if any of the rows have Australia as the opponent ('against') and England as the team being opposed (which is not present). Since this condition is not met, we can conclude that England does not compete in three separate test matches against Australia's team based on the provided data.\n\nFinal answer:\n{\n  \"chain_of_thought\": [\"Identify table structure\", \"Find relevant columns\", \"Check if England is present\", \"Check if there are rows where England is playing against Australia\"],\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": []\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18178608-9.html.csv",
+    "claim": "england compete against both scotland and ireland during march of 1988",
+    "predicted_response": 1,
+    "resp": "Here's my reasoning step-by-step:\n\n1. Identify the claim to be verified, which is \"england compete against both scotland and ireland during march of 1988\".\n2. Check if the table contains any row(s) with 'England' as the opposing team, since that would represent matches England played.\n3. Since 'England' is not listed in the given table, I cannot find any direct match for their matches. However, I can determine whether Scotland and Ireland competed against other teams during March 1988, which might indirectly imply that England could have played them as well.\n4. Check the date of each row to verify if there are any rows with a date in March of 1988.\n5. Based on the given data, I found two rows with dates in March 1988: Ireland (19/03/1988) and Scotland (05/03/1988).\n6. To see if these teams played against each other or another common opponent during that month, compare their respective opponents and dates.\n7. Scotland competed against Wales on 02/02/1988 and France on 05/03/1988 (which is after the specified March date). Ireland competed against Wales on 06/02/1988, England (not directly shown), and France on 19/03/1988.\n8. Given that both Scotland and Ireland had matches against other teams in March 1988 (including at least one common opponent: France) and we do not have direct evidence of their matches with England, it's reasonable to infer that they may have played against England during March 1988.\n9. To confirm this claim beyond a doubt, more information about the matches is needed, such as a comprehensive list of all matches played by each team during that time frame. However, based on the available data in the table, it's plausible that England competed against both Scotland and Ireland during March 1988.\n\nOutput:\n{\n  \"chain_of_thought\": [\n    \"Identify the claim to verify\",\n    \"Check if the table contains any row(s) with 'England' as the opposing team\",\n    \"Since 'England' is not listed in the given table, consider indirect evidence\",\n    \"Check if there are any rows with a date in March of 1988\",\n    \"Compare opponents and dates for teams that had matches during March 1988\",\n    \"Infer that it's plausible England may have played against both Scotland and Ireland based on available data\"\n  ],\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    { \"row_index\": 2, \"column_name\": \"opposing teams\" },\n    { \"row_index\": 3, \"column_name\": \"date\" },\n    { \"row_index\": 0, \"column_name\": \"opposing teams\" },\n    { \"row_index\": 1, \"column_name\": \"opposing teams\" },\n    { \"row_index\": 2, \"column_name\": \"against\" },\n    { \"row_index\": 3, \"column_name\": \"against\" },\n    { \"row_index\": 0, \"column_name\": \"against\" },\n    { \"row_index\": 1, \"column_name\": \"date\" }\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 2,
+        "column_name": "opposing teams"
+      },
+      {
+        "row_index": 3,
+        "column_name": "date"
+      },
+      {
+        "row_index": 0,
+        "column_name": "opposing teams"
+      },
+      {
+        "row_index": 1,
+        "column_name": "opposing teams"
+      },
+      {
+        "row_index": 2,
+        "column_name": "against"
+      },
+      {
+        "row_index": 3,
+        "column_name": "against"
+      },
+      {
+        "row_index": 0,
+        "column_name": "against"
+      },
+      {
+        "row_index": 1,
+        "column_name": "date"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18178608-9.html.csv",
+    "claim": "australia score less point against in their first test match in brisbane than in their test match in london",
+    "predicted_response": 1,
+    "resp": "Here is the step-by-step reasoning:\n\n1. First, we identify the team for which we are comparing scores (in this case, Australia). We find the relevant rows by looking for teams with \"australia\" in the \"opposing teams\" column. There are two such rows: [5] and [7].\n\n2. Next, we need to determine the type of match for each row. This information is found in the \"status\" column. We see that both matches are test matches (since they are labeled as \"first test\" or \"second test\").\n\n3. Now, we look at the dates and venues to find the specific match we're interested in. The first test match in Brisbane is on row 5 with a date of \"29 / 05 / 1988\" and venue \"ballymore\". The test match in London is on row 7 with a date of \"05 / 11 / 1988\" and venue \"twickenham\".\n\n4. Finally, we compare the scores for these two matches. In the first test match in Brisbane (row 5), Australia scored 22 points, whereas in the test match in London (row 7), they scored 19 points.\n\nSince Australia scored fewer points in their first test match in Brisbane than in their test match in London, our final answer is:\n\n```json\n{\n  \"chain_of_thought\": [\n    \"Identify the team for which we're comparing scores (Australia).\",\n    \"Find rows with 'australia' in 'opposing teams'.\",\n    \"Determine the type of match by looking at the 'status' column.\",\n    \"Identify the specific matches based on date and venue.\",\n    \"Compare the scores for these two matches.\"\n  ],\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 5, \"column_name\": \"opposing teams\"},\n    {\"row_index\": 7, \"column_name\": \"opposing teams\"},\n    {\"row_index\": 5, \"column_name\": \"status\"},\n    {\"row_index\": 7, \"column_name\": \"status\"},\n    {\"row_index\": 5, \"column_name\": \"against\"},\n    {\"row_index\": 7, \"column_name\": \"against\"}\n  ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "opposing teams"
+      },
+      {
+        "row_index": 7,
+        "column_name": "opposing teams"
+      },
+      {
+        "row_index": 5,
+        "column_name": "status"
+      },
+      {
+        "row_index": 7,
+        "column_name": "status"
+      },
+      {
+        "row_index": 5,
+        "column_name": "against"
+      },
+      {
+        "row_index": 7,
+        "column_name": "against"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18178608-9.html.csv",
+    "claim": "scotland score 2 time as many point against england as ireland do in the 23 / 04 / 1988 match hold in dublin",
+    "predicted_response": 1,
+    "resp": "Here's my reasoning step-by-step:\n\n1. Identify the teams involved in the claim: Scotland and Ireland.\n2. Determine the specific match date for Ireland to compare scores against: 23/04/1988.\n3. Find the row in the table that matches Ireland's match details on the specified date (row_index).\n4. Extract the \"against\" column value from the matching row as it represents the opposing team, which should be Ireland's opponent on that date.\n5. Compare Scotland's score against England (if any) to Ireland's score against the opponent found in step 4. If both scores are available and Scotland's score is twice as high, then the claim is TRUE.\n\nRelevant cells:\n[\n  { \"row_index\": 3, \"column_name\": \"against\" },\n  { \"row_index\": ? (to be determined), \"column_name\": \"against\" }\n]\n\nTo find the relevant row for Scotland's score against England (if any), I would need to check the entire table as there is no direct mention of Scotland playing against England in the given data. If such a match exists, we can compare scores and determine whether the claim is TRUE or FALSE. However, since the table only lists Ireland, Wales, France, Fiji, and Australia as opponents for the teams mentioned, it's unclear if Scotland played against England on any of these dates.\n\nFinal answer (in JSON format):\n{\n  \"chain_of_thought\": \"1. Identify teams involved in claim: Scotland and Ireland. \\n2. Determine specific match date for Ireland to compare scores against: 23/04/1988. \\n3. Find row in table matching Ireland's match details on specified date (row_index). \\n4. Extract 'against' column value from the matching row as it represents opposing team on that date. \\n5. Compare Scotland's score against England to Ireland's score against opponent found in step 4. If both scores are available and Scotland's score is twice as high, then claim is TRUE.\",\n  \"answer\": \"INSUFFICIENT DATA\",\n  \"relevant_cells\": [ { \"row_index\": 3, \"column_name\": \"against\" }, ... ]\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-18178608-9.html.csv",
+    "claim": "ireland be the only opposing team england meet at the five nation championship",
+    "predicted_response": 1,
+    "resp": "Here's my step-by-step reasoning:\n1. Identify the opposing teams for the Five Nations Championship from the table. This includes France, Wales, Scotland, and Ireland.\n2. Check if England is present in the table as an opposing team. If not, it means that England did not meet any of these teams at the Five Nations Championship, so the claim would be true.\n3. Check the \"opposing teams\" column for England. However, England does appear in the table, but it's listed under two different events: five nations and millennium trophy match (row 4 and row 5). Since both of these are not Five Nations Championship, we need to investigate further.\n4. Check if there is any other event where England met Ireland, which is a team from the Five Nations Championship. The Five Nations Championship matches can be identified by the \"status\" column with the value of \"five nations\". We find that row 4 and row 5 are not part of this group.\n5. However, at this point, we do not see any match between England and Ireland in the table where both teams are part of the Five Nations Championship (i.e., with the status of five nations). This means that the claim might be true.\n6. To confirm our conclusion, we need to consider the possibility that there could be missing data or errors in the provided table. Since the table seems comprehensive and consistent within itself, and does not show any match between England and Ireland under the Five Nations Championship, it is reasonable to assume that the claim is indeed true.\n\nFinal answer:\n{\n  \"chain_of_thought\": [\n    \"Identify opposing teams for the Five Nations Championship\",\n    \"Check if England is an opposing team in the table\",\n    \"Find out if there's any other event where England met Ireland (Five Nations Championship)\",\n    \"Investigate if any match between England and Ireland under the Five Nations Championship exists\"\n  ],\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    { \"row_index\": 4, \"column_name\": \"opposing teams\" },\n    { \"row_index\": 5, \"column_name\": \"opposing teams\" },\n    { \"row_index\": 0, \"column_name\": \"status\" },\n    { \"row_index\": 4, \"column_name\": \"status\" },\n    { \"row_index\": 5, \"column_name\": \"status\" }\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "opposing teams"
+      },
+      {
+        "row_index": 5,
+        "column_name": "opposing teams"
+      },
+      {
+        "row_index": 0,
+        "column_name": "status"
+      },
+      {
+        "row_index": 4,
+        "column_name": "status"
+      },
+      {
+        "row_index": 5,
+        "column_name": "status"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18178608-9.html.csv",
+    "claim": "all of the test match england compete in with australia be hold in twickenham , london",
+    "predicted_response": 0,
+    "resp": "Here are the steps I followed to determine whether the claim is TRUE or FALSE:\n\n1. Identify the relevant teams from the table: England, Wales, Scotland, Ireland, Australia, Fiji, and two instances of Australia (representing multiple test matches).\n2. Filter out all rows where the \"opposing teams\" column contains either \"England\" or \"Australia\".\n3. From the filtered data, identify the rows where the \"status\" column indicates a \"test match\". This will provide us with the test matches involving England and/or Australia.\n4. Check if all the test matches involving England and/or Australia are held in Twickenham, London.\n\nAfter analyzing the table based on these steps:\n\nThe filtered data consists of three rows, corresponding to:\n- Row 1 (Australia vs France) - not a test match with England, so irrelevant\n- Row 4 (Ireland vs England) - not a test match, so irrelevant\n- Rows 6 and 7 (two instances of Australia vs Australia) - not involving England, so irrelevant\n- Row 8 (Ireland vs England) - not a test match with Australia, so irrelevant\n- Row 9 (Australia vs Fiji) - not a test match, so irrelevant\n- Rows 10 to 12 (two instances of Australia vs Australia and one instance of Australia vs Ireland) - involving Australia but not England, so irrelevant\n\nNow, the remaining row is:\n- Row 5 (Ireland vs England) - a test match with England\n\nHowever, this test match was held in Lansdowne Road, Dublin, which is not Twickenham, London. Therefore, all of the test matches England competes in with Australia are NOT held in Twickenham, London.\n\nHere's the output in JSON format:\n\n{\n  \"chain_of_thought\": [\n    \"Identify relevant teams from the table\",\n    \"Filter out rows involving England or Australia\",\n    \"Filter further to find test matches for England and/or Australia\",\n    \"Check if all the filtered test matches are held in Twickenham, London\"\n  ],\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    { \"row_index\": 5, \"column_name\": \"opposing teams\" },\n    { \"row_index\": 5, \"column_name\": \"status\" }\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "opposing teams"
+      },
+      {
+        "row_index": 5,
+        "column_name": "status"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18178608-9.html.csv",
+    "claim": "england compete against both scotland and ireland 2 time in 1988",
+    "predicted_response": 0,
+    "resp": "Here's the step-by-step reasoning process:\n\n1. Identify the teams for England. Since England was not present in the provided table, we cannot check if they played against both Scotland and Ireland in 1988 directly from the data. However, we can infer whether it is possible or impossible based on the information available.\n2. List the opposing teams that played against each other twice in 1988 from the given table. In this case, Scotland and Ireland played twice (on 05/03/1988 and 19/03/1988).\n3. Check if England is among the teams that have played both Scotland and Ireland twice in 1988. Since England was not present in the table, we can only conclude that England may or may not be part of the teams that have played both Scotland and Ireland twice in 1988 based on our limited data.\n4. Consider the context and any additional information that might hint at whether England could have competed against both Scotland and Ireland in 1988. The \"five nations\" tournament was conducted in 1988, and the teams participating were Wales, France, Scotland, Ireland, and England. In this case, it is possible for England to have played both Scotland and Ireland, but without specific match details, we cannot confirm it definitively.\n\nFinal answer:\n{\n  \"chain_of_thought\": [\n    \"Identify teams for England\",\n    \"List the opposing teams that played against each other twice in 1988\",\n    \"Check if England is among the teams that have played both Scotland and Ireland twice in 1988\",\n    \"Consider the context and any additional information that might hint at whether England could have competed against both Scotland and Ireland in 1988\"\n  ],\n  \"answer\": \"UNKNOWN\",\n  \"relevant_cells\": [\n    { \"row_index\": 0, \"column_name\": \"opposing teams\" },\n    { \"row_index\": 1, \"column_name\": \"opposing teams\" },\n    { \"row_index\": 2, \"column_name\": \"opposing teams\" },\n    { \"row_index\": 3, \"column_name\": \"opposing teams\" },\n    { \"row_index\": 4, \"column_name\": \"opposing teams\" },\n    { \"row_index\": 5, \"column_name\": \"opposing teams\" },\n    { \"row_index\": 6, \"column_name\": \"opposing teams\" },\n    { \"row_index\": 7, \"column_name\": \"opposing teams\" },\n    { \"row_index\": 8, \"column_name\": \"opposing teams\" }\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "opposing teams"
+      },
+      {
+        "row_index": 1,
+        "column_name": "opposing teams"
+      },
+      {
+        "row_index": 2,
+        "column_name": "opposing teams"
+      },
+      {
+        "row_index": 3,
+        "column_name": "opposing teams"
+      },
+      {
+        "row_index": 4,
+        "column_name": "opposing teams"
+      },
+      {
+        "row_index": 5,
+        "column_name": "opposing teams"
+      },
+      {
+        "row_index": 6,
+        "column_name": "opposing teams"
+      },
+      {
+        "row_index": 7,
+        "column_name": "opposing teams"
+      },
+      {
+        "row_index": 8,
+        "column_name": "opposing teams"
+      }
+    ]
+  }
+]
