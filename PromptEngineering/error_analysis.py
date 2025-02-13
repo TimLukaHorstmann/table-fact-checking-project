@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/miniconda3/envs/llm/bin/python
 """
 error_analysis.py
 
@@ -8,15 +8,80 @@ It uses the shared analyze_errors() function from factchecker_base.
 
 import os
 import argparse
-import logging
+import json
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import display
+import numpy as np
+import glob
+from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score, accuracy_score
+import re
+from tqdm.notebook import tqdm
+from langchain_ollama import OllamaLLM
 
-from factchecker_base import analyze_errors
+# from factchecker_base import analyze_errors
 
-def main():
-    parser = argparse.ArgumentParser(description="Run Error Analysis on a Result JSON File")
-    parser.add_argument("--result_file", type=str, required=True, help="Path to the result JSON file")
-    args = parser.parse_args()
-    analyze_errors(args.result_file)
 
-if __name__ == "__main__":
-    main()
+def load_failed_predictions(root_dir: str, pattern: str = "results_with_cells_*.json") -> list:
+    """
+    Scan the given root_dir (and its subdirectories) for files matching the pattern "results_with_cells_*.json",
+    and return a list of dictionaries for the predictions where the model failed (i.e., predicted_response != true_response).
+    """
+    failed_predictions = []
+    successful_predictions = []
+
+    # Use glob to find all matching files, recursively in subdirectories
+    print("Searching in directory:", os.path.abspath(root_dir))
+    file_list = glob.glob(os.path.join(root_dir, '**', pattern), recursive=True)
+    if not file_list:
+        print("No intermediate results files found matching pattern.")
+        return failed_predictions, successful_predictions
+    
+    for file_path in tqdm(file_list):
+        try:
+            with open(file_path, "r") as f:
+                results = json.load(f)
+        except Exception as e:
+            print(f"Could not load {file_path}: {e}")
+            continue
+
+        for result in results:
+            # Check if the model's predicted response is different from the true response
+            if result.get("predicted_response") != result.get("true_response"):
+                # Create a dictionary with relevant details
+                failed_prediction = {
+                    "predicted_response": result["predicted_response"],
+                    "true_response": result["true_response"],
+                    "claim": result["claim"]
+                }
+                failed_predictions.append(failed_prediction)
+            else:
+                # Create a dictionary with relevant details
+                successful_prediction = {
+                    "predicted_response": result["predicted_response"],
+                    "true_response": result["true_response"],
+                    "claim": result["claim"]
+                }
+                successful_predictions.append(successful_prediction)
+    
+    return failed_predictions, successful_predictions
+
+
+docs_results_folder = "docs/results"
+
+failed_predictions, true = load_failed_predictions(docs_results_folder)
+
+print(failed_predictions[0])
+
+# for f in failed_predictions:
+#     print(f['claim'])
+#     print()
+
+# def main():
+#     parser = argparse.ArgumentParser(description="Run Error Analysis on a Result JSON File")
+#     parser.add_argument("--result_file", type=str, required=True, help="Path to the result JSON file")
+#     args = parser.parse_args()
+#     analyze_errors(args.result_file)
+
+# if __name__ == "__main__":
+#     main()
