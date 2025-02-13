@@ -11,13 +11,13 @@ import argparse
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
-from IPython.display import display
 import numpy as np
 import glob
 import re
-from tqdm.notebook import tqdm
+from tqdm import tqdm
 from langchain_ollama import OllamaLLM
 import logging
+import concurrent.futures
 
 def load_failed_predictions(root_dir: str, pattern: str = "results_with_cells_*.json") -> list:
     """
@@ -73,8 +73,7 @@ def load_failed_predictions(root_dir: str, pattern: str = "results_with_cells_*.
     return failed_predictions, successful_predictions
 
 # from factchecker_base import analyze_errors
-
-def template_generation(category: str, category_explanation: str, claim: str) -> str:
+def template_generation(category_explanation: str, claim: str, category: str) -> str:
     """
     Generates a template for the LLM that explains the task and asks for the categorization decision.
     
@@ -182,8 +181,7 @@ def count_prompt_generation(claim: str) -> str:
     For example, “there are 5 countries in the tournament” or “xxx achieved 3 goals” are examples of claims involving counts, where the number of items or events is being verified.
     """
     
-    return template_generation(category="count", category_explanation=category_explanation, claim=claim["claim"])
-
+    return template_generation(category_explanation, claim, "count")
 
 def comparative_prompt_generation(claim: str) -> str:
     """
@@ -224,7 +222,6 @@ def ordinal_prompt_generation(claim: str) -> str:
     # Generate the prompt using the template_generation function
     return template_generation(category_explanation, claim, "ordinal")
 
-
 def unique_prompt_generation(claim: str) -> str:
     """
     Generates a prompt for the LLM to categorize a claim as falling under the 'unique' category.
@@ -245,7 +242,6 @@ def unique_prompt_generation(claim: str) -> str:
     # Generate the prompt using the template_generation function
     return template_generation(category_explanation, claim, "unique")
 
-
 def all_prompt_generation(claim: str) -> str:
     """
     Generates a prompt for the LLM to categorize a claim as falling under the 'all' category.
@@ -265,7 +261,6 @@ def all_prompt_generation(claim: str) -> str:
     
     # Generate the prompt using the template_generation function
     return template_generation(category_explanation, claim, "all")
-
 
 def none_prompt_generation(claim: dict) -> str:
     """
@@ -288,94 +283,105 @@ def none_prompt_generation(claim: dict) -> str:
     # Generate the prompt using the template_generation function
     return template_generation(category_explanation, claim, "none")
 
-# Define the error analysis pipeline function
-def error_analysis_pipeline(failed_predictions, successful_predictions, model: OllamaLLM):
+def process_prediction(all_claims, i, prompt_generation_function, category, model):
+    try:
+        
+        claim = all_claims[i]['claim']
+        prompt = prompt_generation_function(claim)
+
+        model_response = re.search(r"\bTRUE\b", model.invoke(prompt).strip())
+
+        if model_response == "TRUE":
+            all_claims[i][category] = True
+
+    except Exception as e:
+        claim = all_claims[i]['claim']
+        logging.error(f"Error processing claim {claim}: {e}")
+
+
+# def error_analysis_pipeline(failed_predictions, successful_predictions, model_name, prompt_functions_with_categories):
+#     """
+#     Runs error analysis over failed and successful predictions, processing claims through various prompt generation functions.
+#     """
+#     try:
+#         if "deepseek" in model_name:
+#             model = OllamaLLM(model=model_name, params={"n_ctx": 4096, "n_batch": 256})
+#         else:
+#             model = OllamaLLM(model=model_name)
+#     except Exception as e:
+#         logging.error(f"Failed to initialize model {model_name}: {e}")
+#         return failed_predictions, successful_predictions  # Return the original lists on error
+
+#     all_claims = failed_predictions + successful_predictions
+
+#     for prompt_function_name, category in prompt_functions_with_categories.items():
+#         logging.info(f"Processing prompt function: {prompt_function_name}")
+#         print(prompt_function_name)
+
+#         prompt_generation_function = globals().get(prompt_function_name)
+
+#         with concurrent.futures.ThreadPoolExecutor() as executor:
+#             futures = []
+#             total_claims = len(all_claims)
+
+#             with tqdm(total=total_claims, desc=f"Processing {category} claims", ncols=100, position=0) as pbar:
+#                 for i in range(total_claims):
+#                     # print(i, '/', total_claims)
+#                     futures.append(executor.submit(process_prediction, all_claims, i, prompt_generation_function, category, model))
+
+#                 for future in concurrent.futures.as_completed(futures):
+#                     future.result()
+#                     pbar.update(1)
+
+#         # After processing each category, update all_claims with the changes made in process_prediction
+
+#     # Return the updated all_claims, which includes modifications from both failed and successful predictions
+#     print("fini!")
+#     return all_claims
+
+
+def error_analysis_pipeline(failed_predictions, successful_predictions, model_name, prompt_functions_with_categories):
     """
     Runs error analysis over failed and successful predictions, processing claims through various prompt generation functions.
     """
-    all_claims = failed_predictions + successful_predictions  # Combine both lists of claims
-    
-    # Define the categories and their associated prompt generation functions
-    prompt_functions_with_categories = {
-        "aggregation_prompt_generation": "aggregation",
-        "negate_prompt_generation": "negate",
-        "superlative_prompt_generation": "superlative",
-        "count_prompt_generation": "count",
-        "comparative_prompt_generation": "comparative",
-        "ordinal_prompt_generation": "ordinal",
-        "unique_prompt_generation": "unique",
-        "all_prompt_generation": "all",
-        "none_prompt_generation": "none"
-    }
-    
-    # Iterate over each prompt generation function
-    for prompt_function, category in prompt_functions_with_categories.items():
-        logging.info(f"Processing prompt function: {prompt_function}")
+    try:
+        # Initialize the model
+        if "deepseek" in model_name:
+            model = OllamaLLM(model=model_name, params={"n_ctx": 4096, "n_batch": 256})
+        else:
+            model = OllamaLLM(model=model_name)
+    except Exception as e:
+        logging.error(f"Failed to initialize model {model_name}: {e}")
+        return
 
-        # Iterate over all claims for the current prompt function
-        for prediction in all_claims:
-            try:
-                # Dynamically call the prompt generation function
-                prompt_generation_func = globals().get(prompt_function)
-                
-                if prompt_generation_func:
-                    # Generate the prompt for the current claim
-                    claim = prediction['claim']
-                    prompt = prompt_generation_func(claim)
-                    logging.info(f"Generated prompt for claim: {claim}")
+    all_claims = failed_predictions + successful_predictions
 
-                    # Get model prediction for the generated prompt
-                    model_response = re.search(r"\bTRUE\b", model.invoke(prompt).strip())
-                    prediction_copy = prediction.copy()  # Copy the claim to avoid modifying the original
-                    prediction_copy["model_response"] = model_response
+    # Iterate through each prompt function and its associated category
+    for prompt_function_name, category in prompt_functions_with_categories.items():
+        print(f"Processing {prompt_function_name}")
 
-                    if model_response == "true":
-                        # If model response is "true", add the category key-value pair
-                        prediction_copy[category] = True  # Add the category key with a True value
+        prompt_generation_function = globals().get(prompt_function_name)
+        if not prompt_generation_function:
+            logging.error(f"Prompt generation function {prompt_function_name} not found.")
+            continue  # Skip to the next prompt function if not found
 
-                    # Update the correct list based on whether the claim was successful or failed
-                    prediction_id = prediction_copy["ID"]
-                    if prediction_copy["predicted_response"] != prediction_copy["true_response"]:
-                        # The claim was a failure, update in failed_predictions
-                        for i, prediction in enumerate(failed_predictions):
-                            if prediction["ID"] == prediction_id:
-                                failed_predictions[i] = prediction_copy
-                                break
-                    else:
-                        # The claim was successful, update in successful_predictions
-                        for i, prediction in enumerate(successful_predictions):
-                            if prediction["ID"] == prediction_id:
-                                successful_predictions[i] = prediction_copy
-                                break
-                else:
-                    logging.error(f"Prompt function {prompt_function} not found.")
-            except Exception as e:
-                claim = prediction['claim']
-                logging.error(f"Error processing claim {claim} with {prompt_function}: {e}")
-                prediction_copy = prediction.copy()
-                prediction_copy["model_response"] = None
+        # Use ThreadPoolExecutor for parallel processing of claims
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            futures = []
+            total_claims = len(all_claims)
 
-                # Update the correct list based on whether the claim was successful or failed
-                claim_id = prediction_copy["ID"]
-                if prediction_copy["predicted_response"] != prediction_copy["true_response"]:
-                    # The claim was a failure, update in failed_predictions
-                    for i, claim in enumerate(failed_predictions):
-                        if claim["ID"] == claim_id:
-                            failed_predictions[i] = prediction_copy
-                            break
-                else:
-                    # The claim was successful, update in successful_predictions
-                    for i, claim in enumerate(successful_predictions):
-                        if claim["ID"] == claim_id:
-                            successful_predictions[i] = prediction_copy
-                            break
+            # Submit tasks to the executor for processing each claim
+            for i in range(total_claims):
+                futures.append(executor.submit(process_prediction, all_claims, i, prompt_generation_function, category, model))
+                print(i,"/",total_claims)
+            # Wait for all futures to complete
+            for future in concurrent.futures.as_completed(futures):
+                try:
+                    future.result()  # Get result of each future, ensuring completion
+                except Exception as e:
+                    logging.error(f"Error processing future: {e}")
 
-    # Return the updated failed_predictions and successful_predictions lists
     return failed_predictions, successful_predictions
-
-# Example usage (you would call this function from your code with the right data and model):
-# results = error_analysis_pipeline(failed_predictions, successful_predictions, model)
-
 
 def plot_classification_results(failed_predictions, successful_predictions):
     """
@@ -437,12 +443,43 @@ def plot_classification_results(failed_predictions, successful_predictions):
 
 
 
-docs_results_folder = "docs/results"
+docs_results_folder = "docs/results_test"
 failed_predictions, successful_predictions = load_failed_predictions(docs_results_folder)
-model = OllamaLLM(model="mistral-8b")
 
 
-failed_predictions, successful_predictions = error_analysis_pipeline(failed_predictions, successful_predictions, model)
+
+model = "mistral:latest"
+prompt_functions_with_categories = {
+    "aggregation_prompt_generation": "aggregation",
+    "negate_prompt_generation": "negate",
+    "superlative_prompt_generation": "superlative",
+    "count_prompt_generation": "count",
+    "comparative_prompt_generation": "comparative",
+    "ordinal_prompt_generation": "ordinal",
+    "unique_prompt_generation": "unique",
+    "all_prompt_generation": "all",
+    "none_prompt_generation": "none"
+}
+failed_predictions, successful_predictions = error_analysis_pipeline(failed_predictions, successful_predictions, model, prompt_functions_with_categories)
+
+# def save_to_json(data, file_path):
+#     """
+#     Save a list of dictionaries to a JSON file.
+
+#     Parameters:
+#     - data: List of dictionaries to be saved.
+#     - file_path: The path where the JSON file should be saved.
+#     """
+#     try:
+#         with open(file_path, "w") as json_file:
+#             json.dump(data, json_file, indent=2)
+#         print(f"Data saved to {file_path}")
+#     except Exception as e:
+#         print(f"Error saving data to {file_path}: {e}")
+
+# save_to_json(failed_predictions, "failed_predictions_test")
+# save_to_json(successful_predictions, "successful_predictions")
+
 
 plot_classification_results(failed_predictions, successful_predictions)
 
