@@ -1,0 +1,290 @@
+[
+  {
+    "table_id": "2-17355628-9.html.csv",
+    "claim": "the oklahoma city thunder do not break 100 point at all during march 2009",
+    "predicted_response": 1,
+    "resp": "Here are the steps to answer the question:\n\n1. Identify the team that the claim refers to: The team in question is the Oklahoma City Thunder, as they were called during March 2009 (previously known as Seattle SuperSonics but had relocated and adopted the Thunder name for this month).\n\n2. Search through the table for rows corresponding to games played by the Oklahoma City Thunder in March 2009: I will iterate through each row of the table and compare the 'game' column value against our target team, i.e., the Oklahoma City Thunder.\n\n3. If a match is found, examine the 'score' column for games where the Thunder scored more than 100 points: If I find a game corresponding to the Oklahoma City Thunder in March 2009, I will then check if the score value in that row is greater than or equal to 100.\n\n4. Output final answer and relevant cells: If no games with scores greater than or equal to 100 points are found for the Oklahoma City Thunder during March 2009, output the final answer as \"TRUE\" and relevant cells will be empty since no specific cells in this table prove that the Thunder scored more than 100 points in any game during March 2009.\n\nThe code to perform these steps would look something like:\n\n```python\ndef find_match(table, target):\n    for i, row in enumerate(table):\n        if row[0] == target:\n            return i\n    return None\n\ndef find_scores(table, match_index):\n    return [row for row in table[match_index:] if row[3].startswith('w ')][::-1]\n\ndef check_claim(table):\n    game = 'oklahoma city'\n    match_index = find_match(table, game)\n\n    if match_index is None or not any([score.endswith(' 100') for score in find_scores(table, match_index)]):\n        return {\n            \"chain_of_thought\": [\"Identify the team: Oklahoma City Thunder\",\n                                \"Search table for rows with game matching OKC\",\n                                \"Check scores column for games where score > 100\"],\n            \"answer\": \"TRUE\",\n            \"relevant_cells\": []\n        }\n    else:\n        return {\n            \"chain_of_thought\": [\"Identify the team: Oklahoma City Thunder\",\n                                \"Search table for rows with game matching OKC\",\n                                \"Check scores column for games where score > 100\"],\n            \"answer\": \"FALSE\",\n            \"relevant_cells\": [{\"row_index\": match_index, \"column_name\": \"score\"}]\n        }\n```\n\nRunning the code on the table provided would yield:\n\n```python\ncheck_claim(table)\n# Output: {'chain_of_thought': ['Identify the team: Oklahoma City Thunder', 'Search table for rows with game matching OKC', 'Check scores column for games where score > 100'], 'answer': 'TRUE', 'relevant_cells': []}\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17355628-9.html.csv",
+    "claim": "the oklahoma city thunder defeat the san antonio spur 2 time in march of 2009",
+    "predicted_response": 1,
+    "resp": "Here are the reasoning steps:\n\n1. Check if any row in the table corresponds to the team Oklahoma City Thunder playing against San Antonio Spurs during March 2009.\n2. Identify the games played by looking at the \"game\" column. If the game number falls within the specified month and is between the Thunder and the Spurs, then proceed to step 3.\n3. Determine if the outcome of the game is a win for Oklahoma City Thunder. This can be found in the \"record\" column. A record with less losses (rightmost digit) than the opposing team indicates a win.\n4. If there are multiple matches that meet the criteria, then check if they occurred more than once to confirm the claim.\n\nHere is the final answer:\n\n```json\n{\n  \"chain_of_thought\": [\n    \"Step 1: Check if any row in the table corresponds to the team Oklahoma City Thunder playing against San Antonio Spurs during March 2009.\",\n    \"Step 2: Identify the games played by looking at the 'game' column. If the game number falls within the specified month and is between the Thunder and the Spurs, then proceed to step 3.\",\n    \"Step 3: Determine if the outcome of the game is a win for Oklahoma City Thunder. This can be found in the 'record' column. A record with less losses (rightmost digit) than the opposing team indicates a win.\",\n    \"Step 4: If there are multiple matches that meet the criteria, then check if they occurred more than once to confirm the claim.\"\n  ],\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\n      \"row_index\": 16,\n      \"column_name\": \"team\"\n    },\n    {\n      \"row_index\": 16,\n      \"column_name\": \"opponent\"\n    },\n    {\n      \"row_index\": 16,\n      \"column_name\": \"record\"\n    }\n  ]\n}\n```\n\nThe Oklahoma City Thunder defeated the San Antonio Spurs twice in March of 2009 (game numbers 67 and 41). The relevant cells for this confirmation are rows 16, 17 where they face each other, and row 16 with a record of 19 - 48.",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 16,
+        "column_name": "team"
+      },
+      {
+        "row_index": 16,
+        "column_name": "opponent"
+      },
+      {
+        "row_index": 16,
+        "column_name": "record"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17355628-9.html.csv",
+    "claim": "19136 fan attend oklahoma city thunder game at the ford center on 4 separate occasion during march 2009",
+    "predicted_response": 1,
+    "resp": "Here are the reasoning steps:\n\n1. First, identify any instances where the game was played at the Ford Center (as per the claim) by checking the 'location attendance' column.\n2. If there are multiple instances of the location being the same, count how many times it appears to determine if it is 4 or more occurrences during March 2009.\n3. In this case, we see that the Ford Center was attended in 6 different games (rows 60, 63, 65, 67, 68, and 71). However, only rows 63, 67, 68, and 71 correspond to March 2009.\n4. There are indeed 4 instances of the Ford Center being attended during March 2009 (rows 63, 67, 68, and 71).\n\nOutput:\n{\n  \"chain_of_thought\": [\n    \"Check which games were played at the Ford Center by examining the 'location attendance' column.\",\n    \"Count the number of times the Ford Center was attended during March 2009 (by checking the 'date' column) to determine if it is 4 or more occurrences.\"\n  ],\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    { \"row_index\": 63, \"column_name\": \"location attendance\" },\n    { \"row_index\": 67, \"column_name\": \"location attendance\" },\n    { \"row_index\": 68, \"column_name\": \"location attendance\" },\n    { \"row_index\": 71, \"column_name\": \"location attendance\" }\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 63,
+        "column_name": "location attendance"
+      },
+      {
+        "row_index": 67,
+        "column_name": "location attendance"
+      },
+      {
+        "row_index": 68,
+        "column_name": "location attendance"
+      },
+      {
+        "row_index": 71,
+        "column_name": "location attendance"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17355628-9.html.csv",
+    "claim": "russell westbrook lead the oklahoma city thunder in assist 10 time during march of 2009",
+    "predicted_response": 1,
+    "resp": "Here are the steps to analyze the claim:\n\n1. Identify the subject of the claim: The subject of the claim is Russell Westbrook and the context is that he led the Oklahoma City Thunder in assists 10 times during March of 2009.\n\n2. Find all rows corresponding to Oklahoma City Thunder games from March 2009 in the table:\n   - row_index 60, team: Dallas, location: Ford Center, record: 15-45\n   - row_index 61, team: Washington, location: Ford Center, record: 16-45\n   - row_index 62, team: New Orleans, location: New Orleans Arena, record: 16-46\n   - row_index 63, team: Philadelphia, location: Ford Center, record: 17-46\n   - row_index 64, team: Sacramento, location: Arco Arena, record: 18-46\n   - row_index 65, team: Denver, location: Pepsi Center, record: 18-47\n   - row_index 66, team: Phoenix, location: US Airways Center, record: 18-48\n   - row_index 67, team: San Antonio, location: Ford Center, record: 19-48\n   - row_index 68, team: Chicago, location: Ford Center, record: 19-49\n   - row_index 69, team: Utah, location: Ford Center, record: 19-50\n   - row_index 70, team: Minnesota, location: Target Center, record: 20-50\n   - row_index 71, team: LA Lakers, location: Ford Center, record: 20-51\n   - row_index 72, team: Toronto, location: Air Canada Centre, record: 20-52\n   - row_index 73, team: Boston, location: TD Banknorth Garden, record: 20-53\n\n3. Find the number of times Russell Westbrook recorded more than zero assists in those games:\n   - In rows 60, 61, 62, 64, 65, 66, 67, 68, 69, and 71-73, the value of 'assist' for Russell Westbrook is greater than zero.\n   - Row 70 and 73 do not have values for assists. However, since there are no other players with more assists in those games, it can be assumed that Westbrook still led in assists during those matches even though the data is missing.\n   - In row 63 and 69, other players had more assists than Westbrook, so he did not lead the team in those specific games.\n\n4. Count the number of times Russell Westbrook had more assists than any other player:\n   - 12 out of the 15 games (excluding rows 63 and 69) have values for assists where Westbrook led the team in this category.\n\n5. Compare the count from step 4 with the claim: The claim is that Russell Westbrook lead the OKC Thunder in assists 10 times during March of 2009. Based on our analysis, he led the team in assists 12 times (counting row 70 and 73 as well), which is more than 10.\n\nFinal answer:\n{\n  \"chain_of_thought\": [\"Identify the subject of the claim\", \"Find all rows corresponding to OKC Thunder games in March 2009\", \"Count the number of times Russell Westbrook recorded more than zero assists\", \"Count the number of times he had more assists than any other player\", \"Compare the count with the claim\"],\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 60, \"column_name\": \"assist\"},\n    {\"row_index\": 61, \"column_name\": \"assist\"},\n    {\"row_index\": 62, \"column_name\": \"assist\"},\n    {\"row_index\": 63, \"column_name\": null},\n    {\"row_index\": 64, \"column_name\": \"assist\"},\n    {\"row_index\": 65, \"column_name\": \"assist\"},\n    {\"row_index\": 66, \"column_name\": \"assist\"},\n    {\"row_index\": 67, \"column_name\": \"assist\"},\n    {\"row_index\": 68, \"column_name\": \"assist\"},\n    {\"row_index\": 69, \"column_name\": null},\n    {\"row_index\": 70, \"column_name\": null},\n    {\"row_index\": 71, \"column_name\": \"assist\"},\n    {\"row_index\": 72, \"column_name\": \"assist\"},\n    {\"row_index\": 73, \"column_name\": null}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 60,
+        "column_name": "assist"
+      },
+      {
+        "row_index": 61,
+        "column_name": "assist"
+      },
+      {
+        "row_index": 62,
+        "column_name": "assist"
+      },
+      {
+        "row_index": 63,
+        "column_name": null
+      },
+      {
+        "row_index": 64,
+        "column_name": "assist"
+      },
+      {
+        "row_index": 65,
+        "column_name": "assist"
+      },
+      {
+        "row_index": 66,
+        "column_name": "assist"
+      },
+      {
+        "row_index": 67,
+        "column_name": "assist"
+      },
+      {
+        "row_index": 68,
+        "column_name": "assist"
+      },
+      {
+        "row_index": 69,
+        "column_name": null
+      },
+      {
+        "row_index": 70,
+        "column_name": null
+      },
+      {
+        "row_index": 71,
+        "column_name": "assist"
+      },
+      {
+        "row_index": 72,
+        "column_name": "assist"
+      },
+      {
+        "row_index": 73,
+        "column_name": null
+      }
+    ]
+  },
+  {
+    "table_id": "2-17355628-9.html.csv",
+    "claim": "kevin durant lead the oklahoma city thunder in point score 6 game in a row in march of 2009",
+    "predicted_response": 1,
+    "resp": "Here are the steps for my reasoning:\n1. Identify which player the claim is about, and check if they played in six consecutive games in March 2009. In this case, the player of interest is Kevin Durant.\n2. Check the table to see if Kevin Durant appeared in at least six consecutive games from March 2009. Start with row 67 (game number 67), since we want to check for six consecutive games from a specific date.\n3. Look through the following rows (68, 69, 70, 71, 72, and 73) in the table to see if Kevin Durant played in each of those games. Check the \"team\" column to confirm that he was playing for Oklahoma City Thunder in these games, as well as the \"location\" column to ensure that they occurred in March 2009.\n4. If Kevin Durant played in all six consecutive games from March 2009 and scored the most points in each of those games, then the claim is true.\n\nThe final answer:\n{\n  \"chain_of_thought\": [\"Identify player (Kevin Durant), check for six consecutive games, confirm team and date for each game\"],\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 67, \"column_name\": \"team\"},\n    {\"row_index\": 67, \"column_name\": \"date\"},\n    {\"row_index\": 68, \"column_name\": \"team\"},\n    {\"row_index\": 68, \"column_name\": \"date\"},\n    {\"row_index\": 69, \"column_name\": \"team\"},\n    {\"row_index\": 69, \"column_name\": \"date\"},\n    {\"row_index\": 70, \"column_name\": \"team\"},\n    {\"row_index\": 70, \"column_name\": \"date\"},\n    {\"row_index\": 71, \"column_name\": \"team\"},\n    {\"row_index\": 71, \"column_name\": \"date\"},\n    {\"row_index\": 72, \"column_name\": \"team\"},\n    {\"row_index\": 72, \"column_name\": \"date\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 67,
+        "column_name": "team"
+      },
+      {
+        "row_index": 67,
+        "column_name": "date"
+      },
+      {
+        "row_index": 68,
+        "column_name": "team"
+      },
+      {
+        "row_index": 68,
+        "column_name": "date"
+      },
+      {
+        "row_index": 69,
+        "column_name": "team"
+      },
+      {
+        "row_index": 69,
+        "column_name": "date"
+      },
+      {
+        "row_index": 70,
+        "column_name": "team"
+      },
+      {
+        "row_index": 70,
+        "column_name": "date"
+      },
+      {
+        "row_index": 71,
+        "column_name": "team"
+      },
+      {
+        "row_index": 71,
+        "column_name": "date"
+      },
+      {
+        "row_index": 72,
+        "column_name": "team"
+      },
+      {
+        "row_index": 72,
+        "column_name": "date"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17355628-9.html.csv",
+    "claim": "the oklahoma city thunder break 100 point 5 time during march",
+    "predicted_response": 0,
+    "resp": "Here are the steps to analyze the claim:\n\n1. Identify the team: In this case, the team is Oklahoma City Thunder (as it involves players like Kevin Durant, Russell Westbrook, etc.).\n\n2. Filter the table for only the games played in March (column 'game'): Since the games are numbered from 60 to 74, we can see that all games belong to the month of March.\n\n3. Check if there are any instances where the score is exactly 100 points or more: To find this out, we can scan the 'score' column for rows where the value is greater than or equal to 100.\n\n4. Count the number of such instances: If we find more than 4 games with a score of 100 or more, it means that Oklahoma City Thunder broke the 100-point barrier 5 times or more during March (since 5 is greater than 4 plus any number).\n\n   After scanning the table, we can see that there are 2 games where the score is exactly 100 points: rows 60 and 71. However, since the Thunder lost in both of these games, it means they broke 100 points only twice, not 5 times.\n\nFinal answer (in JSON format):\n{\n  \"chain_of_thought\": \"1. Identify the team: Oklahoma City Thunder. 2. Filter the table for March games. 3. Check if there are any instances where the score is 100 or more. 4. Count the number of such instances and see if it's greater than 4 (since we want to know if they broke 100 points 5 times).\",\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 60, \"column_name\": \"score\"},\n    {\"row_index\": 71, \"column_name\": \"score\"}\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 60,
+        "column_name": "score"
+      },
+      {
+        "row_index": 71,
+        "column_name": "score"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17355628-9.html.csv",
+    "claim": "the oklahoma city thunder defeat the san antonio spur 3 time in march of 2009",
+    "predicted_response": 0,
+    "resp": "Here are the steps I followed to answer the claim:\n\n1. Identify the team mentioned in the claim, which is the Oklahoma City Thunder (formerly known as the Seattle SuperSonics).\n2. Check if there are any rows in the table that match this team for the month of March 2009.\n3. If a match is found, verify if there are multiple instances of the Thunder playing against another team, and specifically against the San Antonio Spurs, within the same month.\n4. If multiple matches are found, determine if the number of wins by the Thunder against the Spurs is greater than or equal to 3.\n\nUsing this reasoning, let's check the table:\n\n1. We find the team in row 1 (game 60), where it is listed as 'dallas'. Row 74 does not mention the location, but the context suggests that it belongs to the Thunder.\n2. There are two matches for the Thunder for March 2009 (games 60 and 74).\n3. The Thunder played against the San Antonio Spurs in game 74 (row 74).\n4. We count the number of wins by the Thunder against the Spurs in March 2009, and it is one (game 74). Since the number of wins is less than three, the claim is FALSE.\n\nFinal answer:\n{\n  \"chain_of_thought\": [\"Identify the team mentioned in the claim. Check if there are any rows that match this team for March 2009. If a match is found, verify if there are multiple instances of the Thunder playing against another team, and specifically against the San Antonio Spurs, within the same month. If multiple matches are found, determine if the number of wins by the Thunder against the Spurs is greater than or equal to 3.\"],\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [{\"row_index\": 74, \"column_name\": \"team\"}, {\"row_index\": 74, \"column_name\": \"record\"}]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 74,
+        "column_name": "team"
+      },
+      {
+        "row_index": 74,
+        "column_name": "record"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17355628-9.html.csv",
+    "claim": "russell westbrook lead the san antonio spur in assist 10 time during march 2009",
+    "predicted_response": 0,
+    "resp": "Here's my reasoning:\n1. First, identify the player we are interested in: Russell Westbrook\n2. Next, find out if he played for any team during March 2009: Since the table provides game numbers from March 2nd to March 31st and lists the teams as Dallas, Washington, New Orleans, Philadelphia, Sacramento, Denver, Phoenix, San Antonio, Chicago, Utah, Minnesota, LA Lakers, Toronto, Boston, and San Antonio again, we can infer that Russell Westbrook played for San Antonio during this period.\n3. Then, check if the number of times he had 10 or more assists in a game is equal to 10: For this, I will look through all the rows where the \"team\" column is San Antonio and \"high assists\" column has a value greater than or equal to 10.\n4. Finally, determine if the number of such rows is exactly 10: Based on the table, there are 2 rows where Russell Westbrook had 10 or more assists (rows 67 and 74). Since 2 is not equal to 10, the claim is FALSE.\n\n   Here's the JSON output:\n{\n  \"chain_of_thought\": [\n    \"Identify the player of interest\",\n    \"Find out if he played for any team during March 2009\",\n    \"Check if the number of times he had 10 or more assists in a game is equal to 10\",\n    \"Determine if the number of such rows is exactly 10\"\n  ],\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\n      \"row_index\": 67,\n      \"column_name\": \"team\"\n    },\n    {\n      \"row_index\": 67,\n      \"column_name\": \"high assists\"\n    },\n    {\n      \"row_index\": 74,\n      \"column_name\": \"team\"\n    },\n    {\n      \"row_index\": 74,\n      \"column_name\": \"high assists\"\n    }\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 67,
+        "column_name": "team"
+      },
+      {
+        "row_index": 67,
+        "column_name": "high assists"
+      },
+      {
+        "row_index": 74,
+        "column_name": "team"
+      },
+      {
+        "row_index": 74,
+        "column_name": "high assists"
+      }
+    ]
+  },
+  {
+    "table_id": "2-17355628-9.html.csv",
+    "claim": "19136 fan attend san antonio spur game at the air canada centre 4 seperate occasion during march 2009",
+    "predicted_response": 0,
+    "resp": "1. Identify the team and location mentioned in the claim: San Antonio Spurs and Air Canada Centre (Toronto).\n2. Check if there are any rows in the table with these specific values for 'team' and 'location': There are 4 rows where 'team' is \"san antonio\" and 'location' is \"ford center\", which might initially seem to match, but this location is actually different from Air Canada Centre (Toronto).\n3. Check if there are any other rows in the table with these specific values for 'team' and 'location': There are no other such rows in the table.\n4. Since we haven't found any row that matches the team and location specified in the claim, it is unlikely that 19136 fan attendance at San Antonio Spurs games occurred 4 separate occasions during March 2009 at Air Canada Centre.\n\n{\n  \"chain_of_thought\": [\"Identify the team and location mentioned in the claim\", \"Check if there are any rows with these specific values for 'team' and 'location'\", \"Check if there are any other rows with these specific values for 'team' and 'location',\" \"Since we haven't found any row that matches, it is unlikely that 19136 fan attendance at San Antonio Spurs games occurred 4 separate occasions during March 2009 at Air Canada Centre.\"],\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": []\n}",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17355628-9.html.csv",
+    "claim": "nick collison lead the oklahoma city thunder in point score 6 game in a row in march of 2009",
+    "predicted_response": 0,
+    "resp": "1. Identify the team for which Nick Collison plays, in this case, it's Oklahoma City Thunder (since the table does not contain the abbreviation 'OKC', we can assume that 'Oklahoma City' represents 'OKC').\n2. Determine the month and year of the games by looking at the 'date' column to find March 2009 games. The table contains game numbers from 60 to 74, which are within the range of days in March (from 1st to 31st) in 2009.\n3. Check if there are consecutive 6 games where Nick Collison is the leading scorer for the Oklahoma City Thunder. To do this, we look at the 'team', 'score' columns and compare them for each game from the first row to the sixth row below (since we already identified March 2009 games).\n4. In the given table, we can see that in Games 61, 62, 63, 64, 65, and 67, Nick Collison's points are: 18, 0, 11, 0, 0, and 21. To be the leading scorer for his team, he needs to have the highest score in each of these games. Unfortunately, this is not the case as his highest score is 21 (in Game 72) while his teammate Kevin Durant scored 31 points in Game 74 (which is after the 6 consecutive games).\n5. Since Nick Collison did not have the highest score in 6 consecutive games, our final answer is that \"the claim is FALSE.\"\n\n{\n\"chain_of_thought\": [\n  \"Identify the team for which Nick Collison plays\",\n  \"Determine the month and year of the games\",\n  \"Check if there are consecutive 6 games where Nick Collison is the leading scorer for the Oklahoma City Thunder\",\n  \"Compare his points in each game from the first row to the sixth row below (since we already identified March 2009 games)\",\n  \"Confirm that he does not have the highest score in 6 consecutive games\"\n],\n\"answer\": \"FALSE\",\n\"relevant_cells\": [\n  { \"row_index\": 1, \"column_name\": \"team\" },\n  { \"row_index\": 1, \"column_name\": \"date\" },\n  { \"row_index\": 1, \"column_name\": \"score\" },\n  { \"row_index\": 2, \"column_name\": \"score\" },\n  { \"row_index\": 3, \"column_name\": \"score\" },\n  { \"row_index\": 4, \"column_name\": \"score\" },\n  { \"row_index\": 5, \"column_name\": \"score\" },\n  { \"row_index\": 6, \"column_name\": \"score\" },\n  { \"row_index\": 7, \"column_name\": \"score\" }\n]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 1,
+        "column_name": "team"
+      },
+      {
+        "row_index": 1,
+        "column_name": "date"
+      },
+      {
+        "row_index": 1,
+        "column_name": "score"
+      },
+      {
+        "row_index": 2,
+        "column_name": "score"
+      },
+      {
+        "row_index": 3,
+        "column_name": "score"
+      },
+      {
+        "row_index": 4,
+        "column_name": "score"
+      },
+      {
+        "row_index": 5,
+        "column_name": "score"
+      },
+      {
+        "row_index": 6,
+        "column_name": "score"
+      },
+      {
+        "row_index": 7,
+        "column_name": "score"
+      }
+    ]
+  }
+]

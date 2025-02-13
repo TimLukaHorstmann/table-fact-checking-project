@@ -5,7 +5,10 @@
 // CONSTANTS for paths (adjust these as needed)
 const CSV_BASE_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/data/all_csv/";
 const TABLE_TO_PAGE_JSON_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/data/table_to_page.json";
-const FULL_CLEANED_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/tokenized_data/total_examples.json";
+const TOTAL_EXAMPLES_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/tokenized_data/total_examples.json";
+const R1_TRAINING_ALL_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/collected_data/r1_training_all.json";
+const R2_TRAINING_ALL_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/collected_data/r2_training_all.json";
+const FULL_CLEANED_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/tokenized_data/full_cleaned.json";
 const MANIFEST_JSON_PATH = "results/manifest.json"; // Updated path
 
 // Global variables for precomputed results
@@ -25,8 +28,11 @@ let resultsChartInstance = null;
 // For live inference
 let deepSeekPipeline = null;
 let currentModelId = null;
-// Global variable for table->claims mapping from full_cleaned.json
+// Global variable for table->claims mapping from total_examples.json
 let tableIdToClaimsMap = {};
+let tableEntityLinkingMap = {}; // mapping for full_cleaned.json (i.e., table_id -> entity linking)
+
+let manifestOptions = []; // Array of manifest options for filtering
 
 
 // DOM element references
@@ -52,13 +58,31 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.warn("Manifest does not contain results_files. Using an empty list.");
         manifest.results_files = [];
       }
-      parseManifest(manifest);
-      populateDropdowns();
+      parseManifest(manifest); // Populate manifestOptions
+
+      const globalModels    = Array.from(new Set(manifestOptions.map(o => o.model))).sort();
+      const globalDatasets  = Array.from(new Set(manifestOptions.map(o => o.dataset))).sort();
+      const globalLearningTypes = Array.from(new Set(manifestOptions.map(o => o.learningType))).sort();
+      const globalNValues   = Array.from(new Set(manifestOptions.map(o => o.nValue))).sort((a, b) => {
+        if (a === "all") return 1;
+        if (b === "all") return -1;
+        return parseInt(a) - parseInt(b);
+      });
+      const globalFormatTypes = Array.from(new Set(manifestOptions.map(o => o.formatType))).sort();
+      
+      populateAllDropdowns(); // Populate dropdowns with all possible values
+      populateAllDropdowns();
+      ["modelSelect", "datasetSelect", "learningTypeSelect", "nValueSelect", "formatTypeSelect"].forEach(id => {
+        document.getElementById(id).addEventListener("change", updateDropdownsAndDisableInvalidOptions);
+      });
+      updateDropdownsAndDisableInvalidOptions();
+
     } catch (manifestError) {
       console.warn("Failed to fetch or parse manifest.json. Continuing without manifest.", manifestError);
     }
 
-    await fetchFullCleanedClaims();
+    await fetchTotalExamplesClaims();
+    await fetchFullCleaned();
 
     // Continue with the rest of the initialization.
     populateExistingTableDropdown();
@@ -111,46 +135,167 @@ async function fetchManifest() {
 function parseManifest(manifest) {
   manifest.results_files.forEach(filename => {
     const shortName = filename.replace(/^results\//, "");
-    const regex = /^results_with_cells_(.+?)_(test_examples|val_examples)_(\d+|all)_(zero_shot|one_shot|few_shot)_(naturalized|markdown|json|html)\.json$/;
+    const regex = /^results_with_cells_(.+?)_(test_examples|val_examples)_(\d+|all)_(zero_shot|one_shot|few_shot|chain_of_thought)_(naturalized|markdown|json|html)\.json$/;
     const match = shortName.match(regex);
     if (match) {
       const [_, model, dataset, nValue, learningType, formatType] = match;
-      availableOptions.models.add(model);
-      availableOptions.datasets.add(dataset);
-      availableOptions.learningTypes.add(learningType);
-      availableOptions.nValues.add(nValue);
-      availableOptions.formatTypes.add(formatType);
+      manifestOptions.push({ model, dataset, nValue, learningType, formatType, filename });
     } else {
       console.warn(`Filename "${filename}" does not match expected pattern; ignoring.`);
     }
   });
 }
 
-async function fetchFullCleanedClaims() {
+function populateAllDropdowns() {
+  // Extract all values from the manifestOptions
+  const models = Array.from(new Set(manifestOptions.map(opt => opt.model))).sort();
+  const datasets = Array.from(new Set(manifestOptions.map(opt => opt.dataset))).sort();
+  const learningTypes = Array.from(new Set(manifestOptions.map(opt => opt.learningType))).sort();
+  const nValues = Array.from(new Set(manifestOptions.map(opt => opt.nValue))).sort((a, b) => {
+    if (a === "all") return 1;
+    if (b === "all") return -1;
+    return parseInt(a) - parseInt(b);
+  });
+  const formatTypes = Array.from(new Set(manifestOptions.map(opt => opt.formatType))).sort();
+
+  // Populate each select with all possible values plus the "Any" option (empty value)
+  populateSelect("modelSelect", models, "", true);
+  populateSelect("datasetSelect", datasets, "", true);
+  populateSelect("learningTypeSelect", learningTypes, "", true);
+  populateSelect("nValueSelect", nValues, "", true);
+  populateSelect("formatTypeSelect", formatTypes, "", true);
+}
+
+function isValidCombination(model, dataset, learningType, nValue, formatType) {
+  // Each parameter is either a value or "" meaning "Any"
+  return manifestOptions.some(opt => {
+    if (model && opt.model !== model) return false;
+    if (dataset && opt.dataset !== dataset) return false;
+    if (learningType && opt.learningType !== learningType) return false;
+    if (nValue && opt.nValue !== nValue) return false;
+    if (formatType && opt.formatType !== formatType) return false;
+    return true;
+  });
+}
+
+function updateDropdownDisabledState(dropdownId, isValidCandidate) {
+  const selectEl = document.getElementById(dropdownId);
+  Array.from(selectEl.options).forEach(option => {
+    // Always allow the "Any" option (assumed to have an empty string as its value)
+    if (option.value === "") {
+      option.disabled = false;
+    } else {
+      option.disabled = !isValidCandidate(option.value);
+    }
+  });
+}
+
+function updateDropdownsAndDisableInvalidOptions() {
+  const currentModel = document.getElementById("modelSelect").value;
+  const currentDataset = document.getElementById("datasetSelect").value;
+  const currentLearningType = document.getElementById("learningTypeSelect").value;
+  const currentNValue = document.getElementById("nValueSelect").value;
+  const currentFormatType = document.getElementById("formatTypeSelect").value;
+
+  // For modelSelect: candidate value is the model while using current values from the other dropdowns.
+  updateDropdownDisabledState("modelSelect", candidate =>
+    isValidCombination(candidate, currentDataset, currentLearningType, currentNValue, currentFormatType)
+  );
+
+  updateDropdownDisabledState("datasetSelect", candidate =>
+    isValidCombination(currentModel, candidate, currentLearningType, currentNValue, currentFormatType)
+  );
+
+  updateDropdownDisabledState("learningTypeSelect", candidate =>
+    isValidCombination(currentModel, currentDataset, candidate, currentNValue, currentFormatType)
+  );
+
+  updateDropdownDisabledState("nValueSelect", candidate =>
+    isValidCombination(currentModel, currentDataset, currentLearningType, candidate, currentFormatType)
+  );
+
+  updateDropdownDisabledState("formatTypeSelect", candidate =>
+    isValidCombination(currentModel, currentDataset, currentLearningType, currentNValue, candidate)
+  );
+
+  // Check if any selected value is "Select", if so, disable the "Load" button
+  const loadBtn = document.getElementById("loadBtn");
+  const allValues = [currentModel, currentDataset, currentLearningType, currentNValue, currentFormatType];
+  if (allValues.some(v => v === "")) {
+    loadBtn.disabled = true;
+    loadBtn.style.cursor = "not-allowed";
+    loadBtn.style.opacity = "0.5";
+    loadBtn.style.pointerEvents = "auto";
+  } else {
+    loadBtn.disabled = false;
+    loadBtn.style.cursor = "pointer";
+    loadBtn.style.opacity = "1";
+    loadBtn.style.pointerEvents = "auto";
+  }
+}
+
+
+async function fetchTotalExamplesClaims() {
   try {
-    const response = await fetch(FULL_CLEANED_PATH);
-    if (!response.ok) {
-      console.warn("Failed to fetch full_cleaned.json", response.status, response.statusText);
+    const response1 = await fetch(R1_TRAINING_ALL_PATH);
+    const response2 = await fetch(R2_TRAINING_ALL_PATH);
+
+    if (!response1.ok || !response2.ok) {
+      console.warn("Failed to fetch one or both training data files.");
       return;
     }
-    tableIdToClaimsMap = await response.json();
+
+    const r1Data = await response1.json();
+    const r2Data = await response2.json();
+
+    // Combine the two objects.
+    // If the same table_id appears in both, the r2Data value will override r1Data's.
+    tableIdToClaimsMap = { ...r1Data, ...r2Data };
+
   } catch (err) {
-    console.warn("Could not load full_cleaned.json", err);
+    console.warn("Could not load training data:", err);
     tableIdToClaimsMap = {};  // fallback
   }
 }
 
 
-function populateSelect(selectId, values) {
+
+async function fetchFullCleaned() {
+  try {
+    const response = await fetch(FULL_CLEANED_PATH);
+    if (!response.ok) {
+      console.warn("Failed to fetch full_cleaned.json");
+      return;
+    }
+    tableEntityLinkingMap = await response.json();
+  } catch (err) {
+    console.warn("Error fetching full_cleaned.json", err);
+  }
+}
+
+
+function populateSelect(selectId, values, currentSelection = "", includeAny = true) {
   const sel = document.getElementById(selectId);
   if (!sel) return;
   sel.innerHTML = "";
+  if (includeAny) {
+    const anyOption = document.createElement("option");
+    anyOption.value = "";
+    anyOption.textContent = "Select";
+    sel.appendChild(anyOption);
+  }
   values.forEach(v => {
     const opt = document.createElement("option");
     opt.value = v;
     opt.textContent = v;
     sel.appendChild(opt);
   });
+  // Preserve the selection if possible.
+  if (currentSelection && values.includes(currentSelection)) {
+    sel.value = currentSelection;
+  } else {
+    sel.value = includeAny ? "" : (values.length > 0 ? values[0] : "");
+  }
 }
 
 function populateDropdowns() {
@@ -177,15 +322,15 @@ async function loadResults() {
   const nValue = document.getElementById("nValueSelect").value;
   const formatType = document.getElementById("formatTypeSelect").value;
   const resultsFileName = `results/results_with_cells_${modelName}_${datasetName}_${nValue}_${learningType}_${formatType}.json`;
-
+  
   const infoPanel = document.getElementById("infoPanel");
-  infoPanel.innerHTML = `<p>Loading <strong>${resultsFileName}</strong> ...</p>`;
+  infoPanel.innerHTML = `<p>Loading results ...</p>`;
 
   try {
     const response = await fetch(resultsFileName);
     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     allResults = await response.json();
-    infoPanel.innerHTML = `<p>Loaded <strong>${allResults.length}</strong> results from <strong>${resultsFileName}</strong>.</p>`;
+    infoPanel.innerHTML = `<p>Loaded <strong>${allResults.length}</strong> results for the <strong>${modelName}</strong> model (dataset: ${datasetName}, learning type: ${learningType}, n-value: ${nValue}, format: ${formatType}).</p>`;
     buildTableMap();
     populateTableSelect();
     document.getElementById("tableDropDown").style.display = "block";
@@ -226,14 +371,28 @@ function populateTableSelect() {
   tableIds.forEach(tid => {
     const option = document.createElement("option");
     option.value = tid;
-    option.textContent = tid;
+    // Use the table title if available
+    let title = tableToPageMap[tid] ? tableToPageMap[tid][0] : "";
+    option.textContent = title ? `${tid} - ${title}` : tid;
     tableSelect.appendChild(option);
   });
   tableSelect.removeEventListener("change", onTableSelectChange);
   tableSelect.addEventListener("change", onTableSelectChange);
+  // Set an initial value and trigger an update
   tableSelect.value = tableIds[0];
   onTableSelectChange();
+
+  // Initialize (or reinitialize) Choices.js on the tableSelect
+  if (window.tableSelectChoices) {
+    window.tableSelectChoices.destroy();
+  }
+  window.tableSelectChoices = new Choices('#tableSelect', {
+    searchEnabled: true,
+    itemSelectText: '',  // Remove the “Press to select” text if you prefer
+    shouldSort: false     // (Optional) Prevent Choices from sorting the options
+  });
 }
+
 
 function onTableSelectChange() {
   const tableSelect = document.getElementById("tableSelect");
@@ -284,6 +443,8 @@ function showClaimsForTable(tableId) {
 
 
 async function renderClaimAndTable(resultObj) {
+  document.getElementById("full-highlight-legend-precomputed").style.display = "none";
+  document.getElementById("full-entity-highlight-legend-precomputed").style.display = "none";
   const container = document.getElementById("table-container");
   container.innerHTML = "";
   const infoDiv = document.createElement("div");
@@ -357,13 +518,46 @@ async function renderClaimAndTable(resultObj) {
         hc => hc.row_index === rowIndex &&
               hc.column_name.toLowerCase() === columnName.toLowerCase()
       );
-      if (shouldHighlight) td.classList.add("highlight");
+      if (shouldHighlight) {
+        td.classList.add("highlight");
+        document.getElementById("full-highlight-legend-precomputed").style.display = "block";
+      }
       tr.appendChild(td);
     });
     tbody.appendChild(tr);
   });
   tableEl.appendChild(tbody);
   container.appendChild(tableEl);
+
+
+  // --- Highlight entity-linked cells from full_cleaned.json ---
+  if (tableEntityLinkingMap[resultObj.table_id]) {
+    // Get the entity linking info. In full_cleaned.json, the first element is an array of statements.
+    const entityStatements = tableEntityLinkingMap[resultObj.table_id][0];
+    let entityCoords = [];
+    const regex = /#([^#]+);(-?\d+),(-?\d+)#/g;
+    entityStatements.forEach(statement => {
+      let match;
+      while ((match = regex.exec(statement)) !== null) {
+        // Note: match[2] is the row and match[3] the column, as numbers.
+        const row = Number(match[2]);
+        const col = Number(match[3]);
+        entityCoords.push({ row, col });
+      }
+    });
+    // Now loop over the tbody rows of the table and add the class "entity-highlight" if the cell is in the list.
+    const tbody = tableEl.querySelector("tbody");
+    if (tbody) {
+      Array.from(tbody.rows).forEach((tr, rowIndex) => {
+        Array.from(tr.cells).forEach((td, colIndex) => {
+          if (entityCoords.some(coord => coord.row === rowIndex && coord.col === colIndex)) {
+            td.classList.add("entity-highlight");
+          }
+        });
+      });
+    }
+    document.getElementById("full-entity-highlight-legend-precomputed").style.display = "block";
+  }
 }
 
 
@@ -551,15 +745,27 @@ async function populateExistingTableDropdown() {
     csvIds.sort().forEach(csvFile => {
       const option = document.createElement("option");
       option.value = csvFile;
-      option.textContent = csvFile;
+      // Look up the title from tableToPageMap, if available.
+      let meta = tableToPageMap[csvFile];
+      option.textContent = meta ? `${csvFile} - ${meta[0]}` : csvFile;
       existingTableSelect.appendChild(option);
     });
+
+    // Initialize (or reinitialize) Choices.js on the existingTableSelect
+    if (window.existingTableSelectChoices) {
+      window.existingTableSelectChoices.destroy();
+    }
+    window.existingTableSelectChoices = new Choices('#existingTableSelect', {
+      searchEnabled: true,
+      itemSelectText: '',
+      shouldSort: false
+    });
+
     existingTableSelect.addEventListener("change", async () => {
       const selectedFile = existingTableSelect.value;
       if (!selectedFile) return;
       // 1. Load the CSV for the preview as you already do:
       await fetchAndFillTable(selectedFile);
-
       // 2. Check if we have claims for this table:
       populateClaimsDropdown(selectedFile);
     });
@@ -568,6 +774,7 @@ async function populateExistingTableDropdown() {
     alert("Failed to fetch available tables. Please try again later.");
   }
 }
+
 
 async function fetchAndFillTable(tableId) {
   const inputTableEl = document.getElementById("inputTable");
@@ -623,7 +830,7 @@ function populateClaimsDropdown(tableId) {
     return;
   }
   
-  // The structure in full_cleaned.json is an array:
+  // The structure in total_examples.json is an array:
   //   [ [claims array], [label array], [some other array], "table title" ]
   // We'll just need the first array for the claim text, 
   // and the second array for whether it's correct(1)/incorrect(0).
@@ -712,6 +919,7 @@ function setupLiveCheckEvents() {
     const modelId = document.getElementById("liveModelSelect").value;
     const modelName = document.getElementById("liveModelSelect").selectedOptions[0].textContent;
     await initLivePipeline(modelId, modelName);
+    validateLiveCheckInputs(); // re-validate so the "Run" button is enabled
   });
 
   const inputTableEl = document.getElementById("inputTable");
@@ -743,6 +951,9 @@ function setupLiveCheckEvents() {
     }
     const startTime = performance.now();
 
+    document.getElementById("liveStreamOutput").style.display = "none";
+    document.getElementById("liveResults").style.display = "none";
+
     // Instead of manually setting width, let the flex layout handle it
     // runLiveCheckBtn.style.width = "calc(100% - 40px)";  // removed
     const stopLiveCheckBtn = document.getElementById("stopLiveCheck");
@@ -761,7 +972,8 @@ function setupLiveCheckEvents() {
   
     const selectedFile = document.getElementById("existingTableSelect").value;
     const includeTitleChecked = document.getElementById("includeTableNameCheck").checked;
-    const tablePrompt = csvToJson(tableInput);
+    //const tablePrompt = csvToJson(tableInput);
+    const tablePrompt = csvToMarkdown(tableInput);
   
     let optionalTitleSection = "";
     if (selectedFile && includeTitleChecked) {
@@ -775,7 +987,9 @@ Link: ${wikiLink}
       }
     }
   
-    const userPrompt = `You are checking whether a claim about a structured table is TRUE or FALSE ("answer") and which cells support it ("relevant_cells").
+    const userPrompt = `
+You are tasked with determining whether a claim about the following table (in markdown format) is TRUE or FALSE.
+Before providing your final answer, explain step-by-step your reasoning process by referring to the relevant parts of the table.
     
 Output ONLY valid JSON with:
 - "answer" as "TRUE" or "FALSE".
@@ -785,21 +999,22 @@ Output ONLY valid JSON with:
 
 ${optionalTitleSection}
 
-### Table (JSON Format):
-\`\`\`json
+#### Table (markdown Format):
 ${tablePrompt}
-\`\`\`
 
-### Claim:
+#### Claim:
 "${claimInput}"
 
-### Instructions:
-- Identify the **exact row index** where the relevant entity appears.
-- Use the **exact column header names** when referring to relevant cells.
-- Ensure **consistent formatting** in "relevant_cells", with row indices as integers and column names as strings.
-- Do **not** generate extra explanations—only return valid JSON.
+Instructions:
+- First, list your reasoning steps in a clear and logical order.
+- After your explanation, output a final answer in a valid JSON object with the following format:
+{{
+  "answer": "TRUE" or "FALSE",
+  "relevant_cells": [ list of relevant cells as objects with "row_index" and "column_name" ]
+}}
 
-Now return your answer in JSON format.`.trim();
+Make sure that your output is strictly in this JSON format and nothing else.
+"""`.trim();
   
     liveThinkOutputEl.textContent = "";
     liveThinkOutputEl.style.display = "none";
@@ -851,16 +1066,26 @@ Now return your answer in JSON format.`.trim();
           if (!liveThinkOutputEl.style.display || liveThinkOutputEl.style.display === "none") {
             liveThinkOutputEl.style.display = "block";
           }
-          let thinkingLabel = document.getElementById("thinkingLabel");
-          if (!thinkingLabel) {
+          if (!document.getElementById("thinkingLabel")) {
             liveThinkOutputEl.innerHTML = `
               <div class="thinking-overlay">
                 <span id="thinkingLabel" class="thinking-label">Thinking...</span>
+                <button id="toggleThinkingBtn" class="toggle-thinking">▲</button>
               </div>
               <div id="thinkContent"></div>
             `;
-            thinkingLabel = document.getElementById("thinkingLabel");
-          }
+            // Add event listener for the toggle button:
+            document.getElementById("toggleThinkingBtn").addEventListener("click", function() {
+              const thinkContent = document.getElementById("thinkContent");
+              if (thinkContent.style.display === "none") {
+                thinkContent.style.display = "block";
+                this.textContent = "▲";
+              } else {
+                thinkContent.style.display = "none";
+                this.textContent = "▼";
+              }
+            });
+          }          
           const thinkContentDiv = document.getElementById("thinkContent");
           if (thinkContentDiv) {
             thinkContentDiv.innerHTML = DOMPurify.sanitize(marked.parse(thinkText.trim()));
@@ -1032,7 +1257,15 @@ async function initLivePipeline(modelId, modelName) {
           device: "webgpu",
           progress_callback: progressCallback
         });
-      } else {
+      } else if (modelId.includes("Phi")) {
+        generator = await pipeline("text-generation", modelId, {
+          dtype: "q4f16",
+          device: "webgpu",
+          use_external_data_format: true,
+          progress_callback: progressCallback
+        });
+      } 
+      else {
         generator = await pipeline("text-generation", modelId, {
           device: "webgpu",
           dtype: "fp32",
@@ -1104,7 +1337,54 @@ function renderLivePreviewTable(csvText, relevantCells) {
     tbody.appendChild(tr);
   });
   tableEl.appendChild(tbody);
+
+
+  // --- If an existing table is selected, highlight entity-linked cells ---
+  const existingTableSelect = document.getElementById("existingTableSelect");
+  if (existingTableSelect && existingTableSelect.value && tableEntityLinkingMap[existingTableSelect.value]) {
+    const entityStatements = tableEntityLinkingMap[existingTableSelect.value][0];
+    let entityCoords = [];
+    const regex = /#([^#]+);(-?\d+),(-?\d+)#/g;
+    entityStatements.forEach(statement => {
+      let match;
+      while ((match = regex.exec(statement)) !== null) {
+        const row = Number(match[2]);
+        const col = Number(match[3]);
+        entityCoords.push({ row, col });
+      }
+    });
+    const tbody = tableEl.querySelector("tbody");
+    if (tbody) {
+      Array.from(tbody.rows).forEach((tr, rowIndex) => {
+        Array.from(tr.cells).forEach((td, colIndex) => {
+          if (entityCoords.some(coord => coord.row === rowIndex && coord.col === colIndex)) {
+            td.classList.add("entity-highlight");
+          }
+        });
+      });
+    }
+  }
+
+
   previewContainer.appendChild(tableEl);
+
+  // --- Update the dynamic legend based on highlighted cells ---
+  const legendModel = document.getElementById("full-highlight-legend-live");
+  const legendEntity = document.getElementById("full-entity-highlight-legend-live");
+
+  // Check if any cells in the table have the model highlighting (".highlight")
+  if (tableEl.querySelectorAll("td.highlight").length > 0) {
+    legendModel.style.display = "block"; // or "block", depending on your styling
+  } else {
+    legendModel.style.display = "none";
+  }
+
+  // Check if any cells in the table have the entity linking highlight (".entity-highlight")
+  if (tableEl.querySelectorAll("td.entity-highlight").length > 0) {
+    legendEntity.style.display = "block"; // or "block"
+  } else {
+    legendEntity.style.display = "none";
+  }
 }
 
 function displayLiveResults(csvText, claim, answer, relevantCells) {
