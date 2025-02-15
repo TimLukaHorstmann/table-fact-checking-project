@@ -73,19 +73,18 @@ def template_generation(category_explanation: str, claim: str, category: str) ->
     
     # Start building the prompt
     prompt = f"""
-    You are an expert in categorizing claims based on specific criteria. Your task is to determine whether a claim falls under a particular category.
-    
-    {category_explanation}
+    You are an expert in categorizing claims based on specific criteria.
 
     Your role is to decide whether the following claim falls under the category: "{category}".
 
-    Claim: "{claim}"
+    {category_explanation}
 
-    Provide a clear and objective reasoning for your decision. Think about the specific characteristics of this category and the claim's content. Be honest and impartial in your evaluation.
+    Here is the claim you have to categorise:
+    "{claim}"
+
+    Provide a concise and objective reasoning for your decision. Think about the specific characteristics of this category and the claim's content.
 
     Then, at the end, answer with either 'TRUE' or 'FALSE' based on whether the claim fits this category.
-
-    Reasoning:
     """
     
     return prompt
@@ -104,7 +103,8 @@ def aggregation_prompt_generation(claim: str) -> str:
     # Explanation for aggregation category
     category_explanation = """
     Aggregation refers to operations where data is combined or summarized into a total or an average.
-    If the claim involves a sum, an average, a total or such an operation to be verified, it falls under this category.
+    If the claim involves a sum, an average, or any operation aggregating verification, it falls under this category.
+    For example, “the averaged age of all...”, “the total amount of scores obtained in ...” are in the category 'Aggregation'.
     """
 
     # Generate the prompt using the template_generation function
@@ -124,7 +124,8 @@ def negate_prompt_generation(claim: str) -> str:
     # Refined explanation for negation category
     category_explanation = """
     Negation refers to sentences that deny or contradict a claim or assertion. 
-    These often include phrases such as "did not", "never", or "not", which indicate that the statement is asserting the absence or opposite of something. 
+    These often include phrases such as "did not", "never", or "not", which indicate that the statement is asserting the absence or opposite of something.
+    For example, “xxx did not get the best score”, “xxx has never obtained a score higher than 5” are in the category 'Negation'.
     """
     
     # Generate the prompt using the template_generation function
@@ -144,29 +145,12 @@ def superlative_prompt_generation(claim: str) -> str:
     # Refined explanation for superlative category
     category_explanation = """
     Superlative refers to sentences that express the highest degree or extreme of something. 
-    This often involves words like "best", "most", "highest", "greatest", which indicate that the claim is about the extreme or top value in a given context. 
+    This often involves words like "best", "most", "highest", "greatest", which indicate that the claim is about the extreme or top value in a given context.
+    For example, “xxx achieves the highest score in”, “xxx is the lowest player in the team" are in the category 'Superlative'.
     """
     
     # Generate the prompt using the template_generation function
     return template_generation(category_explanation, claim, "superlative")
-
-def count_prompt_generation(claim: str) -> str:
-    """
-    Generates a prompt for the 'count' category. 
-    Count refers to claims that mention specific counts of objects, actions, or values.
-    
-    Args:
-    - claim : The claim data containing the ID and the claim text.
-
-    Returns:
-    - str: The generated prompt for the 'count' category.
-    """
-    category_explanation = """
-    Count refers to claims that involve specific numbers or quantities of objects, actions, or values.
-    For example, “there are 5 countries in the tournament” or “xxx achieved 3 goals” are examples of claims involving counts, where the number of items or events is being verified.
-    """
-    
-    return template_generation(category_explanation, claim, "count")
 
 def comparative_prompt_generation(claim: str) -> str:
     """
@@ -182,7 +166,8 @@ def comparative_prompt_generation(claim: str) -> str:
     # Refined explanation for comparative category
     category_explanation = """
     Comparative refers to claims that make comparisons between two or more items or concepts. 
-    These claims often include words like "better", "more", "greater", "worse", "less", "higher", etc., to indicate a comparison of relative values or qualities between different entities. 
+    These claims often include words like "better", "more", "greater", "worse", "less", "higher", etc., to indicate a comparison of relative values or qualities between different entities.
+    For example, “xxx achieves the highest score in”, “xxx is the lowest player in the team" are in the category 'Comparative'.
     """
     
     # Generate the prompt using the template_generation function
@@ -202,6 +187,7 @@ def ordinal_prompt_generation(claim: str) -> str:
     # Refined explanation for ordinal category
     category_explanation = """
     Ordinal refers to claims that involve rankings or positions in a sequence. These claims typically involve terms like "first", "second", "last", "top", "bottom", "ranked", and so on, to indicate a specific position or order in a list.
+    For example, “the first country to achieve xxx is xxx”, “xxx is the second oldest person in the country” are in the category 'Ordinal'.
     """
     
     # Generate the prompt using the template_generation function
@@ -221,7 +207,7 @@ def unique_prompt_generation(claim: str) -> str:
     # Refined explanation for unique category
     category_explanation = """
     Unique refers to claims that involve the distinctness or uniqueness of items or entities. These claims often use phrases like "different", "no two", "only one", "none alike", and "distinct". The claim may suggest that something is the only one of its kind or that no two items are the same in some context.
-    For example, "There are 5 different nations in the tournament" or "There are no two players from the U.S." would fall under this category.
+    For example, “there are 5 different nations in the tournament, ”, “there are no two different players from U.S” are in the category 'Unique'.
     """
     
     # Generate the prompt using the template_generation function
@@ -241,7 +227,7 @@ def all_prompt_generation(claim: str) -> str:
     # Refined explanation for all category
     category_explanation = """
     The 'All' category refers to claims that involve statements about the entirety or totality of a set or group. These claims use phrases like "all of", "every", "none of", or "always". The claim might refer to the full set or group, with no exceptions or exclusions.
-    For example, "All of the trains are departing in the morning" or "None of the people are older than 25" would fall under this category.
+    For example, “all of the trains are departing in the morning”, “none of the people are older than 25” are in the category 'All'.
     """
     
     # Generate the prompt using the template_generation function
@@ -261,8 +247,7 @@ def none_prompt_generation(claim: str) -> str:
     # Refined explanation for none category
     category_explanation = """
     The 'None' category refers to claims that are simple statements without any complex operations such as sums, comparisons, or qualifications. These claims typically involve basic factual information about a subject, like a specific value or identity.
-    
-    For example, "Player X achieves 2 points in Game Y" or "Player X is from Country Z" would fall under this category as they simply state facts without involving higher-order operations.
+    For example, “xxx achieves 2 points in xxx game”, “xxx player is from xxx country” are in the category 'None'.
     """
     
     # Generate the prompt using the template_generation function
@@ -282,11 +267,8 @@ def process_prediction(all_claims, i, prompt_generation_function, category, mode
         model_response = model.invoke(prompt)
         model_true = re.search(r"\bTRUE\b", model_response)
 
-        print(model_response)
-        print("model_true:", model_true)
 
         if model_true:
-            print("ohouiiiii")
             all_claims[i][category] = True
 
     except Exception as e:
@@ -435,15 +417,14 @@ def plot_classification_results(failed_predictions, successful_predictions):
 #                        MAIN
 ################################################################################
 
-docs_results_folder = "docs/results_test"
-all_claims = load_claims(docs_results_folder)
+docs_results = "docs/results/results_with_cells_llama3.2:latest_test_examples_1695_zero_shot_html.json"
+all_claims = load_claims(docs_results)
 
 model_name = "mistral:latest"
 prompt_functions_with_categories = {
     "aggregation_prompt_generation": "aggregation",
     "negate_prompt_generation": "negate",
     "superlative_prompt_generation": "superlative",
-    "count_prompt_generation": "count",
     "comparative_prompt_generation": "comparative",
     "ordinal_prompt_generation": "ordinal",
     "unique_prompt_generation": "unique",
@@ -452,7 +433,7 @@ prompt_functions_with_categories = {
 }
 
 categorised_claims = error_analysis_pipeline(all_claims, model_name, prompt_functions_with_categories)
-save_to_json("PromptEngineering/categorised_claims.json", categorised_claims)
+save_to_json(categorised_claims, "PromptEngineering/Error_Analysis/categorised_claims.json")
 
 # for f in failed_predictions:
 #     print(f['claim'])

@@ -9,7 +9,7 @@ def load_claims(file_path: str) -> list:
     all_claims = []
     
     try:
-        with open("docs/results/" + file_path, 'r') as f:
+        with open(file_path, 'r') as f:
             data = json.load(f)
         
         id_counter = 1
@@ -29,17 +29,33 @@ def load_claims(file_path: str) -> list:
     
     return all_claims
 
+import os
+
+def list_files_in_folder(path_name: str) -> list:
+    """
+    Given a folder path, return a list of all file names in the folder.
+
+    Parameters:
+    - path_name: The path to the folder.
+
+    Returns:
+    - A list of file names in the folder.
+    """
+    try:
+        # List all files in the given folder
+        file_names = [f for f in os.listdir(path_name) if os.path.isfile(os.path.join(path_name, f))]
+        return file_names
+    except Exception as e:
+        print(f"Error listing files in folder: {e}")
+        return []
 
 
+path_name = "docs/results/"
+l = list_files_in_folder(path_name)
 
+print(l)
+for file in l:
+    d = load_claims("docs/results/" + file)
+    print(file, len(d))
 
-a = "results_with_cells_deepseek-r1:8b_test_examples_1694_zero_shot_html.json"
-b = "results_with_cells_llama3.2:latest_test_examples_46_chain_of_thought_json.json"
-c = "results_with_cells_mistral:latest_test_examples_1695_zero_shot_naturalized.json"
-
-d = load_claims(a)
-e = load_claims(b)
-f = load_claims(c)
-
-print(os.getcwd())
-print(len(d), len(e), len(f))
+print(len(load_claims("PromptEngineering/results_20250212/results_CodeGeneration_test_examples_zero_shot_naturalized_phi4.json")))
