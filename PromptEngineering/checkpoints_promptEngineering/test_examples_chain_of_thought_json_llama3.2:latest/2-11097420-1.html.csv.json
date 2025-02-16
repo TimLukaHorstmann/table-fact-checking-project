@@ -1,0 +1,178 @@
+[
+  {
+    "table_id": "2-11097420-1.html.csv",
+    "claim": "only 3 of the project have be complete so far",
+    "predicted_response": 0,
+    "resp": "### Step-by-Step Reasoning\n\n1. **Determine the condition for a project to be considered complete**: A project can only be considered complete when both \"construction completed\" and \"cleanup completed before formal creation of NPL\" are not empty strings.\n\n2. **Identify projects that meet the condition**: Iterate through each row in the table, check if \"construction completed\" is not an empty string, and then verify if \"cleanup completed before formal creation of NPL\" also meets this criterion.\n\n3. **Count the number of projects meeting the condition**: Keep track of how many rows satisfy both conditions.\n\n4. **Compare the count to 3**: Compare the total count from step 3 to the target value of 3 to determine if only 3 projects are considered complete.\n\n### JSON Output\n\n```json\n{\n  \"chain_of_thought\": [\n    {\n      \"row_index\": 0,\n      \"column_name\": \"construction completed\"\n    },\n    {\n      \"row_index\": 4,\n      \"column_name\": \"cleanup completed before formal creation of NPL\"\n    }\n  ],\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\n      \"row_index\": 5,\n      \"column_name\": \"cleanup completed before formal creation of NPL\"\n    },\n    {\n      \"row_index\": 6,\n      \"column_name\": \"cleanup completed before formal creation of NPL\"\n    }\n  ]\n}\n```\n\nThe provided JSON output includes a chain-of-thought section that illustrates each step taken during the reasoning process, along with relevant cells identified from the table. The answer is set to \"FALSE\" based on the information given in the problem statement.",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "cleanup completed before formal creation of NPL"
+      },
+      {
+        "row_index": 6,
+        "column_name": "cleanup completed before formal creation of NPL"
+      }
+    ]
+  },
+  {
+    "table_id": "2-11097420-1.html.csv",
+    "claim": "2 of the project be propose , but never list and never complete",
+    "predicted_response": 1,
+    "resp": "#### Step-by-Step Reasoning:\n\n1. First, we need to identify which projects were proposed but never listed. We will look for rows where the \"proposed\" column has a non-empty value and the \"listed\" column has an empty value.\n2. Next, we need to check if these projects were ever completed. We will look for rows where the \"construction completed\" column has a non-empty value.\n3. If a project meets both conditions in step 1 and 2, it is considered a project that was proposed but never listed and never completed.\n\n#### Relevant Rows:\n\nLet's extract the relevant rows from the table data:\n```json\n[\n  {\n    \"row_index\": 0,\n    \"column_name\": \"proposed\"\n  },\n  {\n    \"row_index\": 1,\n    \"column_name\": \"listed\"\n  },\n  {\n    \"row_index\": 2,\n    \"column_name\": \"construction completed\"\n  },\n  {\n    \"row_index\": 3,\n    \"column_name\": \"proposed\"\n  },\n  {\n    \"row_index\": 4,\n    \"column_name\": \"listed\"\n  },\n  {\n    \"row_index\": 5,\n    \"column_name\": \"construction completed\"\n  }\n]\n```\nWe can see that the first row has a non-empty value in the \"proposed\" column and an empty value in the \"listed\" column. The fifth row also meets these conditions.\n\n#### Conclusion:\n\nBased on our analysis, we can conclude that there are indeed two projects that were proposed but never listed and never completed. Therefore, the claim is TRUE.\n\n#### Final Answer:\n```json\n{\n  \"chain_of_thought\": [\n    {\n      \"row_index\": 0,\n      \"column_name\": \"proposed\"\n    },\n    {\n      \"row_index\": 1,\n      \"column_name\": \"listed\"\n    },\n    {\n      \"row_index\": 2,\n      \"column_name\": \"construction completed\"\n    },\n    {\n      \"row_index\": 3,\n      \"column_name\": \"proposed\"\n    },\n    {\n      \"row_index\": 4,\n      \"column_name\": \"listed\"\n    },\n    {\n      \"row_index\": 5,\n      \"column_name\": \"construction completed\"\n    }\n  ],\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 0, \"column_name\": \"proposed\"},\n    {\"row_index\": 4, \"column_name\": \"listed\"}\n  ]\n}\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-11097420-1.html.csv",
+    "claim": "there be 2 project in rankin county , sonford product and flowood site",
+    "predicted_response": 1,
+    "resp": "Here are the steps to reason about the given claim:\n\n1. Extract the relevant data from the table.\n\n   To verify the claim, we need to extract the relevant data related to Rankin County from the \"data\" section of the table. This includes the values in the \"county\", \"proposed\", and \"listed\" columns for each row.\n\n2. Filter rows by county\n\n   We are interested in finding projects in Rankin County. So, we need to filter the rows based on whether they have \"rankin\" in their \"county\" column. The relevant rows would be:\n\n    - [msd980710941]\n    - [msd086556388]\n    - [msd980601736]\n\n3. Extract project names\n\n   For each of these projects, we need to extract the project name (in the \"name\" column). This will help us determine if Sonford Products and Flowood Site are among the two projects in Rankin County.\n\n4. Verify project names against claim\n\n   We need to verify that both Sonford Products and Flowood Site are included in the extracted data. If they are, then the original claim is true; otherwise, it's false.\n\n5. Determine answer based on verification results\n\n6. Identify relevant cells for answer output\n\nHere are the relevant steps in a clear, step-by-step manner:\n\n- \"There be 2 project in Rankin County , Sonford Product and Flowood Site\": The relevant data points to check against this claim include:\n    {\n      \"row_index\": 3,\n      \"column_name\": \"name\"\n    },\n    {\n      \"row_index\": 5,\n      \"column_name\": \"name\"\n    }\n\n- Step 1: Check if Sonford Products is included\n\nSonford Products' row_index = 5 and the claim includes it, which matches one of the required conditions.\n\n- Step 2: Check if Flowood Site is included\n\nFlowood Site's row_index = 3 and the claim includes it, which matches another of the required conditions.\n\nNow we can conclude that there indeed are two projects in Rankin County as stated by the original claim. Here is the final JSON output:\n\n{\n  \"chain_of_thought\": [\n    {\n      \"row_index\": 3,\n      \"column_name\": \"name\"\n    },\n    {\n      \"row_index\": 5,\n      \"column_name\": \"name\"\n    }\n  ],\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\n      \"row_index\": 3,\n      \"column_name\": \"name\"\n    },\n    {\n      \"row_index\": 5,\n      \"column_name\": \"name\"\n    }\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-11097420-1.html.csv",
+    "claim": "the first project propose be potter co in copiah , but it have not yet be list",
+    "predicted_response": 0,
+    "resp": "### Step 1: Extract the relevant data from the table\nFirst, we need to identify the specific row and columns that contain the required information for our claim.\n\n- The first project proposed by \"Potter Co\" in \"Copiah\" can be found in rows 5 and 6 of the table.\n- To verify if it is listed, we look at column \"listed\" which appears in rows 3 to 8 (since some cells are empty).\n\n### Step 2: Determine the state of the listing\nWe need to check if \"Potter Co\" from row 5 or 6 (since both are relevant) has been listed according to the claim.\n\n- To verify this, we look at column \"listed\" in row 5 and 6. Row 5's value is \"-\", meaning not listed, while row 6's value also does not directly indicate it was listed but there's a \"-\" indicating no listing status as well.\n\n\n### Step 3: Compare with the claim\nOur claim states that \"the first project propose be potter co in copiah , but it have not yet be list\" (noting typographical errors for clarity).\n\n- This means we need to verify two things:\n  - If it was proposed.\n  - And more importantly, if it has been listed.\n\n### Step 4: Conclusion\nBased on the data extracted and comparison with the claim:\n\n- The first project indeed had \"Potter Co\" in column \"name\" of row 5, which is listed as \"-\". This indicates that Potter Co was not listed.\n- Additionally, looking at rows 3 to 8, since some cells are empty, we can't be sure about its status from the given data (only know if it existed or not).\n\nHowever, because of the claim's specificity and the lack of explicit listing for \"Potter Co\", we should evaluate the claim as follows: The first project proposed by Potter Co in Copiah is indeed found to have a record but it was proposed before being listed.\n\n\n\n### Step 5: Final Answer\nGiven our findings:\n\n- The chain of thought indicates that based on the table's data, there seems to be a discrepancy with the claim because \"Potter Co\" from row 6 has not been explicitly listed (only indicated by \"-\").\n- Our answer should reflect this.\n\n```json\n{\n  \"chain_of_thought\": \"The data confirms that Potter Co in Copiah was proposed but its listing status is unclear due to empty cells. However, the key here is the 'proposed' and 'listed' statuses of this entity which are found to be before and after its creation respectively but given the provided format for the claim, it's clear there might have been a misunderstanding in how the data is used or interpreted. For a more accurate determination, further clarification would be needed.\",\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\"row_index\": 6, \"column_name\": \"name\"},\n    {\"row_index\": 6, \"column_name\": \"listed\"}\n  ]\n}\n```",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 6,
+        "column_name": "name"
+      },
+      {
+        "row_index": 6,
+        "column_name": "listed"
+      }
+    ]
+  },
+  {
+    "table_id": "2-11097420-1.html.csv",
+    "claim": "construction be complete in 1993 on the flowood site and in 1997 on the newsome brother / old reichold chemical project",
+    "predicted_response": 0,
+    "resp": "Here are the steps to determine whether the claim is TRUE or FALSE:\n\n1. Extract the data for the Flowood site from the table:\n   - Row index: 4\n   - Construction completed date: \"09 / 17 / 1993\"\n\n2. Extract the data for the Newsom Brothers / Old Reichhold Chemical project from the table:\n   - Row index: 5\n   - Construction completed date: \"08 / 08 / 1997\"\n\n3. Compare the extracted dates with the claim's dates:\n   - Flowood site: construction was not complete in 1993, but rather on September 17th of that year.\n   - Newsom Brothers / Old Reichhold Chemical project: construction was indeed completed in 1997.\n\n4. Since the claim is partially incorrect (about the Flowood site) and partially correct (about the Newsom Brothers / Old Reichhold Chemical project), we cannot conclude that the entire claim is TRUE or FALSE based solely on this comparison.\n\n5. However, considering the statement about both sites, since one part of the claim is false, the whole claim is considered to be False regardless of its partial correctness.\n\nTherefore, the final answer in JSON format is:\n\n{\n  \"chain_of_thought\": [\n    {\n      \"row_index\": 4,\n      \"column_name\": \"construction completed\"\n    },\n    {\n      \"row_index\": 5,\n      \"column_name\": \"construction completed\"\n    }\n  ],\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\n      \"row_index\": 4,\n      \"column_name\": \"construction completed\"\n    },\n    {\n      \"row_index\": 5,\n      \"column_name\": \"construction completed\"\n    }\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "construction completed"
+      },
+      {
+        "row_index": 5,
+        "column_name": "construction completed"
+      }
+    ]
+  },
+  {
+    "table_id": "2-11097420-1.html.csv",
+    "claim": "all 3 of the complete project be complete between 1993 - 1997",
+    "predicted_response": 1,
+    "resp": "Here are the steps to evaluate the claim:\n\n1. Identify the columns that contain relevant information for the claim:\n\t* \"construction completed\"\n\t* \"year\"\n\n2. Find the rows where construction was completed between 1993-1997:\n\t* For each row, check if the \"construction completed\" column is not empty and its value falls within the range of 1993-1997.\n\n3. Evaluate the claim based on the findings:\n\t* If there are at least three rows that meet the condition in step 2, then the claim is TRUE.\n\t* Otherwise, the claim is FALSE.\n\n4. Determine the relevant cells for the answer:\n\nHere's how these steps can be expressed as a chain of thought in JSON format:\n\n```json\n{\n  \"chain_of_thought\": [\n    {\n      \"step\": \"Identify columns\",\n      \"description\": \"Identify 'construction completed' and 'year' columns\"\n    },\n    {\n      \"step\": \"Find rows with construction between 1993-1997\",\n      \"description\": \"Find rows where 'construction completed' is not empty and its value falls within 1993-1997\"\n    },\n    {\n      \"step\": \"Count matching rows\",\n      \"description\": \"Check if there are at least three matching rows\"\n    },\n    {\n      \"step\": \"Determine answer\",\n      \"description\": \"If yes, then the claim is TRUE; otherwise, it's FALSE\"\n    }\n  ],\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\n      \"row_index\": 0,\n      \"column_name\": \"construction completed\"\n    },\n    {\n      \"row_index\": 4,\n      \"column_name\": \"construction completed\"\n    },\n    {\n      \"row_index\": 5,\n      \"column_name\": \"construction completed\"\n    }\n  ]\n}\n```\n\nFinal answer: \n\n```json\n{\n  \"chain_of_thought\": [\n    {\n      \"step\": \"Identify columns\",\n      \"description\": \"Identify 'construction completed' and 'year' columns\"\n    },\n    {\n      \"step\": \"Find rows with construction between 1993-1997\",\n      \"description\": \"Find rows where 'construction completed' is not empty and its value falls within 1993-1997\"\n    },\n    {\n      \"step\": \"Count matching rows\",\n      \"description\": \"Check if there are at least three matching rows\"\n    },\n    {\n      \"step\": \"Determine answer\",\n      \"description\": \"If yes, then the claim is TRUE; otherwise, it's FALSE\"\n    }\n  ],\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\n      \"row_index\": 2,\n      \"column_name\": \"construction completed\"\n    },\n    {\n      \"row_index\": 4,\n      \"column_name\": \"construction completed\"\n    },\n    {\n      \"row_index\": 6,\n      \"column_name\": \"construction completed\"\n    }\n  ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "construction completed"
+      },
+      {
+        "row_index": 4,
+        "column_name": "construction completed"
+      },
+      {
+        "row_index": 5,
+        "column_name": "construction completed"
+      }
+    ]
+  },
+  {
+    "table_id": "2-11097420-1.html.csv",
+    "claim": "2 of the project be propose and list during 1993 , but be never complete",
+    "predicted_response": 0,
+    "resp": "Here are the steps to determine whether the claim is TRUE or FALSE:\n\n1. Extract the rows from the table where both \"proposed\" and \"listed\" are equal to \"06 / 23 / 1993\". This will give us two rows that meet the condition.\n\n2. Check if there is any row in the table where both \"construction completed\" and \"partially deleted\" are not empty, or where both are empty and \"deleted\" is not empty.\n\n3. If step 1 gives us at least one valid row and step 2 is true, then the claim is TRUE; otherwise, it's FALSE.\n\n\nHere is the final answer:\n\n{\n    \"chain_of_thought\": [\n        {\n            \"row_index\": 1,\n            \"column_name\": \"proposed\"\n        },\n        {\n            \"row_index\": 2,\n            \"column_name\": \"listed\"\n        },\n        {\n            \"row_index\": 3,\n            \"column_name\": \"construction completed\"\n        },\n        {\n            \"row_index\": 4,\n            \"column_name\": \"partially deleted\"\n        }\n    ],\n    \"answer\": \"FALSE\",\n    \"relevant_cells\": [\n        {\n            \"row_index\": 1,\n            \"column_name\": \"proposed\"\n        },\n        {\n            \"row_index\": 2,\n            \"column_name\": \"listed\"\n        },\n        {\n            \"row_index\": 3,\n            \"column_name\": \"construction completed\"\n        },\n        {\n            \"row_index\": 4,\n            \"column_name\": \"partially deleted\"\n        }\n    ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 1,
+        "column_name": "proposed"
+      },
+      {
+        "row_index": 2,
+        "column_name": "listed"
+      },
+      {
+        "row_index": 3,
+        "column_name": "construction completed"
+      },
+      {
+        "row_index": 4,
+        "column_name": "partially deleted"
+      }
+    ]
+  },
+  {
+    "table_id": "2-11097420-1.html.csv",
+    "claim": "rankin county be home to multiple project that be propose and list",
+    "predicted_response": 1,
+    "resp": "Here are the step-by-step reasoning steps to determine whether the claim is TRUE or FALSE:\n\n1. First, we need to identify the columns of the table that contain relevant information about project proposals and listings.\n\n   From the table, we can see that the \"proposed\" column indicates whether a project has been proposed, and the \"listed\" column indicates whether a project has been listed.\n\n2. Next, we need to find the rows in the data section where Rankin County is located (i.e., the county column matches \"rankin\").\n\n   From the table, we can see that there are two rows where Rankin County appears:\n    - Row 5: [\"msd980710941\", \"flowood site\", \"rankin\", \"09 / 08 / 1983\", \"09 / 21 / 1984\", \"09 / 17 / 1993\", \"-\", \"02 / 16 / 1996\"]\n    - Row 7: [\"msd065490930\", \"picayune wood treating\", \"pearl river\", \"03 / 08 / 2004\", \"07 / 22 / 2004\", \"-\", \"-\", \"-\"]\n    - Row 8: [\"msd980601736\", \"walcotte chemical co warehouses\", \"washington\", \"cleanup completed before formal creation of npl\", \"cleanup completed before formal creation of npl\", \"12 / 30 / 1982\", \"-\", \"12 / 30 / 1982\"]\n    - Row 11: [\"msd086556388\", \"sonford products\", \"rankin\", \"09 / 27 / 2006\", \"03 / 07 / 2007\", \"-\", \"-\", \"-\"]\n\n3. For each of these rows, we need to check if the project was both proposed and listed.\n\n   - Row 5: Both \"proposed\" and \"listed\" are present in the same row.\n   - Row 7: Neither \"proposed\" nor \"listed\" is present in this row, as it's actually located in Pearl River County.\n   - Row 8: This row doesn't match Rankin County; it belongs to Washington County. \n   - Row 11: Both \"proposed\" and \"listed\" are present in the same row.\n\n4. Now, we need to determine if Rankin County is home to multiple projects that were both proposed and listed based on the data above.\n\n   From our analysis, there are two rows where Rankin County appears:\n    - Row 5: Both \"proposed\" and \"listed\".\n    - Row 11: Both \"proposed\" and \"listed\".\n\n   Therefore, Rankin County is indeed home to multiple projects that were both proposed and listed.\n\nHere's the final answer in the required format:\n\n{\n  \"chain_of_thought\": [\n    {\"row_index\": 5, \"column_name\": \"proposed\"},\n    {\"row_index\": 5, \"column_name\": \"listed\"},\n    {\"row_index\": 11, \"column_name\": \"proposed\"},\n    {\"row_index\": 11, \"column_name\": \"listed\"}\n  ],\n  \"answer\": \"TRUE\",\n  \"relevant_cells\": [\n    {\"row_index\": 5, \"column_name\": \"proposed\"},\n    {\"row_index\": 5, \"column_name\": \"listed\"},\n    {\"row_index\": 11, \"column_name\": \"proposed\"},\n    {\"row_index\": 11, \"column_name\": \"listed\"}\n  ]\n}",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "proposed"
+      },
+      {
+        "row_index": 5,
+        "column_name": "listed"
+      },
+      {
+        "row_index": 11,
+        "column_name": "proposed"
+      },
+      {
+        "row_index": 11,
+        "column_name": "listed"
+      }
+    ]
+  },
+  {
+    "table_id": "2-11097420-1.html.csv",
+    "claim": "potter co in copiah be the first project propose , but the last to be list",
+    "predicted_response": 0,
+    "resp": "Here are the step-by-step reasoning steps for determining whether the claim about the table is TRUE or FALSE:\n\n1. First, we need to identify which cell contains information about the project's proposed date. This can be done by finding the cell with the column name \"proposed\" and checking its value.\n\n2. Next, we need to find the row that corresponds to the \"potter co\" in the \"name\" column. We can do this by finding the index of the \"potter co\" string in the list of names, which will give us the row index.\n\n3. Then, we need to identify the cell that contains information about the project's listed date. This can be done by finding the cell with the column name \"listed\" and checking its value.\n\n4. We also need to find the last row in the table, which can be determined by counting the number of rows from the first row to the last row (inclusive) and adding 1. \n\n5. Finally, we compare the proposed date for the row that contains \"potter co\" with the listed date of the last row.\n\nHere's how this reasoning translates into a JSON object:\n\n```json\n{\n    \"chain_of_thought\": [\n        {\n            \"description\": \"Identify 'proposed' column\"\n        },\n        {\n            \"description\": \"Get index of 'potter co'\"\n        },\n        {\n            \"description\": \"Get value of 'listed' column in the last row\"\n        },\n        {\n            \"description\": \"Find last row index\"\n        },\n        {\n            \"description\": \"Compare proposed and listed dates\"\n        }\n    ],\n    \"answer\": \"<determining if the claim is true or false>\",\n    \"relevant_cells\": [\n        {\n            \"row_index\": 3,\n            \"column_name\": \"proposed\"\n        },\n        {\n            \"row_index\": 5,\n            \"column_name\": \"name\"\n        },\n        {\n            \"row_index\": 6,\n            \"column_name\": \"listed\"\n        }\n    ]\n}\n```\n\nBased on the data in the table, we can determine that:\n\n- The proposed date for the row containing 'potter co' is '05 / 10 / 1993'.\n- The listed date of the last row is '-'.\n- Since there are no listed dates other than '-' except for the project with index 6 and it's not 'potter co', the claim that the first project to be proposed but the last to be listed does indeed occur.\n\nTherefore, the answer would be TRUE.",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "proposed"
+      },
+      {
+        "row_index": 5,
+        "column_name": "name"
+      },
+      {
+        "row_index": 6,
+        "column_name": "listed"
+      }
+    ]
+  },
+  {
+    "table_id": "2-11097420-1.html.csv",
+    "claim": "construct be complete during the same time frame of 1993 at the flowood site and the newsome brother",
+    "predicted_response": 0,
+    "resp": "Here are the step-by-step reasoning steps:\n\n1. First, I will identify the rows in the table where the construction was completed for both Flowood site and Newsom Brothers/Old Reichhold Chemicals, Inc.\n   - For Flowood site: msd980710941\n   - For Newsom Brothers/Old Reichhold Chemicals, Inc.: msd980840045\n\n2. Next, I will verify that the dates of completion for both sites fall within the same year.\n   - The construction at Flowood site was completed on 09/17/1993.\n   - The construction at Newsom Brothers/Old Reichhold Chemicals, Inc. was completed on 08/08/1997.\n\n3. Since these two dates are not in the same year (1993 vs 1997), I need to continue verifying that they share any other criteria.\n   - Upon further inspection of the claim \"construct be complete during the same time frame of 1993 at the flowood site and the newsome brothers\", it seems like this would refer only to the years in which both sites have construction completed.\n\n4. Given the details above, I can now conclude that my original assumption about comparing completion dates was incorrect as these two sites do share a year but not exactly the same time frame - therefore, we are left with checking if 1993 is indeed the correct timeframe for comparison.\n\n\n5. Now, let's verify the given claim using this corrected understanding:\n   - Flowood site: msd980710941 (09/17/1993)\n   - Newsom Brothers/Old Reichhold Chemicals, Inc.: msd980840045 (06/10/1986)\n\n6. Because the year 1993 was stated in the original claim as a timeframe for comparison, but is not present for the Newsom Brothers/Old Reichhold Chemicals, Inc., this indicates that the claim must be false.\n\n7. Finally, I will provide my final answer according to the specified format:\n\n{\n  \"chain_of_thought\": [\n    {\n      \"row_index\": 3,\n      \"column_name\": \"construction completed\"\n    },\n    {\n      \"row_index\": 2,\n      \"column_name\": \"construction completed\"\n    }\n  ],\n  \"answer\": \"FALSE\",\n  \"relevant_cells\": [\n    {\n      \"row_index\": 5,\n      \"column_name\": \"proposed\"\n    },\n    {\n      \"row_index\": 6,\n      \"column_name\": \"construction completed\"\n    }\n  ]\n}",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 5,
+        "column_name": "proposed"
+      },
+      {
+        "row_index": 6,
+        "column_name": "construction completed"
+      }
+    ]
+  }
+]
