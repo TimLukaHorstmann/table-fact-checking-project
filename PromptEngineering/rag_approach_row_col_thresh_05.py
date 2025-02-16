@@ -59,7 +59,6 @@ class RAGFactChecker(BaseFactChecker):
             column_texts.append(col_text)
 
         # Create an embeddings object using OllamaEmbeddings.
-        from langchain_community.embeddings import OllamaEmbeddings
         embeddings = OllamaEmbeddings(model="nomic-embed-text")
         
         # Generate embeddings for rows and columns.
