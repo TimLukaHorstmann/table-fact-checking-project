@@ -1,0 +1,184 @@
+[
+  {
+    "table_id": "2-18674332-1.html.csv",
+    "claim": "the game with an attendance of 30931 take place after the game with an attendance of 50068",
+    "predicted_response": 1,
+    "resp": "<think>\nOkay, so I need to determine whether the claim is TRUE or FALSE based on the given table. The claim is: \"the game with an attendance of 30931 took place after the game with an attendance of 50068.\" \n\nFirst, I'll look through the table to find which games have attendances of 30931 and 50068.\n\nLooking at the 'attendance' column:\n\n- For attendance 30931: I see that in row 15 (since rows are zero-indexed starting from 0?), wait, no. Wait, let me count correctly. The table starts with week 1 as row 0? Or is it row index starting at 1? Wait, looking back, the table has weeks numbered from 1 to 16. So I think the rows are labeled from 0 in the JSON output example, but for our purpose here, we need to figure out which games have those attendances.\n\nLooking through each row:\n\nRow 0: attendance 68973\nRow 1: 49502\nRow 2: 46161\nRow 3: 71536\nRow 4: 41107\nRow 5: 59337\nRow 6: 37671\nRow 7: 44235\nRow 8: 53706\nRow 9: 55468\nRow 10: 33155\nRow 11: 45022\nRow 12: 51657\nRow 13: 50068 (This is the attendance mentioned in the claim)\nRow 14: 30931 (This is the other attendance in the claim)\nRow 15: 56674\n\nSo, the game with 50068 attendance is in row 13, and the one with 30931 is in row 14.\n\nNow, I need to check if the game in row 14 (attendance 30931) took place after the one in row 13 (attendance 50068). \n\nLooking at the 'date' column:\n\nRow 13: November 27, 1978\nRow 14: December 10, 1978\n\nSo, December is after November. Therefore, the game with attendance 30931 (row 14) happened after the one with 50068 (row 13). \n\nThus, the claim is TRUE.\n\nNow, identifying the relevant cells:\n\n- For 50068: row 13, column 'attendance'\n- For 30931: row 14, column 'attendance'\n- Also need to check their dates to determine order:\n   - Row 13, 'date' is November 27\n   - Row 14, 'date' is December 10\n\nSo the relevant cells are rows 13 and 14 for attendance, and their respective dates.\n</think>\n\n```json\n{\n   \"answer\": \"TRUE\",\n   \"relevant_cells\": [\n     {\"row_index\": 13, \"column_name\": \"attendance\"},\n     {\"row_index\": 14, \"column_name\": \"attendance\"},\n     {\"row_index\": 13, \"column_name\": \"date\"},\n     {\"row_index\": 14, \"column_name\": \"date\"}\n   ]\n}\n```",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 13,
+        "column_name": "attendance"
+      },
+      {
+        "row_index": 14,
+        "column_name": "attendance"
+      },
+      {
+        "row_index": 13,
+        "column_name": "date"
+      },
+      {
+        "row_index": 14,
+        "column_name": "date"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18674332-1.html.csv",
+    "claim": "the game with the highest attendance be in week 4",
+    "predicted_response": 1,
+    "resp": "<think>\nAlright, I need to determine if the claim \"the game with the highest attendance be in week 4\" is TRUE or FALSE based on the provided table.\n\nFirst, let me understand what each column represents:\n\n- **week**: The week number of the season.\n- **date**: The date when the game was played.\n- **opponent**: The team they were playing against.\n- **result**: Whether they won (w) or lost (l), followed by the score.\n- **attendance**: The number of people who attended that game.\n\nThe claim is about the highest attendance being in week 4. So, I need to check each row's attendance and see if the maximum value occurs in week 4.\n\nLet me list out all the attendances along with their respective weeks:\n\n1. Week 1: 68973\n2. Week 2: 49502\n3. Week 3: 46161\n4. Week 4: 71536\n5. Week 5: 41107\n6. Week 6: 59337\n7. Week 7: 37671\n8. Week 8: 44235\n9. Week 9: 53706\n10. Week 10: 55468\n11. Week 11: 33155\n12. Week 12: 45022\n13. Week 13: 51657\n14. Week 14: 50068\n15. Week 15: 30931\n16. Week 16: 56674\n\nNow, looking for the highest attendance:\n\n- The attendances in week 4 is 71,536.\n- Comparing this to all other weeks:\n  - Week 1 has 68,973 which is less than 71k.\n  - Weeks 2 and 3 are lower than that as well.\n  - Other weeks have attendances ranging from around 40k up to 59k, but none exceed 71k.\n\nSo, week 4 has the highest attendance of 71,536. Therefore, the claim is TRUE.\n\nTo support this, I'll note the relevant cells which are the 'attendance' column for each row. But since we're specifically focusing on the maximum, only week 4's attendance cell matters as it's the highest.\n</think>\n\nThe claim is TRUE because week 4 has the highest attendance of 71,536.\n\n```json\n{\n   \"answer\": \"TRUE\",\n   \"relevant_cells\": [\n     {\"row_index\": 3, \"column_name\": \"attendance\"}\n   ]\n}\n```",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "attendance"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18674332-1.html.csv",
+    "claim": "the game against the detroit lion take place 1 week after the game against the tampa bay buccaneer",
+    "predicted_response": 1,
+    "resp": "<think>\nAlright, let's tackle this problem step by step. The user has provided a table in markdown format and a claim about the timing of two games against the Detroit Lions and Tampa Bay Buccaneers. I need to determine if the claim is TRUE or FALSE based on the data in the table.\n\nFirst, I'll restate the claim: \"the game against the detroit lion take place 1 week after the game against the tampa bay buccaneer.\" So, we're checking if the Detroit Lions game occurred exactly one week after the Tampa Bay Buccaneers game.\n\nLooking at the table, each row represents a week from week 1 to week 16. The relevant columns are \"week\" and \"opponent\". I'll scan through each row to find the weeks when these two opponents played.\n\nStarting with the Detroit Lions: checking each opponent, I see they are listed in week 16 (row index 15 since indexing starts at 0). So their game was on December 17, 1978.\n\nNext, looking for the Tampa Bay Buccaneers: their game is in week 15 (row index 14), which took place on December 10, 1978.\n\nNow, to determine if the Detroit Lions' game is exactly one week after the Tampa Bay Buccaneers', I'll check the dates. The difference between December 17 and December 10 is exactly seven days, so that's one week apart.\n\nTherefore, the claim holds true because week 16 (Detroit) follows week 15 (Tampa Bay) by exactly one week.\n</think>\n\nThe relevant cells are:\n- Week 15 for Tampa Bay Buccaneers\n- Week 16 for Detroit Lions\n\n**JSON Response:**\n```json\n{\n   \"answer\": \"TRUE\",\n   \"relevant_cells\": [\n     {\"row_index\": 14, \"column_name\": \"week\"},\n     {\"row_index\": 15, \"column_name\": \"week\"}\n   ]\n}\n```",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 14,
+        "column_name": "week"
+      },
+      {
+        "row_index": 15,
+        "column_name": "week"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18674332-1.html.csv",
+    "claim": "there be only 2 game in the season where the 49ers win",
+    "predicted_response": 1,
+    "resp": "<think>\nAlright, I need to determine if the claim \"there be only 2 game in the season where the 49ers win\" is TRUE or FALSE based on the provided table. \n\nFirst, let me understand what the table contains. It lists 16 weeks of games for a team (likely the San Francisco 49ers) during the 1978 season. Each row includes the week number, date, opponent, result, and attendance.\n\nThe claim states that there were only two wins in the entire season. So, I need to check each game's result to count how many times they won.\n\nLooking through each row:\n\nWeek 1: Result is L (loss) with a score of 24-7.\nWeek 2: Another loss, 16-13.\nWeek 3: Loss again, 20-19.\nWeek 4: Loss, 27-10.\nWeek 5: Here's the first win! Result is W (win) with a score of 28-12 against Cincinnati Bengals. So that's one win.\n\nContinuing:\n\nWeek 6: Loss, 27-10.\nWeek 7: Loss, 14-7.\nWeek 8: Loss, 20-17.\nWeek 9: Loss, 38-20.\nWeek 10: Loss, 21-10.\nWeek 11: Another loss, 16-10.\nWeek 12: Loss, 31-28.\nWeek 13: Loss, 24-7.\nWeek 14: Loss, 24-13.\nWeek 15: Second win here! Result is W (win) with a score of 6-3 against Tampa Bay Buccaneers. That's two wins so far.\n\nWeek 16: Final game, another loss, 33-14.\n\nSo, in total, I count two wins for the season. Therefore, the claim that there are only two games where the 49ers win is TRUE.\n\nThe relevant cells are the result column for each week. Specifically, weeks 5 and 15 have 'W' as their results. So, row indices 4 (week 5) and 14 (week 15) under the \"result\" column.\n</think>\n\n```json\n{\n   \"answer\": \"TRUE\",\n   \"relevant_cells\": [\n     {\"row_index\": 4, \"column_name\": \"result\"},\n     {\"row_index\": 14, \"column_name\": \"result\"}\n   ]\n}\n```",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "result"
+      },
+      {
+        "row_index": 14,
+        "column_name": "result"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18674332-1.html.csv",
+    "claim": "the game on november 19 , 1978 , be not the game with the highest attendance",
+    "predicted_response": 1,
+    "resp": "<think>\nAlright, I need to determine whether the claim is TRUE or FALSE based on the provided table. The claim states: \"the game on november 19  , 1978  , be not the game with the highest attendance\".\n\nFirst, I'll look through the table to find the row corresponding to November 19, 1978. Scanning the 'date' column, I find that in week 12, the date is November 19, 1978. The attendance for this game was 45022.\n\nNext, I need to check if there's a game with higher attendance than 45022. Going through each row:\n\n- Week 1: 68973\n- Week 4: 71536\n- Other weeks have attendances like 49502, 46161, etc., which are lower.\n\nSo the highest attendance is in week 4 with 71536. Since November 19's game had 45022, it's not the highest. Therefore, the claim is TRUE.\n</think>\n\n```json\n{\n   \"answer\": \"TRUE\",\n   \"relevant_cells\": [\n     {\"row_index\": 11, \"column_name\": \"attendance\"},\n     {\"row_index\": 3, \"column_name\": \"attendance\"}\n   ]\n}\n```",
+    "true_response": 1,
+    "relevant_cells": [
+      {
+        "row_index": 11,
+        "column_name": "attendance"
+      },
+      {
+        "row_index": 3,
+        "column_name": "attendance"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18674332-1.html.csv",
+    "claim": "there be only 3 game in the season where the 49ers win",
+    "predicted_response": 0,
+    "resp": "<think>\nAlright, I need to determine if the claim \"there be only 3 game in the season where the 49ers win\" is TRUE or FALSE based on the provided table. Let's go through this step by step.\n\nFirst, I should understand what the claim is saying. It states that there are exactly three games in the entire season where the team (I assume it's the San Francisco 49ers, though not explicitly mentioned) won. My task is to check how many times they have a 'W' or 'win' result in their games.\n\nLooking at the table structure, each row represents a game with columns: week, date, opponent, result, and attendance. The key column here is \"result\" because it tells me whether the team won or lost that particular game.\n\nI'll go through each row's \"result\" to count the number of wins:\n\n1. Week 1: Result is L (Loss) 24-7.\n2. Week 2: Result is L (Loss) 16-13.\n3. Week 3: Result is L (Loss) 20-19.\n4. Week 4: Result is L (Loss) 27-10.\n5. Week 5: Result is W (Win) 28-12.\n   - That's the first win.\n6. Week 6: Result is L (Loss) 27-10.\n7. Week 7: Result is L (Loss) 14-7.\n8. Week 8: Result is L (Loss) 20-17.\n9. Week 9: Result is L (Loss) 38-20.\n10. Week 10: Result is L (Loss) 21-10.\n11. Week 11: Result is L (Loss) 16-10.\n12. Week 12: Result is L (Loss) 31-28.\n13. Week 13: Result is L (Loss) 24-7.\n14. Week 14: Result is L (Loss) 24-13.\n15. Week 15: Result is W (Win) 6-3.\n   - That's the second win.\n16. Week 16: Result is L (Loss) 33-14.\n\nWait, I only found two wins in total. Weeks 5 and 15 are the only rows where the result was a win. So according to the table, there are only two games where they won, not three as claimed. Therefore, the claim is FALSE.\n\nI should also note the relevant cells that were checked. Each row's \"result\" column was examined, so all row indexes from 0 to 15 under the \"result\" column were considered.\n</think>\n\n```json\n{\n   \"answer\": \"FALSE\",\n   \"relevant_cells\": [\n     {\"row_index\": 4, \"column_name\": \"result\"},\n     {\"row_index\": 14, \"column_name\": \"result\"}\n   ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "result"
+      },
+      {
+        "row_index": 14,
+        "column_name": "result"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18674332-1.html.csv",
+    "claim": "the game with the highest attendance be in week 15",
+    "predicted_response": 0,
+    "resp": "<think>\nAlright, let's tackle this problem step by step. The task is to determine whether the claim \"the game with the highest attendance be in week 15\" is TRUE or FALSE based on the provided table.\n\nFirst, I'll start by understanding what the claim is asserting. It states that the game which had the highest number of attendees occurred during week 15. So, my goal is to verify if week 15 indeed has the maximum attendance value in the table.\n\nLooking at the table structure, it's organized with columns for Week, Date, Opponent, Result, and Attendance. There are 16 weeks listed from week 1 to week 16, each with corresponding data.\n\nTo evaluate the claim, I need to compare the attendance numbers across all weeks and see if week 15 has the highest value.\n\nLet's go through each row and note down the attendance figures:\n\n- Week 1: 68,973\n- Week 2: 49,502\n- Week 3: 46,161\n- Week 4: 71,536\n- Week 5: 41,107\n- Week 6: 59,337\n- Week 7: 37,671\n- Week 8: 44,235\n- Week 9: 53,706\n- Week 10: 55,468\n- Week 11: 33,155\n- Week 12: 45,022\n- Week 13: 51,657\n- Week 14: 50,068\n- Week 15: 30,931\n- Week 16: 56,674\n\nNow, I'll identify the highest attendance value from this list. Scanning through:\n\nThe highest number is 71,536 in week 4.\n\nComparing that with week 15's attendance of 30,931, it's clear that week 15 does not have the highest attendance. In fact, week 15 has one of the lower attendances.\n\nTherefore, the claim is FALSE because the game with the highest attendance was in week 4, not week 15.\n\nTo ensure accuracy, I'll double-check the numbers:\n\n- Week 4: 71,536\n- Week 15: 30,931\n\nYes, week 4's attendance is significantly higher. \n\nSo, the relevant cells are those that provide the attendance figures for each week, particularly focusing on weeks 4 and 15 to confirm their attendance numbers.\n</think>\n\nThe claim is FALSE because week 15 does not have the highest attendance; week 4 has a much higher attendance figure.\n\n```json\n{\n   \"answer\": \"FALSE\",\n   \"relevant_cells\": [\n     {\"row_index\": 3, \"column_name\": \"attendance\"},\n     {\"row_index\": 14, \"column_name\": \"attendance\"}\n   ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 3,
+        "column_name": "attendance"
+      },
+      {
+        "row_index": 14,
+        "column_name": "attendance"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18674332-1.html.csv",
+    "claim": "the game against the detroit lion take place 1 week after the game against the cleveland brown",
+    "predicted_response": 0,
+    "resp": "<think>\nOkay, so I need to determine whether the claim is TRUE or FALSE based on the table provided. The claim says: \"the game against the detroit lion take place 1 week after the game against the cleveland brown.\" \n\nFirst, I'll break down what this means. I need to find two games in the table: one against the Cleveland Browns and another against the Detroit Lions. Then check if the Detroit Lions' game happened exactly one week later than the Cleveland Browns' game.\n\nLooking at the table structure, each row has a 'week', 'date', 'opponent', etc. So I'll scan through the opponent column to find where it mentions \"cleveland browns\" and \"detroit lions\".\n\nI see in row 0 (index starting from 0), the opponent is Cleveland Browns, and that's week 1 with date September 3, 1978.\n\nNext, searching for Detroit Lions... I look through each opponent. Let me go row by row:\n\nRow 0: Cleveland Browns\nRow 1: Chicago Bears\nRow 2: Houston Oilers\nRow 3: New York Giants\nRow 4: Cincinnati Bengals\nRow 5: Los Angeles Rams\nRow 6: New Orleans Saints\nRow 7: Atlanta Falcons\nRow 8: Washington Redskins\nRow 9: Atlanta Falcons again\nRow 10: St. Louis Cardinals (wait, that's a baseball team; maybe it's a typo in the table?)\nRow 11: Los Angeles Rams again\nRow 12: Pittsburgh Steelers\nRow 13: New Orleans Saints again\nRow 14: Tampa Bay Buccaneers\nRow 15: Detroit Lions\n\nSo row 15 is the game against Detroit Lions, which is week 16 with date December 17, 1978.\n\nNow, I need to check if the Detroit game was exactly one week after Cleveland's. Let me look at their dates:\n\nCleveland Browns: September 3, 1978 (Week 1)\nDetroit Lions: December 17, 1978 (Week 16)\n\nWait, that doesn't make sense. How can the Detroit game be in Week 16? There are only 16 weeks listed, so week 1 is first, then 2 up to 16.\n\nSo, if Cleveland was in week 1 and Detroit in week 16, the games were more than a month apart, not just one week. Therefore, the claim that it's 1 week later isn't correct. The weeks are too far apart.\n\nAlternatively, maybe I'm miscounting? Let me recount the rows:\n\nLooking back at row numbers:\n\nRow 0: Week 1\n...\nRow 15: Week 16\n\nSo yes, the Cleveland game is in week 1 (row 0), and Detroit is in week 16 (row 15). That's a span of weeks apart, so more than one week. Therefore, the claim is false.\n\nWait, but maybe I made a mistake. Let me double-check if there are two games against Detroit or Cleveland? Looking through opponents:\n\nCleveland Browns only once, in row 0. Detroit Lions once in row 15. So that's correct.\n\nTherefore, the claim is FALSE because the game against Detroit was much later than just one week after Cleveland.\n</think>\n\nThe claim states that the game against the Detroit Lions occurred exactly one week after the game against the Cleveland Browns. By examining the table:\n\n- The game against the Cleveland Browns took place in Week 1 (September 3, 1978).\n- The game against the Detroit Lions was in Week 16 (December 17, 1978), which is far more than one week later.\n\nThus, the claim is false.\n\n```json\n{\n   \"answer\": \"FALSE\",\n   \"relevant_cells\": [\n     {\"row_index\": 0, \"column_name\": \"opponent\"},\n     {\"row_index\": 15, \"column_name\": \"opponent\"}\n   ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 0,
+        "column_name": "opponent"
+      },
+      {
+        "row_index": 15,
+        "column_name": "opponent"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18674332-1.html.csv",
+    "claim": "the game on november 19 , 1978 , be the game with the highest attendance",
+    "predicted_response": 0,
+    "resp": "<think>\nAlright, I'm trying to figure out whether the claim is true or false. The claim states that \"the game on november 19 , 1978 be the game with the highest attendance.\" \n\nFirst, I need to check which row corresponds to November 19, 1978. Looking at the table, I see that week 12 is on November 19, 1978, and it's against the Los Angeles Rams with an attendance of 45,022.\n\nNext, I have to determine if this was the highest attendance throughout the season. To do that, I'll go through each row in the table and note down all the attendances:\n\n- Week 1: 68,973\n- Week 2: 49,502\n- Week 3: 46,161\n- Week 4: 71,536\n- Week 5: 41,107\n- Week 6: 59,337\n- Week 7: 37,671\n- Week 8: 44,235\n- Week 9: 53,706\n- Week 10: 55,468\n- Week 11: 33,155\n- Week 12: 45,022\n- Week 13: 51,657\n- Week 14: 50,068\n- Week 15: 30,931\n- Week 16: 56,674\n\nLooking at these numbers, the highest attendance is in week 4 with 71,536. Comparing this to week 12's 45,022, it's clear that November 19, 1978 wasn't the game with the highest attendance.\n\nTherefore, the claim is false because there are games with higher attendances recorded in other weeks.\n</think>\n\n```json\n{\n   \"answer\": \"FALSE\",\n   \"relevant_cells\": [\n     {\"row_index\": 4, \"column_name\": \"attendance\"},\n     {\"row_index\": 11, \"column_name\": \"attendance\"}\n   ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 4,
+        "column_name": "attendance"
+      },
+      {
+        "row_index": 11,
+        "column_name": "attendance"
+      }
+    ]
+  },
+  {
+    "table_id": "2-18674332-1.html.csv",
+    "claim": "the game with an attendance of 30931 take place before the game with an attendance of 50068",
+    "predicted_response": 0,
+    "resp": "<think>\nAlright, I'm trying to figure out whether the claim is TRUE or FALSE based on the given table. The claim states: \"the game with an attendance of 30931 took place before the game with an attendance of 50068.\"\n\nFirst, I need to locate the rows in the table that have attendances matching these numbers. Let's go through each row one by one.\n\nLooking at the 'attendance' column:\n- Row 0: 68973\n- Row 1: 49502\n- Row 2: 46161\n- Row 3: 71536\n- Row 4: 41107\n- Row 5: 59337\n- Row 6: 37671\n- Row 7: 44235\n- Row 8: 53706\n- Row 9: 55468\nWait, that's not the number we're looking for. Let me check again.\n\nRow 14 has an attendance of 50068. So row index 14 is one relevant cell under 'attendance'. \n\nNow, looking for 30931. Scanning through:\n- Row 10: 33155\n- Row 11: 45022\n- Row 12: 51657\n- Row 13: 50068 (this is the same as before)\nWait, maybe I missed it earlier. Let's check row 15 and 16.\n\nRow 15 has an attendance of 30931. So that's another relevant cell under 'attendance' at row index 15.\n\nNow, to determine if the game with 30931 attendance happened before the one with 50068, I need to check their respective dates or weeks.\n\nLooking at the 'week' column:\n- Row 14: week 14\n- Row 15: week 15\n\nSince week numbers increase sequentially, a lower week number means it happened earlier in the season. So week 14 is before week 15.\n\nTherefore, the game with attendance 30931 (week 15) did NOT take place before the one with 50068 (week 14). Wait, that can't be right because row 15 has a higher week number. So actually, the game with 30931 is in week 15, which is after week 14 where attendance was 50068.\n\nWait, no\u2014the claim says \"the game with an attendance of 30931 took place before the one with 50068.\" But according to the table, 30931 is in week 15 (later) and 50068 is in week 14 (earlier). So the claim is FALSE because 30931 happened after 50068.\n\nWait, but I'm getting confused. Let me double-check:\n\n- Attendance 50068 is in row 14 (week 14, date December 10, 1978)\n- Attendance 30931 is in row 15 (week 15, date December 17, 1978)\n\nSo December 10 comes before December 17. Therefore, the game with attendance 50068 happened earlier than 30931. So the claim that \"the game with 30931 took place before the one with 50068\" is FALSE because 30931 is after.\n\nWait no, wait\u2014the claim says 30931 came first. But according to the table, it's the other way around. So the claim is incorrect.\n</think>\n\nThe relevant cells are the 'attendance' and 'date' or 'week' columns for both attendances. The game with 50068 attendance happened in week 14 (December 10), while 30931 was in week 15 (December 17). Thus, the claim is FALSE.\n\n```json\n{\n   \"answer\": \"FALSE\",\n   \"relevant_cells\": [\n     {\"row_index\": 14, \"column_name\": \"attendance\"},\n     {\"row_index\": 15, \"column_name\": \"attendance\"},\n     {\"row_index\": 14, \"column_name\": \"week\"},\n     {\"row_index\": 15, \"column_name\": \"week\"}\n   ]\n}\n```",
+    "true_response": 0,
+    "relevant_cells": [
+      {
+        "row_index": 14,
+        "column_name": "attendance"
+      },
+      {
+        "row_index": 15,
+        "column_name": "attendance"
+      },
+      {
+        "row_index": 14,
+        "column_name": "week"
+      },
+      {
+        "row_index": 15,
+        "column_name": "week"
+      }
+    ]
+  }
+]
