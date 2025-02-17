@@ -1,0 +1,82 @@
+[
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema do not win in the us open",
+    "predicted_response": 0,
+    "resp": "```sql\nSELECT CASE WHEN wins = 0 THEN 1 ELSE 0 END AS result\nFROM data\nWHERE tournament = 'us open' AND player = 'tony lema';\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "the only tournament that tony lema win in be the open championship",
+    "predicted_response": 0,
+    "resp": "```sql\nSELECT CASE\n    WHEN EXISTS(SELECT * FROM data WHERE tournament = 'the open championship' AND wins = 1)\n        AND NOT EXISTS(SELECT * FROM data WHERE wins = 1 AND tournament <> 'the open championship') THEN 1\n    ELSE 0\nEND as result\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tournament that tony lema have participate in include the master tournament , the us open , the pga championship and the open championship",
+    "predicted_response": 0,
+    "resp": "```sql\nSELECT CASE\n         WHEN 'master tournament' IN (tournament) AND\n              'us open' IN (tournament) AND\n              'the pga championship' IN (tournament) AND\n              'the open championship' IN (tournament) THEN 1\n        ELSE 0\n       END AS result\nFROM data;\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema be in the top 5 for the master tournament , the us open , and the open championship",
+    "predicted_response": 0,
+    "resp": "```sql\nSELECT COUNT(CASE WHEN tournament = 'masters tournament' AND top - 5 > 4 THEN 1 END) +\n        COUNT(CASE WHEN tournament = 'us open' AND top - 5 > 4 THEN 1 END) +\n        COUNT(CASE WHEN tournament = 'the open championship' AND top - 5 > 4 THEN 1 END) as result\nFROM data;\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema make it to the top 10 in the pga championship , but do not continue on",
+    "predicted_response": 0,
+    "resp": "```sql\nSELECT CASE WHEN 'pga championship' = tournament AND (top - 10) >= 1 AND (events <= 5 OR cuts_made < 4) THEN 1 ELSE 0 END AS result\nFROM data WHERE tournament = 'pga championship';\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema do not win in the pga championship",
+    "predicted_response": 1,
+    "resp": "```sql\nSELECT CASE WHEN wins = 0 THEN 1 ELSE 0 END AS result\nFROM data\nWHERE tournament = 'pga championship' AND wins = 0;\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tournament that tony lema won in be pga championship",
+    "predicted_response": 0,
+    "resp": "```sql\nSELECT CASE WHEN data.tournament = 'pga championship' AND data.wins = 1 THEN 1 ELSE 0 END AS result\nFROM data\nWHERE data.tournament = 'pga championship' AND data.wins = 1\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tournament that tony lema have not participate in include the master tournament , the us open , the pga championship and the open championship",
+    "predicted_response": 0,
+    "resp": "```sql\nWITH player_tournaments AS (\n    SELECT 'tony lema' as player\n)\nSELECT\n    CASE\n        WHEN NOT EXISTS(\n            SELECT 1 FROM data WHERE tournament IN ('masters tournament', 'us open', 'the open championship', 'pga championship')\n                AND player = (SELECT player FROM player_tournaments)\n        ) THEN 1 ELSE 0\n    END as result\nFROM player_tournaments;\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema be in the top 5 for the pga championship , the us open , and the open championship",
+    "predicted_response": 0,
+    "resp": "```sql\nSELECT COALESCE(SUM(CASE WHEN tournament = 'pga championship' AND top - 5 >= 1 THEN 1 ELSE 0 END), 0) +\n        COALESCE(SUM(CASE WHEN tournament = 'us open' AND top - 5 >= 1 THEN 1 ELSE 0 END), 0) +\n        COALESCE(SUM(CASE WHEN tournament = 'the open championship' AND top - 5 >= 1 THEN 1 ELSE 0 END), 0) AS result\nFROM data;\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema make it to the top 10 in the us open , but do not continue on",
+    "predicted_response": 0,
+    "resp": "```sql\nSELECT CASE WHEN 'us open' = tournament AND top_10 >= 10 THEN 1 ELSE 0 END FROM data WHERE tournament = 'us open' AND cuts_made < events;\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  }
+]

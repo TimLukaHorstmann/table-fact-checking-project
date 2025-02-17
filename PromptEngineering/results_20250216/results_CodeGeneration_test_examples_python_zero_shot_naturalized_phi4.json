@@ -1,0 +1,338 @@
+[
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema do not win in the us open",
+    "predicted_response": 1,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Filter the dataframe for the relevant tournament\n    us_open_data = df[df['tournament'] == 'us open']\n    \n    # Check if Tony Lema has any wins in the US Open\n    wins_in_us_open = us_open_data['wins'].values[0]\n    \n    # Return True if Tony Lema did not win in the US Open, otherwise False\n    return wins_in_us_open == 0\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tournament that tony lema have participate in include the master tournament , the us open , the pga championship and the open championship",
+    "predicted_response": 1,
+    "resp": "```python\ndef check_claim(df):\n    # List of tournaments Tony Lema participated in according to the claim\n    tournaments_in_claim = {\"masters tournament\", \"us open\", \"pga championship\", \"the open championship\"}\n    \n    # Get unique tournaments from the dataframe\n    tournaments_in_data = set(df['tournament'].dropna().unique())\n    \n    # Check if all tournaments in the claim are present in the data\n    return tournaments_in_claim.issubset(tournaments_in_data)\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema make it to the top 10 in the pga championship , but do not continue on",
+    "predicted_response": 1,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Filter for the relevant tournament\n    pga_championship_row = df[df['tournament'] == 'pga championship']\n    \n    if pga_championship_row.empty:\n        return False\n    \n    # Extract values for 'top - 10' and 'cuts made'\n    top_10_count = pga_championship_row['top - 10'].values[0]\n    cuts_made_count = pga_championship_row['cuts made'].values[0]\n\n    # Check the conditions: made it to top-10 but did not continue on\n    return top_10_count > 0 and cuts_made_count < 5\n\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "the only tournament that tony lema win in be the open championship",
+    "predicted_response": 0,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Filter rows for 'wins' column where value is greater than 0\n    won_tournaments = df[df['wins'] > 0]['tournament']\n    \n    # Check if the only tournament Tony Lema won in is \"the open championship\"\n    return list(won_tournaments) == [\"the open championship\"]\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema be in the top 5 for the master tournament , the us open , and the open championship",
+    "predicted_response": 1,
+    "resp": "```python\ndef check_claim(df):\n    # Define the tournaments of interest and required top-5 count\n    tournaments_of_interest = [\"masters tournament\", \"us open\", \"the open championship\"]\n    required_top_5_count = 1\n    \n    # Filter rows for the tournaments of interest\n    filtered_df = df[df['tournament'].isin(tournaments_of_interest)]\n    \n    # Check if Tony Lema is in the top 5 for each relevant tournament\n    for _, row in filtered_df.iterrows():\n        if row['top - 5'] < required_top_5_count:\n            return False\n    \n    # Verify totals are correct, ensuring consistency with individual counts\n    total_row = df[df['tournament'] == 'totals']\n    if not len(total_row):\n        return False\n\n    expected_total_top_5 = sum(filtered_df['top - 5'])\n    \n    if int(total_row.iloc[0]['top - 5']) != expected_total_top_5:\n        return False\n    \n    # If all checks pass, the claim is supported\n    return True\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tournament that tony lema have not participate in include the master tournament , the us open , the pga championship and the open championship",
+    "predicted_response": 0,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Identify the tournaments Tony Lema participated in based on 'events' > 0\n    participated_tournaments = df[df['events'] > 0]['tournament'].tolist()\n    \n    # Tournaments mentioned in the claim\n    non_participated_claims = [\"masters tournament\", \"us open\", \"pga championship\", \"the open championship\"]\n    \n    # Check if all claimed tournaments are not in the list of participated tournaments\n    for tournament in non_participated_claims:\n        if tournament in participated_tournaments:\n            return False\n            \n    return True\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tournament that tony lema won in be pga championship",
+    "predicted_response": 1,
+    "resp": "```python\ndef check_claim(df):\n    # Filter the dataframe for the row corresponding to \"pga championship\"\n    pga_row = df[df['tournament'] == 'pga championship']\n    \n    # Check if there is exactly one such row and that Tony Lema has zero wins in PGA Championship\n    return len(pga_row) == 1 and pga_row.iloc[0]['wins'] == 0\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema be in the top 5 for the pga championship , the us open , and the open championship",
+    "predicted_response": 0,
+    "resp": "```python\ndef check_claim(df):\n    # Define the tournaments of interest and the required top 5 finishes\n    tournaments_of_interest = [\"pga championship\", \"us open\", \"the open championship\"]\n    required_top_5_finishes = 1\n    \n    # Filter rows that correspond to the tournaments of interest\n    relevant_tournaments_df = df[df[\"tournament\"].isin(tournaments_of_interest)]\n    \n    # Check if Tony Lema has at least one top-5 finish in each of these tournaments\n    for tournament in tournaments_of_interest:\n        # Get the row corresponding to the current tournament, if it exists\n        tournament_row = relevant_tournaments_df[relevant_tournaments_df[\"tournament\"] == tournament]\n        \n        # If the tournament is not found or doesn't have at least one top-5 finish, return False\n        if tournament_row.empty or tournament_row.iloc[0][\"top - 5\"] < required_top_5_finishes:\n            return False\n    \n    # If all checks pass, return True\n    return True\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema do not win in the pga championship",
+    "predicted_response": 1,
+    "resp": "```python\ndef check_claim(df):\n    # Filter the dataframe for the specific tournament: 'pga championship'\n    pga_championship_data = df[df['tournament'] == 'pga championship']\n    \n    # Check if Tony Lema has any wins in the PGA Championship\n    if not pga_championship_data.empty:\n        pga_wins = pga_championship_data.iloc[0]['wins']\n        return pga_wins == 0\n    else:\n        return False  # If no data is found for 'pga championship', claim cannot be verified as true\n\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema make it to the top 10 in the us open , but do not continue on",
+    "predicted_response": 0,
+    "resp": "```python\ndef check_claim(df):\n    # Filter the dataframe for the 'us open' tournament\n    us_open_data = df[df['tournament'] == 'us open']\n    \n    if not len(us_open_data):\n        return False\n    \n    # Extract relevant values for 'top - 10' and 'cuts made'\n    top_10_count = us_open_data.iloc[0]['top - 10']\n    cuts_made_count = us_open_data.iloc[0]['cuts made']\n    \n    # Check if Tony Lema made it to the top 10 but did not continue\n    # This means he should be in 'top - 10' but less than 'cuts made'\n    return top_10_count > 0 and cuts_made_count < top_10_count\n\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "paul emerick do not have the greatest number of tries out of the 9 total player",
+    "predicted_response": 1,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Check if 'paul emerick' has the greatest number of tries\n    paul_emerick_tries = df[df['player'] == 'paul emerick']['tries'].values[0]\n    \n    # Find the maximum number of tries among all players\n    max_tries = df['tries'].max()\n    \n    # Return True if 'paul emerick' does not have the greatest number of tries, False otherwise\n    return paul_emerick_tries != max_tries\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "3 of the 9 player have not yet finish their span of play on the united state national rugby union team",
+    "predicted_response": 1,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Filter relevant data: players with an unfinished span indicated by a dash at the end of 'span'\n    ongoing_players = df[df['span'].str.endswith('-')]\n\n    # Count the number of players who have not finished their play\n    count_ongoing_players = len(ongoing_players)\n\n    # Check if exactly 3 players are still playing (have unfinished span)\n    return count_ongoing_players == 3\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "chris wyles be 1 of the 2 player with drop during their time on the rugby team",
+    "predicted_response": 1,
+    "resp": "```python\ndef check_claim(df):\n    # Filter rows where 'drop' is greater than 0\n    players_with_drop = df[df['drop'] > 0]\n    \n    # Check if there are exactly two players with a non-zero drop count\n    return len(players_with_drop) == 2 and 'chris wyles' in players_with_drop['player'].values\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "paul emerick do not have fewer tries than any other player",
+    "predicted_response": 0,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Extract the number of tries for Paul Emerick\n    paul_emerick_tries = df.loc[df['player'] == 'paul emerick', 'tries'].values[0]\n    \n    # Check if any player has fewer or equal tries than Paul Emerick\n    return not (df['tries'] < paul_emerick_tries).any()\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "all of the player have already finish their span of play on the united state national rugby union team",
+    "predicted_response": 0,
+    "resp": "```python\ndef check_claim(df):\n    # Check for players with ongoing spans (indicated by \" -\")\n    ongoing_players = df[df['span'].str.contains(r'-$')]\n\n    # If any player has an ongoing span, the claim is false\n    return ongoing_players.empty\n\n# Note: The function assumes 'df' is a pandas DataFrame loaded from the given JSON table.\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1145226-5.html.csv",
+    "claim": "chris wyles be the only player with drop during his time on the rugby team",
+    "predicted_response": 0,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Filter rows where 'drop' is greater than 0\n    players_with_drops = df[df['drop'] > 0]\n    \n    # Check if there's exactly one player with a drop and if it is Chris Wyles\n    return len(players_with_drops) == 1 and players_with_drops.iloc[0]['player'] == 'chris wyles'\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "the sweet dream episode happen later in the series than the witchfinder",
+    "predicted_response": 1,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Filter the dataframe for episodes with titles 'sweet dreams' and 'the witchfinder'\n    sweet_dreams_episode = df[df['title'] == \"sweet dreams\"]\n    witchfinder_episode = df[df['title'] == \"the witchfinder\"]\n\n    # Ensure both episodes are present in the dataset\n    if sweet_dreams_episode.empty or witchfinder_episode.empty:\n        return False\n\n    # Compare 'no overall' to determine which episode happened later in the series\n    sweet_dreams_no_overall = sweet_dreams_episode['no overall'].values[0]\n    witchfinder_no_overall = witchfinder_episode['no overall'].values[0]\n\n    # Return True if 'sweet dreams' happened later than 'the witchfinder'\n    return sweet_dreams_no_overall > witchfinder_no_overall\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "david moore direct 3 episode of series 2 of merlin",
+    "predicted_response": 0,
+    "resp": "```python\ndef check_claim(df):\n    # Filter the dataframe for episodes directed by \"david moore\"\n    directed_by_moore = df[df['directed by'] == 'david moore']\n    \n    # Count the number of episodes directed by david moore\n    count_directed_by_moore = directed_by_moore.shape[0]\n    \n    # Check if the series is series 2 and count those episodes\n    # Series 2 corresponds to 'no for series' values from 6 to 10 (inclusive)\n    series_2_by_moore = directed_by_moore[(directed_by_moore['no for series'] >= 6) & \n                                          (directed_by_moore['no for series'] <= 10)]\n    \n    # Count the number of episodes in series 2 directed by david moore\n    count_series_2_directed_by_moore = series_2_by_moore.shape[0]\n    \n    # Check if david moore directed exactly 3 episodes in series 2\n    return count_series_2_directed_by_moore == 3\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "the lady of the lake episode have the most uk viewer",
+    "predicted_response": 1,
+    "resp": "```python\ndef check_claim(df):\n    # Find the maximum UK viewers (million) value in the table\n    max_viewers = df['uk viewers (million)'].max()\n    \n    # Filter rows where 'title' is 'the lady of the lake'\n    relevant_rows = df[df['title'] == 'the lady of the lake']\n    \n    # Check if any row has the maximum UK viewers value\n    claim_is_true = not relevant_rows.empty and relevant_rows['uk viewers (million)'].values[0] == max_viewers\n    \n    return claim_is_true\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "lucy watkins only write 1 episode of series 2",
+    "predicted_response": 1,
+    "resp": "```python\ndef check_claim(df):\n    # Filter rows where 'written by' is 'lucy watkins'\n    lucy_watkins_rows = df[df['written by'] == 'lucy watkins']\n    \n    # Extract the unique values of 'no for series' column\n    unique_series_numbers = lucy_watkins_rows['no for series'].unique()\n    \n    # Check if there is only one unique series number\n    return len(unique_series_numbers) == 1\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "the sweet dream episode happen earlier in the series than the witchfinder",
+    "predicted_response": 0,
+    "resp": "```python\ndef check_claim(df):\n    # Extract the series number for \"Sweet Dreams\"\n    sweet_dreams_series_no = df[df['title'] == 'sweet dreams']['no for series'].values[0]\n    \n    # Extract the series number for \"The Witchfinder\"\n    witchfinder_series_no = df[df['title'] == 'the witchfinder']['no for series'].values[0]\n    \n    # Compare the series numbers to determine if \"Sweet Dreams\" happens earlier\n    return sweet_dreams_series_no < witchfinder_series_no\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "beauty and the beast (part 2) have more uk viewer than beauty and the beast (part 1)",
+    "predicted_response": 1,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Filter the dataframe for the two specific titles\n    beauty_and_the_beast_part_1 = df[df['title'] == \"beauty and the beast (part 1)\"]\n    beauty_and_the_beast_part_2 = df[df['title'] == \"beauty and the beast (part 2)\"]\n\n    # Check if both parts exist in the data\n    if not len(beauty_and_the_beast_part_1) or not len(beauty_and_the_beast_part_2):\n        return False\n\n    # Extract UK viewers for both parts\n    part_1_viewers = beauty_and_the_beast_part_1['uk viewers (million)'].values[0]\n    part_2_viewers = beauty_and_the_beast_part_2['uk viewers (million)'].values[0]\n\n    # Compare the viewership numbers\n    return part_2_viewers > part_1_viewers\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "the lady of the lake episode have the least uk viewer",
+    "predicted_response": 0,
+    "resp": "```python\ndef check_claim(df):\n    # Find the minimum UK viewership from the data\n    min_viewers = df['uk viewers (million)'].min()\n    \n    # Filter the row(s) that match the minimum viewership value\n    rows_with_min_viewers = df[df['uk viewers (million)'] == min_viewers]\n    \n    # Check if 'the lady of the lake' is in the titles with the minimum viewership\n    return any(row['title'] == \"the lady of the lake\" for _, row in rows_with_min_viewers.iterrows())\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "david moore direct 5 episode of series 2 of merlin",
+    "predicted_response": 0,
+    "resp": "```python\ndef check_claim(df):\n    # Filter rows directed by 'david moore'\n    david_moore_directed = df[df['directed by'] == 'david moore']\n    \n    # Count the number of episodes David Moore directed in series 2\n    # Assuming \"no for series\" indicates the episode number within a specific series\n    series_2_episodes = david_moore_directed[david_moore_directed['no for series'] <= 14]  # Series 1: 1-14, Series 2: 15-28\n    \n    # Count distinct episodes directed by David Moore in series 2\n    distinct_series_2_count = series_2_episodes['title'].nunique()\n    \n    # Check if David Moore directed exactly 5 episodes of series 2\n    return distinct_series_2_count == 5\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "lucy watkins only write 6 episode of series 2",
+    "predicted_response": 0,
+    "resp": "```python\ndef check_claim(df):\n    # Filter rows where 'written by' is 'lucy watkins'\n    lucy_watkins_episodes = df[df['written by'] == 'lucy watkins']\n    \n    # Check the number of episodes she wrote for 'no for series' greater than 1\n    series_2_episodes_count = lucy_watkins_episodes[lucy_watkins_episodes['no for series'] > 1].shape[0]\n    \n    # Validate the claim: Lucy Watkins only wrote 6 episodes of series 2\n    return series_2_episodes_count == 6\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "1-29063233-1.html.csv",
+    "claim": "beauty and the beast (part 2) have less uk viewer than beauty and the beast (part 1)",
+    "predicted_response": 0,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Filter rows relevant to \"Beauty and the Beast\"\n    beauty_and_the_beast_part_1 = df[df['title'] == 'beauty and the beast (part 1)']\n    beauty_and_the_beast_part_2 = df[df['title'] == 'beauty and the beast (part 2)']\n\n    # Check if both parts exist in the data\n    if beauty_and_the_beast_part_1.empty or beauty_and_the_beast_part_2.empty:\n        return False\n\n    # Extract UK viewership values\n    uk_viewers_part_1 = beauty_and_the_beast_part_1['uk viewers (million)'].values[0]\n    uk_viewers_part_2 = beauty_and_the_beast_part_2['uk viewers (million)'].values[0]\n\n    # Check the claim: part 2 should have less viewers than part 1\n    return uk_viewers_part_2 < uk_viewers_part_1\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "4 player score 3 goal total , and all 4 be in league 4",
+    "predicted_response": 0,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Filter rows where total score is 3 and league is 4\n    filtered_df = df[(df['total'] == 3) & (df['league'] == 4)]\n    \n    # Check if there are exactly 4 players meeting the criteria\n    return len(filtered_df) == 4\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "of the 4 player who play in the belgian cup , jonathan legear score more goal than the other player combine",
+    "predicted_response": 0,
+    "resp": "```python\ndef check_claim(df):\n    # Filter players who have played in the Belgian Cup (league column)\n    belgian_cup_players = df[df['league'] > 0]\n    \n    # Check if there are exactly 4 players\n    if len(belgian_cup_players) != 4:\n        return False\n    \n    # Get Jonathan Legear's total goals\n    jonathan_legear_goals = belgian_cup_players[belgian_cup_players['player'] == 'jonathan legear']['total'].values[0]\n    \n    # Calculate the combined total goals of the other players\n    other_players_total = belgian_cup_players[belgian_cup_players['player'] != 'jonathan legear']['total'].sum()\n    \n    # Check if Jonathan Legear scored more than the others combined\n    return jonathan_legear_goals > other_players_total\n```\n```python",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "jonathan legear score 4 more goal than mat\u00edas su\u00e1rez , the next highest rank player in the belgian first dvision a league who play in the belgian cup",
+    "predicted_response": 0,
+    "resp": "```python\ndef check_claim(df):\n    # Filter players who have played in the Belgian Cup (total > 0)\n    belgian_cup_players = df[df['total'] > 0]\n    \n    # Sort by 'league' points in descending order to find the next highest rank player\n    sorted_players = belgian_cup_players.sort_values(by='league', ascending=False)\n    \n    # Get Jonathan Legear's league score\n    jonathan_legear_score = df[df['player'] == 'jonathan legear']['league'].values[0]\n    \n    # Find the next highest rank player in terms of league points after Jonathan Legear\n    next_highest_player = sorted_players[sorted_players['league'] < jonathan_legear_score].head(1)\n    \n    if next_highest_player.empty:\n        return False\n    \n    # Get Mat\u00edas Su\u00e1rez's league score from the identified next highest player\n    matias_suarez_score = next_highest_player['league'].values[0]\n    \n    # Check if Jonathan Legear scored 4 more goals than Mat\u00edas Su\u00e1rez in the league\n    return jonathan_legear_score == matias_suarez_score + 4\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "guillaume gillet score 3 time as much as each of the other 2 player in the uefa champion league tournament",
+    "predicted_response": 0,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Filter the row for \"guillaume gillet\"\n    guillaume_row = df[df['player'] == 'guillaume gillet']\n    \n    if guillaume_row.empty:\n        return False\n    \n    # Get the league count for Guillaume Gillet\n    guillaume_league_count = guillaume_row['league'].values[0]\n    \n    # Find players with exactly 1 title in the UEFA Champions League (League column)\n    other_players_uel = df[(df['player'] != 'guillaume gillet') & (df['league'] == 1)]\n    \n    if other_players_uel.empty:\n        return False\n    \n    # Check if Guillaume Gillet's league count is exactly three times that of each player in the filtered list\n    for _, row in other_players_uel.iterrows():\n        if guillaume_league_count != 3 * row['league']:\n            return False\n            \n    return True\n```\n\nThis code will correctly filter and validate the claim regarding Guillaume Gillet's league count compared to others with exactly one title in the UEFA Champions League.",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "4 player score 3 goal total , and all 4 be in league 5",
+    "predicted_response": 0,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Filter players with total score of 3\n    relevant_players = df[df['total'] == 3]\n    \n    # Check if all these players are in league 5\n    in_league_5 = relevant_players[relevant_players['league'] == 5]\n    \n    # Ensure there are exactly 4 such players and they are all in league 5\n    return len(relevant_players) == 4 and len(in_league_5) == 4\n\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "though 4 player from belgian first division a be in the top 19 scorer , the top scorer (matias suarez) have 8 fewer goal than mbark boussoufa , who have 11 goal",
+    "predicted_response": 0,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Filter players from the Belgian first division (league value 11)\n    belgian_players = df[df['league'] == 11]\n    \n    # Check if there are at least 4 Belgian players in the top 19 scorers\n    if len(belgian_players) < 4:\n        return False\n    \n    # Get total goals for mbark boussoufa and matias suarez\n    boussoufa_goals = df[df['player'] == 'mbark boussoufa']['total'].values[0]\n    suarez_goals = df[df['player'] == 'mat\\u00edas su\\u00e1rez']['total'].values[0]\n    \n    # Check the condition: matias suarez has 8 fewer goals than mbark boussoufa\n    if suarez_goals + 8 != boussoufa_goals:\n        return False\n    \n    return True\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "thomas chatelle score 4 more goal than mat\u00edas su\u00e1rez , the next highest rank player in the belgian first dvision a league who play in the belgian cup",
+    "predicted_response": 1,
+    "resp": "```python\ndef check_claim(df):\n    # Filter rows where 'total' is greater than 4 (next highest after Thomas Chatelle)\n    top_players = df[df['total'] > 4].sort_values(by='total', ascending=False)\n\n    # Check if Mat\u00edas Su\u00e1rez has a total of 3 goals\n    matias_total = df[df['player'] == 'mat\u00edas su\u00e1rez']['total'].values[0]\n    \n    # Check Thomas Chatelle's total is 4\n    thomas_total = df[df['player'] == 'thomas chatelle']['total'].values[0]\n\n    # Validate the claim: Thomas Chatelle scores 4 more goals than Mat\u00edas Su\u00e1rez\n    return matias_total == 3 and thomas_total == 4\n\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "of the 4 player who play in the belgian cup , lucas biglia score more goal than the other player combine",
+    "predicted_response": 0,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Filter rows where 'league' is 4 (indicating players who played in the Belgian cup)\n    belgian_cup_players = df[df['league'] == 4]\n    \n    # Extract total goals for these players\n    belgian_cup_total_goals = belgian_cup_players['total'].sum()\n    \n    # Get Lucas Biglia's total goals\n    lucas_biglia_goals = df.loc[df['player'] == 'lucas biglia', 'total'].values[0]\n    \n    # Check if Lucas Biglia's goals are more than the combined goals of other players in the Belgian cup\n    return lucas_biglia_goals > belgian_cup_total_goals - lucas_biglia_goals\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "jelle van damme score 3 time as much as each of the other 2 player in the uefa champion league tournament",
+    "predicted_response": 1,
+    "resp": "```python\ndef check_claim(df):\n    # Filter rows where 'player' is 'jelle van damme'\n    jelle_van_damme_row = df[df['player'] == 'jelle van damme']\n    \n    if jelle_van_damme_row.empty:\n        return False\n    \n    # Get the 'league' value for Jelle Van Damme\n    jelle_league_count = jelle_van_damme_row['league'].values[0]\n    \n    # Check if Jelle Van Damme's league count is 3 times that of any other player\n    for _, row in df.iterrows():\n        if row['player'] != 'jelle van damme':\n            other_player_league_count = row['league']\n            if jelle_league_count == 3 * other_player_league_count:\n                return True\n    \n    return False\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-17200019-10.html.csv",
+    "claim": "though 4 player from belgian first division a be in the top 19 scorer , the top scorer (matias suarez) have 5 fewer goal than bart goor , who have 11 goal",
+    "predicted_response": 0,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Filter players from Belgian first division (league == 11)\n    belgian_players = df[df['league'] == 11]\n    \n    # Get the top scorer's total goals\n    top_scorer_goals = belgian_players['total'].max()\n    \n    # Get Bart Goor's total goals\n    bart_goor_total_goals = df[df['player'] == 'bart goor']['total'].values[0]\n    \n    # Check if the claim is true: \"top scorer (matias suarez) have 5 fewer goal than bart goor, who have 11 goal\"\n    return top_scorer_goals == bart_goor_total_goals - 5 and bart_goor_total_goals == 11\n```\n\n```python",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "rafael m\u00e1rquez score 3 goal in his career at international friendly competition",
+    "predicted_response": 0,
+    "resp": "```python\ndef check_claim(df):\n    # Filter rows where the competition is 'friendly'\n    friendly_matches = df[df['competition'] == 'friendly']\n    \n    # Extract goals scored by Rafael Marquez in these matches\n    # Score format is \"Rafael's Goals - Opponent's Goals\"\n    friendly_goals = friendly_matches['score'].apply(lambda x: int(x.split(' - ')[0]))\n    \n    # Sum the goals to get total number of goals in friendly matches\n    total_friendly_goals = friendly_goals.sum()\n    \n    # Check if Rafael Marquez scored 3 goals in international friendly competitions\n    return total_friendly_goals == 3\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "mexico only lose 1 time in international competition when rafael m\u00e1rquez score a goal",
+    "predicted_response": 1,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Filter the dataframe for rows where Rafael M\u00e1rquez scored a goal (goal column is 1)\n    rafael_maresz_scored = df[df['goal'] == 1]\n    \n    # Check if there's exactly one instance of Mexico losing when Rafael M\u00e1rquez scored\n    losses_when_rafael_scored = rafael_maresz_scored[\n        rafael_maresz_scored['result'].apply(lambda x: int(x.split(' - ')[0]) > int(x.split(' - ')[1]))\n    ]\n    \n    # Return True if there is exactly one loss, False otherwise\n    return len(losses_when_rafael_scored) == 1\n```\n\nThis function filters the DataFrame to identify instances where Rafael M\u00e1rquez scored a goal and checks if Mexico lost in any of those matches. It returns `True` if there's exactly one such instance, confirming the claim that \"Mexico only loses 1 time in international competition when Rafael M\u00e1rquez scores a goal.\"",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "rafael m\u00e1rquez score fewer than 3 goal in his career at international friendly competition",
+    "predicted_response": 0,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Filter rows where the competition is 'friendly'\n    friendly_matches = df[df['competition'] == 'friendly']\n    \n    # Extract goals scored in each match for these friendly matches\n    friendly_goals_scored = [int(score.split('-')[0]) for score in friendly_matches['score']]\n    \n    # Calculate total number of goals scored by Rafael M\u00e1rquez in friendly competitions\n    total_friendly_goals = sum(friendly_goals_scored)\n    \n    # Check if the total is fewer than 3\n    return total_friendly_goals < 3\n\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "rafael m\u00e1rquez score a goal at the 2006 , but remain scoreless during the 2010 fifa world cup",
+    "predicted_response": 0,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Filter rows for 2006 FIFA World Cup and 2010 FIFA World Cup\n    df_2006 = df[df['competition'] == '2006 fifa world cup']\n    df_2010 = df[df['competition'] == '2010 fifa world cup']\n\n    # Check if Rafael M\u00e1rquez scored in the 2006 FIFA World Cup\n    scored_in_2006 = any(df_2006['score'].str.contains('1 -'))\n    \n    # Check if Rafael M\u00e1rquez remained scoreless in the 2010 FIFA World Cup\n    scoreless_in_2010 = not any(df_2010['score'].str.contains('1 -'))\n\n    # Return True only if both conditions are met\n    return scored_in_2006 and scoreless_in_2010\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "2000 be 1 of 2 year rafael m\u00e1rquez score more than 1 goal in international competition",
+    "predicted_response": 0,
+    "resp": "```python\ndef check_claim(df):\n    # Filter the data for years 2000 and Rafael Marquez's international competition goals\n    relevant_years = [\"13 february 2000\", \"3 september 2000\"]  # Based on given data\n    \n    # Extract rows corresponding to the relevant years\n    filtered_df = df[df['date'].isin(relevant_years)]\n    \n    # Calculate the number of goals scored by Rafael M\u00e1rquez in these matches\n    def extract_goals(score):\n        return int(score.split('-')[0])  # Assuming \"1 - 0\" means 1 goal for us\n    \n    filtered_df['goals_scored'] = filtered_df['score'].apply(extract_goals)\n    \n    # Check if he scored more than 1 goal in any of the matches\n    goals_count = (filtered_df['goals_scored'] > 1).sum()\n    \n    # Return True if more than one match has goals greater than 1, else False\n    return goals_count >= 2\n\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1127788-3.html.csv",
+    "claim": "mexico lose 1 of 2 time in international competition when rafael m\u00e1rquez score a goal",
+    "predicted_response": 0,
+    "resp": "```python\nimport pandas as pd\n\ndef check_claim(df):\n    # Filter rows where Rafael Marquez scored a goal (assuming his name is not explicitly mentioned)\n    # We assume that if 'score' column has a non-zero score for the team, it means he scored.\n    # Since we don't have explicit player data, we infer from the 'score' column\n    rafael_marquez_goals = df[df['score'] != '0 - 0']\n    \n    # Count total matches where Rafael Marquez scored\n    total_matches_with_goal = len(rafael_marquez_goals)\n    \n    if total_matches_with_goal == 0:\n        return False\n    \n    # Filter rows that are international competitions (assuming all competitions listed are international)\n    international_competitions = df[df['competition'] != 'friendly']\n    \n    # Count matches where Rafael Marquez scored in international competitions\n    marquez_international_goals = rafael_marquez_goals[rafael_marquez_goals.index.isin(international_competitions.index)]\n    \n    # Count losses in these matches\n    losses_in_international_matches = len(marquez_international_goals[marquez_international_goals['result'].str.contains(' - ') & \n                                                                    marquez_international_goals['score'] != marquez_international_goals['result']])\n    \n    if total_matches_with_goal == 2:\n        # Check if exactly 1 loss occurred in international matches\n        return losses_in_international_matches == 1\n    else:\n        # If the number of matches is not 2, the claim cannot be verified as stated\n        return False\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  }
+]

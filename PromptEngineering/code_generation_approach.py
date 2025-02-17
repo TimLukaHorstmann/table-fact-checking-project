@@ -18,9 +18,12 @@ from datetime import datetime
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from typing import Optional, Dict, Any, List
 import time
+import sqlite3
+from io import StringIO
+import pandas as pd
 
 
-from factchecker_base import BaseFactChecker, test_model_on_claims, test_model_on_claims_parallel, calculate_and_plot_metrics, load_json_file, format_table_to_json
+from factchecker_base2 import BaseFactChecker, test_model_on_claims, test_model_on_claims_parallel, calculate_and_plot_metrics, load_json_file, format_table_to_json
 from langchain_ollama import OllamaLLM
 
 
@@ -34,6 +37,9 @@ class CodeGenerationFactChecker(BaseFactChecker):
       - Specifying clear instructions on how the generated code should process the table.
       - Including an example of acceptable code output.
     """
+    def __init__(self, *args, code_type="python", **kwargs):
+        super().__init__(*args, **kwargs)
+        self.code_type = code_type
 
     def generate_prompt(self, table_id: str, claim: str) -> Optional[str]:
         # logging.info("Code generation approach stub: Implement code-generation instructions here.")
@@ -46,37 +52,55 @@ class CodeGenerationFactChecker(BaseFactChecker):
         #     "{df_table}.head(5).to_string(index=False)" as follows:
         #     {df_table.head(5).to_string(index=False)}
         # */
-        prompt = f"""
-        You are an AI assistant that writes Python code to check factual claims against tabular data.
-        Given a json_table and a claim, generate a Python function 'check_claim(df)' using pandas that:
-          - Assumes table is a pandas dataframe called df, corresponding to the json_table.
-          - Filters rows of df that are relevant to the claim (look carefully at the column names).
-          - Computes necessary statistics or extracts relevant values.
-          - Returns a boolean indicating if the claim is supported by the table data.
+        if self.code_type == "python":
+            prompt = f"""
+            You are an AI assistant that writes Python code to check factual claims against tabular data.
+            Given a json_table and a claim, generate a Python function 'check_claim(df)' using pandas that:
+            - Assumes table is a pandas dataframe called df, corresponding to the json_table.
+            - Filters rows of df that are relevant to the claim (look carefully at the column names).
+            - Computes necessary statistics or extracts relevant values.
+            - Returns a boolean indicating if the claim is supported by the table data.
 
-        Here is the json_table:
-        /*
-            {json_table}
-        */
-        Claim on table: {claim}
+            Here is the json_table:
+            /*
+                {json_table}
+            */
+            Claim on table: {claim}
 
-        For additional context, here are the data types of each column in the table:
-        /*
-            {column_types}
-        */
+            For additional context, here are the data types of each column in the table:
+            /*
+                {column_types}
+            */
 
-        
+            
 
-        Format of what you should ouput:
-        ```python
-        def check_claim(df):
-            # Implement filtering logic
-            # Implement claim validation logic
-            return True or False  # Based on 
-        ```
-        Ensure strict type consistency when processing data. Pay close attention to whether values are strings, integers, booleans, or other types to prevent type-related errors.
-        Output only Python code, encapsulated in ```python [code] ```, no explanations, no example usage..
-        """
+            Format of what you should ouput:
+            ```python
+            def check_claim(df):
+                # Implement filtering logic
+                # Implement claim validation logic
+                return True or False  # Based on 
+            ```
+            Ensure strict type consistency when processing data. Pay close attention to whether values are strings, integers, booleans, or other types to prevent type-related errors.
+            Output only Python code, encapsulated in ```python [code] ```, no explanations, no example usage..
+            """
+        elif self.code_type == "sql":
+            prompt = f"""
+                You are an AI assistant that writes SQL queries to check factual claims against tabular data.
+                Generate a SQL query that:
+                - Operates on a table named 'data' with columns: {list(df_table.columns)}
+                - Returns 1 if claim is supported, 0 otherwise
+                - Uses SQLite syntax
+
+                Here is the table in json format:
+                /*
+                    {json_table}
+                */
+                Data types: {column_types}
+                Claim on table: {claim}
+
+                Output only SQL code, encapsulated in ```sql [code] ```, no explanations.
+                """
         # print(f"claim is -------------- {claim}")
         return prompt
 
@@ -85,33 +109,71 @@ class CodeGenerationFactChecker(BaseFactChecker):
         ***Method OVERRIDEN from the BaseFactChecker class***
         Parse the LLM response to extract the JSON output.
         """
-        # print(f"llm answer: {raw_response} \n ------------------------------")
-
-        extracted_code = re.findall(r"```python(.*?)```", raw_response, re.DOTALL)
-        if not extracted_code:
-            logging.error("No code found in llm answer, for")
-            is_supported = False  # No code block found
-        else:
-            code = "import pandas as pd\n" + extracted_code[-1].strip()
-
         df = self.load_table(table_id)
-        try:
-            exec_locals = {"df": df}
-            exec(code, {}, exec_locals)
-            check_function = exec_locals.get("check_claim")
-            if check_function and callable(check_function):
-                is_supported = check_function(df)
+        if self.code_type == "python":
+            extracted_code = re.findall(r"```python(.*?)```", raw_response, re.DOTALL)
+            if not extracted_code:
+                logging.error("No code found in llm answer, for")
+                is_supported = False  # No code block found
             else:
-                logging.error("Generated code does not contain a valid check_claim function.")
-                is_supported = False
-            answer = "TRUE" if is_supported else "FALSE"
-            relevant_cells = []
+                code = "import pandas as pd\n" + extracted_code[-1].strip()
+            try:
+                exec_locals = {"df": df}
+                exec(code, {}, exec_locals)
+                check_function = exec_locals.get("check_claim")
+                if check_function and callable(check_function):
+                    is_supported = check_function(df)
+                else:
+                    logging.error("Generated code does not contain a valid check_claim function.")
+                    is_supported = False
+                answer = "TRUE" if is_supported else "FALSE"
+                relevant_cells = []
 
-        except Exception as e:
-            logging.warning(f"Error processing claim with generated code: {e}, \n table and claim was {self.load_table(table_id) + claim} \nllm code was {code} ")
-            answer = "FALSE"
-            relevant_cells = []
-        return {"answer": answer, "relevant_cells": relevant_cells}
+            except Exception as e:
+                logging.warning(f"Error processing claim with generated code: {e}, \n table and claim was {self.load_table(table_id) + claim} \nllm code was {code} ")
+                answer = "FALSE"
+                relevant_cells = []
+            return {"answer": answer, "relevant_cells": relevant_cells}
+        
+        elif self.code_type == "sql":
+            extracted_sql = re.findall(r"```sql\n?(.*?)\n?```", raw_response, re.DOTALL)
+            
+            # Fallback: look for bare SQL without code blocks
+            if not extracted_sql:
+                extracted_sql = re.findall(r"(SELECT .*?;)", raw_response, re.DOTALL | re.IGNORECASE)
+
+            if not extracted_sql:
+                logging.error("No SQL found in response")
+                return {"answer": "FALSE", "relevant_cells": []}
+
+            # Clean up the SQL query
+            sql_query = extracted_sql[-1].strip()
+            sql_query = re.sub(r'[\n\r]+', ' ', sql_query)
+            sql_query = re.sub(r'\s+', ' ', sql_query)
+            
+            conn = sqlite3.connect(":memory:")
+            df.to_sql('data', conn, index=False)
+            
+            # Validate SQL against table schema
+            cursor = conn.cursor()
+            try:
+                cursor.execute("EXPLAIN " + sql_query)
+            except sqlite3.Error as e:
+                logging.error(f"Invalid SQL query: {e}\nQuery: {sql_query}")
+                return {"answer": "FALSE", "relevant_cells": []}
+            
+            # Execute valid query
+            result = pd.read_sql_query(sql_query, conn)
+            conn.close()
+            
+            # Handle results
+            if not result.empty:
+                # Look for any truthy value in first column
+                is_supported = any(bool(x) for x in result.iloc[:, 0])
+            else:
+                is_supported = False
+            
+            return {"answer": "TRUE" if is_supported else "FALSE", "relevant_cells": []}
 
     def process_claim(self, table_id: str, claim: str, true_label: int) -> Dict[str, Any]:
         """
@@ -120,7 +182,6 @@ class CodeGenerationFactChecker(BaseFactChecker):
         and return a result dictionary.
         """
         prompt = self.generate_prompt(table_id, claim)
-
         if prompt is None:
             logging.warning(f"Prompt generation failed for table {table_id}, claim: {claim}")
             return {
@@ -168,6 +229,7 @@ def run_pipeline_for_model(model_name: str, dataset: str, learning_type: str, fo
         all_csv_folder=csv_folder,
         learning_type=learning_type,
         format_type=format_type,
+        code_type=args.code_type,
         model=model
     )
     
@@ -182,18 +244,21 @@ def run_pipeline_for_model(model_name: str, dataset: str, learning_type: str, fo
             approach="code_generation",
             test_all=args.test_all,
             N=args.N,
-            max_workers=args.max_workers
+            max_workers=args.max_workers,
+            code_type=getattr(args, 'code_type', 'python')
+
         )
     else:
         results = test_model_on_claims(
             fact_checker=fact_checker,
             full_cleaned_data=dataset_data,
-            test_all=False,
+            test_all=args.test_all,
+            code_type=args.code_type,
             N=args.N,
             checkpoint_file=None
         )
     
-    combo_str = f"{os.path.basename(dataset).replace('.json','')}_{learning_type}_{format_type}_{model_name}"
+    combo_str = f"{os.path.basename(dataset).replace('.json','')}_{fact_checker.code_type}_{learning_type}_{format_type}_{model_name}"
     results_folder = f"results_{datetime.now().strftime('%Y%m%d')}"
     os.makedirs(results_folder, exist_ok=True)
     results_file = os.path.join(results_folder, f"results_CodeGeneration_{combo_str}.json")
@@ -250,6 +315,8 @@ def main():
     parser.add_argument("--max_workers", type=int, default=4, help="Number of worker processes for parallel claims")
     parser.add_argument("--test_all", type=bool, default=False, help="Wether to test all of the claims of the file or not")
     parser.add_argument("--N", type=int, default=5, help="Number of tables to test")
+    parser.add_argument("--code_type", type=str, choices=["python", "sql"], default="python", help="Type of code to generate (python|sql)")
+    
     args = parser.parse_args()
     
     dataset_list = [d.strip() for d in args.dataset.split(",")]
