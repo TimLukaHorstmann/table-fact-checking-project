@@ -407,7 +407,7 @@ def process_claim_worker(
     all_csv_folder: str,
     learning_type: str,
     format_type: str,
-    approach: str,
+    approach: str
 ) -> Dict[str, Any]:
     """
     Worker function for parallel processing.
@@ -443,7 +443,7 @@ def test_model_on_claims_parallel(
     test_all: bool = False,
     N: int = 10,
     max_workers: int = 4,
-    checkpoint_folder: Optional[str] = None,
+    checkpoint_folder: Optional[str] = None
 ) -> List[Dict[str, Any]]:
     """
     Process tables in parallel. For each table, if a checkpoint file already exists,

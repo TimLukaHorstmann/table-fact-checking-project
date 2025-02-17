@@ -1,0 +1,82 @@
+[
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema make it to the top 10 in the pga championship , but do not continue on",
+    "predicted_response": 1,
+    "resp": "```sql\nSELECT CASE \n         WHEN EXISTS (\n           SELECT 1 FROM data \n           WHERE tournament = 'pga championship' AND `top - 10` >= 1 AND `cuts made` < `events`\n         ) THEN 1 \n         ELSE 0 \n       END;\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tournament that tony lema have participate in include the master tournament , the us open , the pga championship and the open championship",
+    "predicted_response": 0,
+    "resp": "```sql\nSELECT \n    CASE \n        WHEN EXISTS (\n            SELECT 1 FROM data \n            WHERE tournament IN ('masters tournament', 'us open', 'pga championship', 'the open championship') \n            AND tournament = 'totals'\n        ) THEN 1\n        ELSE 0\n    END;\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema be in the top 5 for the master tournament , the us open , and the open championship",
+    "predicted_response": 0,
+    "resp": "```sql\nSELECT \n    CASE \n        WHEN EXISTS (\n            SELECT 1 FROM data \n            WHERE tournament IN ('masters tournament', 'us open', 'the open championship') \n            AND `top - 5` > 0 \n            GROUP BY tournament \n            HAVING COUNT(*) = 3\n        ) THEN 1 \n        ELSE 0 \n    END;\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema be in the top 5 for the pga championship , the us open , and the open championship",
+    "predicted_response": 0,
+    "resp": "```sql\nSELECT \n    CASE \n        WHEN (\n            SELECT COUNT(*) FROM data \n            WHERE 'pga championship' = tournament AND `top - 5` >= 1 \n            UNION ALL \n            SELECT COUNT(*) FROM data \n            WHERE 'us open' = tournament AND `top - 5` >= 1 \n            UNION ALL \n            SELECT COUNT(*) FROM data \n            WHERE 'the open championship' = tournament AND `top - 5` >= 1\n        ) = 3 THEN 1\n        ELSE 0 \n    END;\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "the only tournament that tony lema win in be the open championship",
+    "predicted_response": 0,
+    "resp": "```sql\nSELECT CASE \n         WHEN EXISTS (\n           SELECT 1 \n           FROM data \n           WHERE tournament = 'the open championship' AND wins > 0\n         ) AND NOT EXISTS (\n           SELECT 1 \n           FROM data \n           WHERE tournament != 'the open championship' AND wins > 0\n         )\n         THEN 1 \n         ELSE 0 \n       END;\n```",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tournament that tony lema have not participate in include the master tournament , the us open , the pga championship and the open championship",
+    "predicted_response": 0,
+    "resp": "```sql\nSELECT \n    CASE WHEN COUNT(*) = (SELECT COUNT(*) FROM data WHERE tournament <> 'totals') THEN 1 ELSE 0 END AS claim_check\nFROM \n    data\nWHERE \n    tournament IN ('masters tournament', 'us open', 'the open championship', 'pga championship')\nGROUP BY \n    tournament;\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tournament that tony lema won in be pga championship",
+    "predicted_response": 0,
+    "resp": "```sql\nSELECT CASE \n         WHEN EXISTS (\n           SELECT 1 \n           FROM data \n           WHERE \"tournament\" = 'pga championship' AND \"wins\" > 0\n         ) THEN 1 \n         ELSE 0 \n       END;\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema do not win in the pga championship",
+    "predicted_response": 1,
+    "resp": "```sql\nSELECT CASE \n         WHEN EXISTS (\n           SELECT 1 \n           FROM data \n           WHERE tournament = 'pga championship' AND wins = 0\n         ) THEN 1 \n         ELSE 0 \n       END;\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema do not win in the us open",
+    "predicted_response": 1,
+    "resp": "```sql\nSELECT CASE \n    WHEN EXISTS (\n        SELECT 1 FROM data \n        WHERE tournament = 'us open' AND wins > 0\n    ) THEN 0 \n    ELSE 1 \nEND;\n```\n\nThis SQL query checks the \"data\" table for any record where `tournament` is 'us open' and `wins` is greater than 0. If such a record exists, it indicates that Tony Lema won at least once in the US Open, so the claim would be false (returns 0). Otherwise, if no records meet this condition, the query returns 1, indicating the claim \"Tony Lema do not win in the us open\" is supported.",
+    "true_response": 1,
+    "relevant_cells": []
+  },
+  {
+    "table_id": "2-1570274-4.html.csv",
+    "claim": "tony lema make it to the top 10 in the us open , but do not continue on",
+    "predicted_response": 0,
+    "resp": "```sql\nSELECT \n    CASE \n        WHEN EXISTS (\n            SELECT 1 \n            FROM data \n            WHERE tournament = 'us open' AND `top - 10` > 0 AND `cuts made` < `top - 10`\n        ) THEN 1 \n        ELSE 0 \n    END;\n```",
+    "true_response": 0,
+    "relevant_cells": []
+  }
+]
