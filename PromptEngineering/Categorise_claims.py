@@ -337,7 +337,6 @@ The model must verify if the stated conditions correctly lead to the expected re
 
 ###################      OUR CATEGORIES BIS      #############################################################################
 
-
 def unclear_or_noisy_language_prompt_generation(claim: str) -> str:
     category_explanation = """
 Unclear or Noisy Language:  
@@ -374,7 +373,6 @@ Examples:
     """
     return template_generation(category_explanation, claim, 'multistep_logic')
 
-
 def negation_prompt_generation(claim: str) -> str:
     category_explanation = """
 Negation:
@@ -386,7 +384,6 @@ Examples:
 3. "neither team score for only the first game of the world cup in france" – explicitly denies scoring.
     """
     return template_generation(category_explanation, claim, 'negation')
-
 
 ###################      ONE CATEGORY PER CLAIM APPROACH      ############################################################
 
