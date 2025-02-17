@@ -1425,34 +1425,43 @@ function extractJsonFromResponse(rawResponse) {
   let jsonText = rawResponse.trim();
   const fencePattern = /```json\s*([\s\S]*?)\s*```/i;
   const fenceMatch = jsonText.match(fencePattern);
+
   if (fenceMatch) {
     jsonText = fenceMatch[1].trim();
+  } else {
+    // Fallback: Extract substring between braces if no JSON code fence found.
+    const braceMatch = jsonText.match(/{.*}/s);
+    if (braceMatch) {
+      jsonText = braceMatch[0];
+    } else {
+      jsonText = rawResponse.trim();
+    }
   }
-  jsonText = jsonText.replace(/'/g, '"');
-  jsonText = jsonText.replace(/(\{|,)\s*([\w\d_]+)\s*:/g, '$1 "$2":');
-  jsonText = jsonText.replace(/:\s*(TRUE|FALSE)([\s,\}])/gi, ': "$1"$2');
-  let parsed;
+
+  // Clean up common JSON issues such as trailing commas.
+  jsonText = jsonText.replace(/,\s*([\]}])/g, '$1');
+
   try {
-    parsed = JSON.parse(jsonText);
+    // Try to parse JSON and check for specific keys.
+    const parsed = JSON.parse(jsonText);
+    // Ensure the expected keys exist.
+    if (!parsed.answer || !parsed.relevant_cells) {
+      throw new Error("Missing 'answer' or 'relevant_cells' key");
+    }
+
+    return parsed;
   } catch (err) {
-    console.warn("[extractJsonFromResponse] Could not parse JSON:", err);
-    console.log("Attempted JSON Text:", jsonText);
-    return {};
+    console.warn("JSON parsing error:", err);
+    // Fallback: check if the raw response mentions "true" or "false" directly
+    const lowerResponse = rawResponse.toLowerCase();
+    if (lowerResponse.includes("true")) {
+      return { answer: "TRUE", relevant_cells: [] };
+    } else if (lowerResponse.includes("false")) {
+      return { answer: "FALSE", relevant_cells: [] };
+    } else {
+      return { answer: "FALSE", relevant_cells: [] }; // Default fallback
+    }
   }
-  if (Array.isArray(parsed.relevant_cells)) {
-    parsed.relevant_cells = parsed.relevant_cells.map(cell => {
-      if (Array.isArray(cell) && cell.length === 2) {
-        return {
-          row_index: Number(cell[0]),
-          column_name: String(cell[1])
-        };
-      } else if (typeof cell === "object" && cell.row_index !== undefined && cell.column_name) {
-        return cell;
-      }
-      return null;
-    }).filter(Boolean);
-  }
-  return parsed;
 }
 
 function separateThinkFromResponse(rawText) {

@@ -1,25 +1,37 @@
-#!/usr/bin/env python3
-"""
-generate_results_from_checkpoints.py
-
-This script scans the checkpoints folder (which is assumed to have subfolders for each
-configuration, named as:
-    {dataset_basename}_{learning_type}_{format_type}_{model_name}
-It combines all the JSON checkpoint files (each representing one table) from each configuration
-into a single result file and writes that file to the docs/results folder using the filename format:
-    results_with_cells_{model_name}_{dataset_basename}_{N}_{learning_type}_{format_type}.json
-where N is the number of tables (i.e. checkpoint files) in that configuration.
-
-It then creates a manifest file listing all result files.
-"""
-
 import os
 import json
 import logging
 from datetime import datetime
+from tqdm import tqdm
 
 # Configure logging for this script.
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+# Path to the simple and complex tables IDs
+SIMPLE_IDS_FILE = "../original_repo/data/simple_ids.json"
+COMPLEX_IDS_FILE = "../original_repo/data/complex_ids.json"
+
+def load_table_ids():
+    """
+    Load the table IDs from simple_ids.json and complex_ids.json.
+    Returns a dictionary of table IDs classified as simple or complex.
+    """
+    simple_ids = set()
+    complex_ids = set()
+    
+    try:
+        with open(SIMPLE_IDS_FILE, "r") as f:
+            simple_ids = set(json.load(f))
+    except Exception as e:
+        logging.error(f"Error reading {SIMPLE_IDS_FILE}: {e}")
+    
+    try:
+        with open(COMPLEX_IDS_FILE, "r") as f:
+            complex_ids = set(json.load(f))
+    except Exception as e:
+        logging.error(f"Error reading {COMPLEX_IDS_FILE}: {e}")
+    
+    return simple_ids, complex_ids
 
 def generate_results_from_checkpoints(
     checkpoints_root: str = "checkpoints_promptEngineering",
@@ -37,8 +49,11 @@ def generate_results_from_checkpoints(
     os.makedirs(docs_results_folder, exist_ok=True)
     result_files = []  # List of result file names (with the "results/" prefix)
 
+    # Load simple and complex table IDs
+    simple_ids, complex_ids = load_table_ids()
+
     # Iterate over each configuration folder in checkpoints_root.
-    for config_name in os.listdir(checkpoints_root):
+    for config_name in tqdm(os.listdir(checkpoints_root)):
         config_path = os.path.join(checkpoints_root, config_name)
         if not os.path.isdir(config_path):
             continue
@@ -56,6 +71,17 @@ def generate_results_from_checkpoints(
             try:
                 with open(file_path, "r") as f:
                     table_results = json.load(f)
+                
+                # Check if the table is simple or complex and add this info to each table's result
+                for result in table_results:
+                    table_id = result.get("table_id")  # Assuming the table ID is stored in the "table_id" key
+                    if table_id in simple_ids:
+                        result["table_type"] = "simple"
+                    elif table_id in complex_ids:
+                        result["table_type"] = "complex"
+                    else:
+                        result["table_type"] = "unknown"  # Default case, if not found
+
                 combined_results.extend(table_results)
             except Exception as e:
                 logging.error(f"Error reading {file_path}: {e}")
@@ -63,37 +89,26 @@ def generate_results_from_checkpoints(
 
         # Our config_name is expected to be in the format:
         #    {dataset_basename}_{learning_type}_{format_type}_{model_name}
-        # we must note, however, that the individual elements can contain underscores!
         parts = config_name.split("_")
 
         dataset_basename = parts[0] + "_" + parts[1]  # We combine the first two parts
         model_name = parts[-1]
         format_type = parts[-2]
 
-        # rest of the parts are learning_type and depending on the number of parts, we can determine the learning_type
         learning_type = "_".join(parts[2:-2])
 
-        print(f"dataset_basename: {dataset_basename}")
-        print(f"model_name: {model_name}")
-        print(f"learning_type: {learning_type}")
-        print(f"format_type: {format_type}")
-
-
         # Ensure that the dataset_basename is one of the expected ones (e.g., test_examples or val_examples).
-        # If not, you might want to adjust or skip.
         if dataset_basename not in ["test_examples", "val_examples"]:
             logging.warning(f"Dataset basename '{dataset_basename}' not recognized (expected 'test_examples' or 'val_examples'). Skipping {config_name}.")
             continue
 
         # Create the result file name as expected by the website:
-        # results_with_cells_{model_name}_{dataset_basename}_{N}_{learning_type}_{format_type}.json
         result_filename = f"results_with_cells_{model_name}_{dataset_basename}_{N}_{learning_type}_{format_type}.json"
         result_filepath = os.path.join(docs_results_folder, result_filename)
         try:
             with open(result_filepath, "w") as f:
                 json.dump(combined_results, f, indent=2)
             logging.info(f"Written combined results for config '{config_name}' ({N} tables) to {result_filepath}")
-            # The manifest expects file paths starting with "results/"
             result_files.append(f"results/{result_filename}")
         except Exception as e:
             logging.error(f"Error writing {result_filepath}: {e}")
