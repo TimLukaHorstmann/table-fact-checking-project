@@ -1,25 +1,29 @@
 import json
-import os
-import matplotlib.pyplot as plt
-import matplotlib
-import numpy as np
 
-docs_results = "docs/results/results_with_cells_llama3.2:latest_test_examples_1695_zero_shot_html.json"
+# Load the JSON data from the files
 
-def load_predictions(file_path):
-    """
-    Load a JSON file containing a list of dictionaries into a Python list of dictionaries.
-    
-    """
-    try:
-        with open(file_path, "r") as json_file:
-            data = json.load(json_file)
-        return data
-    except Exception as e:
-        print(f"Error loading JSON file from {file_path}: {e}")
-        return []
-    
-claims = load_predictions(docs_results)
-for claim in claims:
-    print(claim['claim'])
-    print()
+with open('PromptEngineering/Error_Analysis/our_category_claims_mistral.json', 'r') as file_mistral:
+    mistral_data = json.load(file_mistral)
+
+with open('PromptEngineering/Error_Analysis/our_category_claims_bis_mistral.json', 'r') as file_bis_mistral:
+    bis_mistral_data = json.load(file_bis_mistral)
+
+# Calculate the lengths of both lists
+len_mistral = len(mistral_data)
+len_bis_mistral = len(bis_mistral_data)
+
+# Print the lengths
+print(f"Length of our_category_claims_mistral.json: {len_mistral}")
+print(f"Length of our_category_claims_bis_mistral.json: {len_bis_mistral}")
+
+# Extract the 'claim' values from both lists
+mistral_claims = {item['claim'] for item in mistral_data}
+bis_mistral_claims = {item['claim'] for item in bis_mistral_data}
+
+# Find the missing claims from 'bis_mistral' that are in 'mistral'
+missing_claims = mistral_claims - bis_mistral_claims
+
+# Print the missing claims
+print(f"Missing claims in our_category_claims_bis_mistral.json:")
+for claim in missing_claims:
+    print(claim)
