@@ -90,6 +90,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     setupTabSwitching();
     setupLiveCheckEvents();
 
+    // File upload functionality for CSV files
+    const fileUpload = document.getElementById("fileUpload");
+    if (fileUpload) {
+      fileUpload.addEventListener("change", function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const fileContent = e.target.result;
+            // Set the file content into the inputTable textarea
+            const inputTableEl = document.getElementById("inputTable");
+            inputTableEl.value = fileContent;
+            // Render live preview using the updated CSV parsing function
+            renderLivePreviewTable(fileContent, []);
+            validateLiveCheckInputs();
+          };
+          reader.readAsText(file);
+        }
+      });
+    }
+
     // Set up the performance metrics toggle
     const toggleMetricsEl = document.getElementById("performanceMetricsToggle");
     const toggleArrow = document.getElementById("toggleArrow");
@@ -1401,7 +1422,9 @@ function displayLiveResults(csvText, claim, answer, relevantCells) {
 function csvToMarkdown(csvStr) {
   const lines = csvStr.trim().split(/\r?\n/);
   if (!lines.length) return "";
-  const tableData = lines.map(line => line.split("#"));
+  // Auto-detect delimiter: if a line contains '#' then use '#' otherwise use ','
+  const delimiter = lines[0].indexOf("#") !== -1 ? "#" : ",";
+  const tableData = lines.map(line => line.split(delimiter).map(cell => cell.trim()));
   if (!tableData.length) return "";
   const headers = tableData[0];
   const rows = tableData.slice(1);
@@ -1416,8 +1439,9 @@ function csvToMarkdown(csvStr) {
 function csvToJson(csvStr) {
   const lines = csvStr.trim().split(/\r?\n/);
   if (!lines.length) return "{}";
-  const headers = lines[0].split("#");
-  const rows = lines.slice(1).map(line => line.split("#"));
+  const delimiter = lines[0].indexOf("#") !== -1 ? "#" : ",";
+  const headers = lines[0].split(delimiter).map(cell => cell.trim());
+  const rows = lines.slice(1).map(line => line.split(delimiter).map(cell => cell.trim()));
   return JSON.stringify({ columns: headers, data: rows }, null, 2);
 }
 
