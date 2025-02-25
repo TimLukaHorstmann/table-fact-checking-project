@@ -2,14 +2,14 @@
 // app.js
 //
 
-// CONSTANTS for paths (adjust these as needed)
+// CONSTANTS for paths
 const CSV_BASE_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/data/all_csv/";
 const TABLE_TO_PAGE_JSON_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/data/table_to_page.json";
 const TOTAL_EXAMPLES_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/tokenized_data/total_examples.json";
 const R1_TRAINING_ALL_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/collected_data/r1_training_all.json";
 const R2_TRAINING_ALL_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/collected_data/r2_training_all.json";
 const FULL_CLEANED_PATH = "https://raw.githubusercontent.com/wenhuchen/Table-Fact-Checking/refs/heads/master/tokenized_data/full_cleaned.json";
-const MANIFEST_JSON_PATH = "results/manifest.json"; // Updated path
+const MANIFEST_JSON_PATH = "results/manifest.json";
 
 // Global variables for precomputed results
 let allResults = [];               
@@ -42,7 +42,6 @@ const liveStreamOutputEl = document.getElementById("liveStreamOutput");
 
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    // Attempt to fetch the table-to-page mapping.
     try {
       tableToPageMap = await fetchTableToPage();
     } catch (e) {
@@ -50,7 +49,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       tableToPageMap = {};
     }
 
-    // Attempt to fetch and process the manifest and fetch the claims mapping.
     let manifest;
     try {
       manifest = await fetchManifest();
@@ -71,7 +69,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       const globalFormatTypes = Array.from(new Set(manifestOptions.map(o => o.formatType))).sort();
       
       populateAllDropdowns(); // Populate dropdowns with all possible values
-      populateAllDropdowns();
       ["modelSelect", "datasetSelect", "learningTypeSelect", "nValueSelect", "formatTypeSelect"].forEach(id => {
         document.getElementById(id).addEventListener("change", updateDropdownsAndDisableInvalidOptions);
       });
